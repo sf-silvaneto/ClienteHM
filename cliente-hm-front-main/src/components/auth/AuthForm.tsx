@@ -1,0 +1,172 @@
+import React, { useState } from 'react'; // Adicionar useState
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import Alert from '../ui/Alert';
+import { User, Mail, Lock, AlertTriangle, Key as KeyIcon, Eye, EyeOff } from 'lucide-react'; // Importar Eye e EyeOff
+
+// Regex para senha forte
+const strongPasswordValidation = new RegExp(
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{6,}$/
+);
+
+const loginSchema = z.object({
+  email: z.string().email('Email inválido'),
+  senha: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
+});
+
+const cadastroSchema = z.object({
+  nome: z.string().min(3, 'O nome deve ter pelo menos 3 caracteres.'),
+  email: z.string().email('Email inválido.')
+           .regex(/^[^\s@]+@hm\.com$/, 'O email deve ser do domínio @hm.com.'),
+  senha: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.')
+            .regex(strongPasswordValidation, 'Senha fraca. Use maiúscula, minúscula, número e símbolo.'),
+  confirmarSenha: z.string(),
+  palavraChave: z.string().min(4, 'A palavra-chave deve ter no mínimo 4 caracteres.'),
+}).refine((data) => data.senha === data.confirmarSenha, {
+  message: 'As senhas não coincidem.',
+  path: ['confirmarSenha'],
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type CadastroFormData = z.infer<typeof cadastroSchema>;
+
+interface AuthFormProps {
+  type: 'login' | 'cadastro';
+  onSubmit: (data: LoginFormData | CadastroFormData) => void;
+  isLoading?: boolean;
+  error?: string | null;
+  className?: string;
+}
+
+const AuthForm: React.FC<AuthFormProps> = ({
+  type,
+  onSubmit,
+  isLoading = false,
+  error,
+  className,
+}) => {
+  const isLogin = type === 'login';
+  const currentSchema = isLogin ? loginSchema : cadastroSchema;
+
+  // Estados para controlar a visibilidade dos campos
+  const [showSenha, setShowSenha] = useState(false);
+  const [showConfirmarSenha, setShowConfirmarSenha] = useState(false);
+  const [showPalavraChave, setShowPalavraChave] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData | CadastroFormData>({
+    resolver: zodResolver(currentSchema),
+  });
+
+  const getError = (fieldName: keyof CadastroFormData | keyof LoginFormData) => {
+    return errors[fieldName]?.message;
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className={className}>
+      {error && (
+        <Alert type="error" message={error} className="mb-4" />
+      )}
+
+      {/* Campo Nome Completo (Apenas para cadastro) */}
+      {!isLogin && (
+        <Input
+          label="Nome Completo"
+          placeholder="Digite seu nome completo"
+          leftAddon={<User className="h-5 w-5" />}
+          {...register('nome')}
+          error={getError('nome')}
+        />
+      )}
+
+      {/* Campo Email (Comum para Login e Cadastro) */}
+      <Input
+        label="Email"
+        type="email"
+        placeholder="Digite seu email"
+        leftAddon={<Mail className="h-5 w-5" />}
+        {...register('email')}
+        error={getError('email')}
+      />
+      
+      {/* Campo Senha */}
+      <Input
+        label="Senha"
+        type={showSenha ? "text" : "password"} // Tipo dinâmico
+        placeholder={isLogin ? "Digite sua senha" : "Crie uma senha"}
+        leftAddon={<Lock className="h-5 w-5" />}
+        rightAddon={ // Ícone para mostrar/ocultar
+          <button type="button" onClick={() => setShowSenha(!showSenha)} className="focus:outline-none p-1">
+            {showSenha ? <EyeOff className="h-5 w-5 text-neutral-500" /> : <Eye className="h-5 w-5 text-neutral-500" />}
+          </button>
+        }
+        helperText={!isLogin ? "Mín. 6 caracteres, com maiúscula, minúscula, número e símbolo." : undefined}
+        {...register('senha')}
+        error={getError('senha')}
+      />
+
+      {/* Campos Confirmar Senha e Palavra Chave (Apenas para cadastro) */}
+      {!isLogin && (
+        <>
+          <Input
+            label="Confirmar Senha"
+            type={showConfirmarSenha ? "text" : "password"} // Tipo dinâmico
+            placeholder="Confirme sua senha"
+            leftAddon={<Lock className="h-5 w-5" />}
+            rightAddon={ // Ícone para mostrar/ocultar
+              <button type="button" onClick={() => setShowConfirmarSenha(!showConfirmarSenha)} className="focus:outline-none p-1">
+                {showConfirmarSenha ? <EyeOff className="h-5 w-5 text-neutral-500" /> : <Eye className="h-5 w-5 text-neutral-500" />}
+              </button>
+            }
+            {...register('confirmarSenha')}
+            error={getError('confirmarSenha')}
+          />
+          <Input
+            label="Palavra Chave"
+            type={showPalavraChave ? "text" : "password"} // Tipo dinâmico
+            placeholder="Digite sua palavra-chave (mín. 4 caracteres)"
+            leftAddon={<KeyIcon className="h-5 w-5" />}
+            rightAddon={ // Ícone para mostrar/ocultar
+              <button type="button" onClick={() => setShowPalavraChave(!showPalavraChave)} className="focus:outline-none p-1">
+                {showPalavraChave ? <EyeOff className="h-5 w-5 text-neutral-500" /> : <Eye className="h-5 w-5 text-neutral-500" />}
+              </button>
+            }
+            {...register('palavraChave')}
+            error={getError('palavraChave')}
+          />
+        </>
+      )}
+
+      <div className="mt-6">
+        <Button type="submit" variant="primary" fullWidth isLoading={isLoading}>
+          {isLogin ? 'Entrar' : 'Cadastrar'}
+        </Button>
+      </div>
+
+      {isLogin && (
+        <div className="mt-4 text-center">
+          <a href="/recuperar-senha" className="text-sm text-primary-600 hover:text-primary-700">
+            Esqueceu sua senha?
+          </a>
+        </div>
+      )}
+
+      {!isLogin && (
+        <div className="mt-4 flex items-center justify-center text-sm">
+          <AlertTriangle className="h-4 w-4 text-warning-500 mr-2" />
+          <span className="text-neutral-600">
+            Protegemos seus dados conforme a LGPD
+          </span>
+        </div>
+      )}
+    </form>
+  );
+};
+
+export default AuthForm;
