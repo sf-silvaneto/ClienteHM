@@ -4,35 +4,42 @@ import com.clientehm.model.AdministradorLoginDTO;
 import com.clientehm.model.AdministradorRegistroDTO;
 import com.clientehm.model.RedefinirSenhaDTO;
 import com.clientehm.model.VerificarPalavraChaveDTO;
-import com.clientehm.service.AdministradorService; // Import para o serviço
+import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
+// import com.clientehm.model.UpdateProfileRequestDTO; // Removido pois o DTO e o endpoint que o usava foram removidos
+// import com.clientehm.model.UpdateKeywordRequestDTO; // Removido pois foi substituído
 
-// IMPORTS ATUALIZADOS para as exceções do pacote com.clientehm.exception
+import com.clientehm.service.AdministradorService;
+
 import com.clientehm.exception.AdminNotFoundException;
 import com.clientehm.exception.InvalidCredentialsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.exception.WeakPasswordException;
 
+import com.clientehm.entity.AdministradorEntity;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
-// O import java.util.stream.Collectors não está sendo usado neste arquivo, pode ser removido se desejar.
 
 @RestController
 @RequestMapping("/api/administradores")
-// Você ajustou o CORS para localhost:8080, o que é bom para desenvolvimento se seu frontend estiver em outra porta
-// ou se você precisar permitir acesso de scripts/ferramentas rodando nessa origem.
 public class AdministradorController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdministradorController.class);
 
     @Autowired
     private AdministradorService administradorService;
 
-    // Método utilitário para criar respostas (renomeado para inglês)
+    // Métodos utilitários createResponse, createSuccessResponse, createErrorResponse (sem alteração)
     private ResponseEntity<Map<String, Object>> createResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -51,75 +58,127 @@ public class AdministradorController {
         return createResponse(status, message, null);
     }
 
+    // Endpoints de Autenticação e Registro (sem alterações)
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AdministradorLoginDTO loginDTO) {
+        logger.info("CONTROLLER: Recebida requisição POST para /login com email: {}", loginDTO.getEmail());
         Map<String, Object> loginData = administradorService.login(loginDTO);
-        // Adiciona o código HTTP ao mapa retornado pelo serviço para a resposta final
         return createSuccessResponse(HttpStatus.OK, (String) loginData.remove("mensagem"), loginData);
     }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(@Valid @RequestBody AdministradorRegistroDTO registroDTO) {
+        logger.info("CONTROLLER: Recebida requisição POST para /registrar com email: {}", registroDTO.getEmail());
         administradorService.register(registroDTO);
         return createSuccessResponse(HttpStatus.CREATED, "Administrador registrado com sucesso", null);
     }
 
     @PostMapping("/verificar-palavra-chave")
     public ResponseEntity<?> verificarPalavraChave(@Valid @RequestBody VerificarPalavraChaveDTO verificarDTO) {
-        boolean isCorrect = administradorService.verifyKeyword(verificarDTO);
-        if (isCorrect) {
-            return createSuccessResponse(HttpStatus.OK, "Palavra-chave correta", null);
-        } else {
-            // Mude de HttpStatus.UNAUTHORIZED para HttpStatus.BAD_REQUEST
-            return createErrorResponse(HttpStatus.BAD_REQUEST, "Email ou palavra-chave incorretos.");
-        }
+        logger.info("CONTROLLER: Recebida requisição POST para /verificar-palavra-chave para o email: {}", verificarDTO.getEmail());
+        administradorService.verifyKeyword(verificarDTO);
+        return createSuccessResponse(HttpStatus.OK, "Palavra-chave correta.", null);
     }
 
     @PutMapping("/redefinir-senha")
     public ResponseEntity<?> redefinirSenha(@Valid @RequestBody RedefinirSenhaDTO redefinirDTO) {
+        logger.info("CONTROLLER: Recebida requisição PUT para /redefinir-senha para o email: {}", redefinirDTO.getEmail());
         administradorService.resetPassword(redefinirDTO);
-        return createSuccessResponse(HttpStatus.OK, "Senha alterada com sucesso", null);
+        return createSuccessResponse(HttpStatus.OK, "Senha alterada com sucesso.", null);
     }
 
-    // Manipulador de exceções para erros de validação do Bean Validation
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentAdmin(@AuthenticationPrincipal AdministradorEntity admin) {
+        logger.info("CONTROLLER: Recebida requisição GET para /me");
+        if (admin == null) {
+            logger.warn("CONTROLLER /me: Nenhum administrador autenticado encontrado na sessão.");
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Nenhum administrador autenticado encontrado.");
+        }
+        logger.info("CONTROLLER /me: Administrador autenticado: {}", admin.getEmail());
+        Map<String, Object> adminData = new HashMap<>();
+        adminData.put("id", admin.getId().toString());
+        adminData.put("nome", admin.getNome());
+        adminData.put("email", admin.getEmail());
+        String role = admin.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
+                .findFirst()
+                .orElse("USER");
+        adminData.put("role", role);
+        Map<String, Object> response = new HashMap<>();
+        response.put("mensagem", "Dados do administrador recuperados com sucesso");
+        response.put("adminData", adminData);
+        return ResponseEntity.ok(response);
+    }
+
+    // <<< ENDPOINT @PutMapping("/profile") REMOVIDO >>>
+    // Removido porque UpdateProfileRequestDTO foi excluído e o fluxo agora usa /profile/verified-update
+
+    // Endpoint para atualizar nome, email E/OU palavra-chave APÓS verificação da palavra-chave atual
+    @PutMapping("/profile/verified-update")
+    public ResponseEntity<?> updateVerifiedProfileDetails(
+            @AuthenticationPrincipal AdministradorEntity currentAdmin,
+            @Valid @RequestBody VerifiedProfileUpdateRequestDTO dto) {
+        logger.info("CONTROLLER: Recebida requisição PUT para /profile/verified-update para o usuário: {}", currentAdmin.getEmail());
+
+        // Certifique-se que o AdministradorService tenha o método updateVerifiedProfileDetails
+        AdministradorEntity updatedAdmin = administradorService.updateVerifiedProfileDetails(currentAdmin.getEmail(), dto);
+
+        Map<String, Object> adminData = new HashMap<>();
+        adminData.put("id", updatedAdmin.getId().toString());
+        adminData.put("nome", updatedAdmin.getNome());
+        adminData.put("email", updatedAdmin.getEmail());
+        adminData.put("role", updatedAdmin.getAuthorities().stream().findFirst().map(a -> a.getAuthority().replace("ROLE_", "")).orElse("USER"));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("mensagem", "Dados atualizados com sucesso.");
+        response.put("adminData", adminData);
+        logger.info("CONTROLLER: Dados (nome/email/palavra-chave) atualizados com sucesso via verified-update para: {}", currentAdmin.getEmail());
+        return ResponseEntity.ok(response);
+    }
+
+    // --- MANIPULADORES DE EXCEÇÃO --- (sem alterações aqui)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
-
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("mensagem", "Erro de validação");
-        responseBody.put("codigo", HttpStatus.BAD_REQUEST.value());
-        responseBody.put("erros", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+        logger.warn("Erro de validação nos dados da requisição: {}", errors, ex);
+        return createResponse(HttpStatus.BAD_REQUEST, "Erro de validação", Map.of("erros", errors));
     }
 
     @ExceptionHandler(AdminNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleAdminNotFound(AdminNotFoundException ex) {
+        logger.warn("AdminNotFoundException: {}", ex.getMessage());
         return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailExists(EmailAlreadyExistsException ex) {
+        logger.warn("InvalidCredentialsException: {}", ex.getMessage());
         return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(WeakPasswordException.class)
     public ResponseEntity<Map<String, Object>> handleWeakPassword(WeakPasswordException ex) {
+        logger.warn("WeakPasswordException: {}", ex.getMessage());
         return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    // Um manipulador genérico para outras exceções não tratadas pode ser útil
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleEmailExists(EmailAlreadyExistsException ex) {
+        logger.warn("EmailAlreadyExistsException: {}", ex.getMessage());
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.warn("IllegalArgumentException: {}", ex.getMessage());
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        // É uma boa prática logar a exceção aqui para depuração
-        // ex: logger.error("Ocorreu um erro inesperado:", ex);
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado.");
+        logger.error("Exceção genérica não tratada no AdministradorController:", ex);
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado no servidor.");
     }
 }
