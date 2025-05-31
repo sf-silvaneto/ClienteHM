@@ -1,38 +1,58 @@
 package com.clientehm.model;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
-public class PacienteDTO {
-    private Long id;
+public class PacienteUpdateDTO {
+
+    @Size(min = 3, message = "Nome do paciente deve ter no mínimo 3 caracteres")
     private String nome;
-    private LocalDate dataNascimento;
-    private String cpf;
-    private String rg; // NOVO
-    private String genero;
-    private String telefone;
-    private String email;
-    private String nomeMae; // NOVO
-    private String nomePai; // NOVO
-    private LocalDate dataEntrada; // NOVO
-    private String cartaoSus; // NOVO
-    private String racaCor; // NOVO
-    private String tipoSanguineo; // NOVO
-    private String nacionalidade; // NOVO
-    private String ocupacao; // NOVO
-    private EnderecoDTO endereco;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
-    // Getters e Setters (para todos os campos, incluindo os novos)
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    @PastOrPresent(message = "Data de nascimento deve ser no passado ou presente")
+    private LocalDate dataNascimento;
+
+    // CPF geralmente não é alterável. Se for, precisa de validação cuidadosa.
+    // private String cpf;
+
+    @Pattern(regexp = "^[0-9]{5,15}$", message = "RG deve conter entre 5 e 15 dígitos (apenas números)")
+    private String rg;
+
+    private String genero; // MASCULINO, FEMININO, OUTRO, NAO_INFORMADO
+
+    @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve conter 10 ou 11 dígitos")
+    private String telefone;
+
+    @Email(message = "Formato de email inválido")
+    private String email;
+
+    @Size(min = 3, message = "Nome da mãe deve ter no mínimo 3 caracteres")
+    private String nomeMae;
+
+    @Size(min = 3, message = "Nome do pai deve ter no mínimo 3 caracteres (se informado)")
+    private String nomePai;
+
+    private LocalDate dataEntrada;
+
+    @Pattern(regexp = "^\\d{15}$", message = "Cartão SUS deve conter 15 dígitos (se informado)")
+    private String cartaoSus;
+
+    private String racaCor;
+    private String tipoSanguineo;
+    private String nacionalidade;
+    private String ocupacao;
+
+    @Valid
+    private EnderecoUpdateDTO endereco;
+
+    // Getters e Setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public LocalDate getDataNascimento() { return dataNascimento; }
     public void setDataNascimento(LocalDate dataNascimento) { this.dataNascimento = dataNascimento; }
-    public String getCpf() { return cpf; }
-    public void setCpf(String cpf) { this.cpf = cpf; }
     public String getRg() { return rg; }
     public void setRg(String rg) { this.rg = rg; }
     public String getGenero() { return genero; }
@@ -57,10 +77,6 @@ public class PacienteDTO {
     public void setNacionalidade(String nacionalidade) { this.nacionalidade = nacionalidade; }
     public String getOcupacao() { return ocupacao; }
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
-    public EnderecoDTO getEndereco() { return endereco; }
-    public void setEndereco(EnderecoDTO endereco) { this.endereco = endereco; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public EnderecoUpdateDTO getEndereco() { return endereco; }
+    public void setEndereco(EnderecoUpdateDTO endereco) { this.endereco = endereco; }
 }

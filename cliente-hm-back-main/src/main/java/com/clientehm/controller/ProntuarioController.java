@@ -2,20 +2,11 @@ package com.clientehm.controller;
 
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.entity.ProntuarioEntity;
-// Importe as entidades específicas se precisar de acesso direto a elas aqui,
-// mas geralmente o controller lida com DTOs.
-// Ex: import com.clientehm.entity.PacienteEntity;
-// import com.clientehm.entity.HistoricoMedicoEntity;
-
 import com.clientehm.model.NovoProntuarioRequestDTO;
 import com.clientehm.model.ProntuarioDTO;
 import com.clientehm.model.PacienteDTO;
 import com.clientehm.model.HistoricoMedicoDTO;
-import com.clientehm.model.MedicacaoDTO;
-import com.clientehm.model.ExameDTO;
-import com.clientehm.model.AnotacaoDTO;
-import com.clientehm.model.EnderecoDTO; // Adicionada importação para EnderecoDTO
-
+import com.clientehm.model.EnderecoDTO;
 import com.clientehm.service.ProntuarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -29,14 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-// Importe LocalDate e LocalDateTime se for usá-los diretamente aqui,
-// embora eles venham principalmente das entidades e DTOs.
-// import java.time.LocalDate;
-// import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/prontuarios")

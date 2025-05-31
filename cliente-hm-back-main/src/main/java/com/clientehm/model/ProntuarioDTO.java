@@ -5,11 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 // Importações dos outros DTOs (PacienteDTO, HistoricoMedicoDTO, etc.)
-import com.clientehm.model.PacienteDTO;
-import com.clientehm.model.HistoricoMedicoDTO;
-import com.clientehm.model.MedicacaoDTO;
-import com.clientehm.model.ExameDTO;
-import com.clientehm.model.AnotacaoDTO;
+
 
 public class ProntuarioDTO {
     private Long id;

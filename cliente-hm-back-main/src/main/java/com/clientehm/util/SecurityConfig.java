@@ -43,9 +43,8 @@ public class SecurityConfig {
 
                         // Prontuarios endpoints - assumindo que também precisam de autenticação
                         .requestMatchers("/api/prontuarios/**").authenticated()
-
-                        // Medicos endpoints
                         .requestMatchers("/api/medicos/**").authenticated()
+                        .requestMatchers("/api/pacientes/**").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/api/administradores/me").authenticated()
                         .anyRequest().authenticated()

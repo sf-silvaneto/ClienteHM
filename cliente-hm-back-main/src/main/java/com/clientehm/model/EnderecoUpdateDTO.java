@@ -1,44 +1,21 @@
-package com.clientehm.entity;
+package com.clientehm.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-@Embeddable
-public class Endereco {
-
-    @Column(nullable = false)
+public class EnderecoUpdateDTO {
+    // Todos os campos são opcionais para atualização
     private String logradouro;
-
-    @Column(nullable = false)
     private String numero;
-
-    private String complemento; // Opcional
-
-    @Column(nullable = false)
+    private String complemento;
     private String bairro;
-
-    @Column(nullable = false)
     private String cidade;
 
-    @Column(nullable = false, length = 2) // Garante que o BD aceite apenas 2 caracteres
+    @Size(min = 2, max = 2, message = "Estado deve ter 2 caracteres (UF)")
     private String estado;
 
-    @Column(nullable = false, length = 8) // Garante que o BD aceite apenas 8 caracteres
+    @Pattern(regexp = "^\\d{8}$", message = "CEP deve conter 8 dígitos")
     private String cep;
-
-    // Construtores
-    public Endereco() {
-    }
-
-    public Endereco(String logradouro, String numero, String complemento, String bairro, String cidade, String estado, String cep) {
-        this.logradouro = logradouro;
-        this.numero = numero;
-        this.complemento = complemento;
-        this.bairro = bairro;
-        this.cidade = cidade;
-        this.estado = estado;
-        this.cep = cep;
-    }
 
     // Getters e Setters
     public String getLogradouro() { return logradouro; }
