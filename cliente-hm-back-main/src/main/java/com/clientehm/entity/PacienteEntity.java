@@ -12,6 +12,7 @@ public class PacienteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // ... outros campos existentes ...
     @Column(nullable = false)
     private String nome;
 
@@ -33,28 +34,34 @@ public class PacienteEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-    // Se nomeMae for obrigatório, adicionar @Column(nullable = false)
     private String nomeMae;
-    private String nomePai; // Opcional
+    private String nomePai;
 
-    // Se esta data é sempre fornecida na criação, o default no @PrePersist pode ser removido.
-    // Se é para ser a data atual caso não seja fornecida, e a coluna permite nulos temporariamente,
-    // a lógica no @PrePersist está ok, mas nullable=false é um pouco conflitante.
-    // Idealmente, o service layer define este valor.
     @Column(nullable = false)
     private LocalDate dataEntrada;
 
     @Column(unique = true)
-    private String cartaoSus; // Opcional
+    private String cartaoSus;
 
     @Enumerated(EnumType.STRING)
-    private RacaCor racaCor; // Opcional
+    private RacaCor racaCor;
 
     @Enumerated(EnumType.STRING)
-    private TipoSanguineo tipoSanguineo; // Opcional
+    private TipoSanguineo tipoSanguineo;
 
-    private String nacionalidade; // Opcional
-    private String ocupacao; // Opcional
+    private String nacionalidade;
+    private String ocupacao;
+
+    // NOVOS CAMPOS PARA O CABEÇALHO FIXO
+    @Column(columnDefinition = "TEXT")
+    private String alergiasDeclaradas;
+
+    @Column(columnDefinition = "TEXT")
+    private String comorbidadesDeclaradas;
+
+    @Column(columnDefinition = "TEXT")
+    private String medicamentosContinuos;
+    // FIM DOS NOVOS CAMPOS
 
     @Embedded
     @AttributeOverrides({
@@ -66,7 +73,7 @@ public class PacienteEntity {
             @AttributeOverride(name="estado", column=@Column(name="endereco_estado")),
             @AttributeOverride(name="cep", column=@Column(name="endereco_cep"))
     })
-    private Endereco endereco; // A obrigatoriedade dos campos de Endereco agora é definida na classe Endereco.java
+    private Endereco endereco;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProntuarioEntity> prontuarios;
@@ -80,7 +87,7 @@ public class PacienteEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataEntrada == null) { // Se dataEntrada é obrigatória, este if é redundante ou o service deve preencher.
+        if (this.dataEntrada == null) {
             this.dataEntrada = LocalDate.now();
         }
     }
@@ -90,23 +97,11 @@ public class PacienteEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    public enum Genero {
-        MASCULINO, FEMININO, OUTRO, NAO_INFORMADO
-    }
+    public enum Genero { MASCULINO, FEMININO, OUTRO, NAO_INFORMADO }
+    public enum RacaCor { BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO }
+    public enum TipoSanguineo { A_POSITIVO, A_NEGATIVO, B_POSITIVO, B_NEGATIVO, AB_POSITIVO, AB_NEGATIVO, O_POSITIVO, O_NEGATIVO, NAO_SABE, NAO_INFORMADO }
 
-    public enum RacaCor {
-        BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO
-    }
-
-    public enum TipoSanguineo {
-        A_POSITIVO, A_NEGATIVO,
-        B_POSITIVO, B_NEGATIVO,
-        AB_POSITIVO, AB_NEGATIVO,
-        O_POSITIVO, O_NEGATIVO,
-        NAO_SABE, NAO_INFORMADO
-    }
-
-    // Getters e Setters (conforme você já os tem)
+    // --- Getters e Setters para campos existentes ...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -147,4 +142,12 @@ public class PacienteEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // --- Getters e Setters para os NOVOS CAMPOS ---
+    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
+    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
+    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
+    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
+    public String getMedicamentosContinuos() { return medicamentosContinuos; }
+    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
 }

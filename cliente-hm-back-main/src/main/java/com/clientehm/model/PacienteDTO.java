@@ -8,23 +8,29 @@ public class PacienteDTO {
     private String nome;
     private LocalDate dataNascimento;
     private String cpf;
-    private String rg; // NOVO
+    private String rg;
     private String genero;
     private String telefone;
     private String email;
-    private String nomeMae; // NOVO
-    private String nomePai; // NOVO
-    private LocalDate dataEntrada; // NOVO
-    private String cartaoSus; // NOVO
-    private String racaCor; // NOVO
-    private String tipoSanguineo; // NOVO
-    private String nacionalidade; // NOVO
-    private String ocupacao; // NOVO
+    private String nomeMae;
+    private String nomePai;
+    private LocalDate dataEntrada;
+    private String cartaoSus;
+    private String racaCor;
+    private String tipoSanguineo;
+    private String nacionalidade;
+    private String ocupacao;
+
+    // NOVOS CAMPOS
+    private String alergiasDeclaradas;
+    private String comorbidadesDeclaradas;
+    private String medicamentosContinuos;
+
     private EnderecoDTO endereco;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Getters e Setters (para todos os campos, incluindo os novos)
+    // Getters e Setters (existente + novos)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -57,6 +63,14 @@ public class PacienteDTO {
     public void setNacionalidade(String nacionalidade) { this.nacionalidade = nacionalidade; }
     public String getOcupacao() { return ocupacao; }
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
+
+    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
+    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
+    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
+    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
+    public String getMedicamentosContinuos() { return medicamentosContinuos; }
+    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+
     public EnderecoDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoDTO endereco) { this.endereco = endereco; }
     public LocalDateTime getCreatedAt() { return createdAt; }
