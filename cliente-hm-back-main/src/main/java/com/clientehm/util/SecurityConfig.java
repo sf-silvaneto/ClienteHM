@@ -40,8 +40,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/administradores/registrar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/administradores/verificar-palavra-chave").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/administradores/redefinir-senha").permitAll()
-                        // .requestMatchers("/api/prontuarios/**").permitAll()
-                        // .requestMatchers(HttpMethod.GET, "/api/administradores/me").authenticated() // ou permitAll() se for parte do fluxo de login público pós-token
+
+                        // Prontuarios endpoints - assumindo que também precisam de autenticação
+                        .requestMatchers("/api/prontuarios/**").authenticated()
+
+                        // Medicos endpoints
+                        .requestMatchers("/api/medicos/**").authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/api/administradores/me").authenticated()
                         .anyRequest().authenticated()
                 );
 
@@ -54,7 +60,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization", "Cache-Control", "Content-Type", "X-XSRF-TOKEN",
                 "Origin", "Accept", "X-Requested-With",
@@ -65,6 +71,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-
 }
