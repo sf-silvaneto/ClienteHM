@@ -40,10 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/administradores/registrar").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/administradores/verificar-palavra-chave").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/api/administradores/redefinir-senha").permitAll()
-                        // Se /api/administradores/me é chamado logo após o login para popular o AuthContext,
-                        // e você está tendo problemas *antes* de tentar acessar prontuarios,
-                        // pode ser útil explicitamente permití-lo se o token não estiver "pronto" imediatamente,
-                        // mas idealmente o filtro JWT já deveria tê-lo autenticado.
+                        // .requestMatchers("/api/prontuarios/**").permitAll()
                         // .requestMatchers(HttpMethod.GET, "/api/administradores/me").authenticated() // ou permitAll() se for parte do fluxo de login público pós-token
                         .anyRequest().authenticated()
                 );
