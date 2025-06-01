@@ -1,8 +1,8 @@
 package com.clientehm.controller;
 
-import com.clientehm.entity.*; // Import all entities
+import com.clientehm.entity.*;
 import com.clientehm.exception.ResourceNotFoundException;
-import com.clientehm.model.*; // Importar todos os DTOs do pacote
+import com.clientehm.model.*;
 import com.clientehm.service.ProntuarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -17,11 +17,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.ArrayList; // Importar ArrayList
+import java.util.ArrayList;
 
 
 @RestController
@@ -81,13 +82,13 @@ public class ProntuarioController {
             dto.setAdministradorCriador(adminDTO);
         }
 
-        dto.setTipoTratamento(entity.getTipoTratamento() != null ? entity.getTipoTratamento().name() : null);
+        // dto.setTipoTratamento(entity.getTipoTratamento() != null ? entity.getTipoTratamento().name() : null); // REMOVIDO
         dto.setDataInicio(entity.getDataInicio());
         dto.setDataAlta(entity.getDataAlta());
         dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
         dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
         dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getDataUltimaAtualizacao()); // Normalmente é o mesmo que updatedAt
+        dto.setUpdatedAt(entity.getDataUltimaAtualizacao());
 
         if (entity.getHistoricoMedico() != null) {
             dto.setHistoricoMedico(entity.getHistoricoMedico().stream().map(hist -> {
@@ -97,13 +98,11 @@ public class ProntuarioController {
             }).collect(Collectors.toList()));
         }
 
-        // Mapear Entradas Médicas com detalhes do responsável e anexos
         if (entity.getEntradasMedicas() != null) {
             dto.setEntradasMedicas(entity.getEntradasMedicas().stream().map(entradaEntity -> {
                 EntradaMedicaRegistroDTO entradaDTO = new EntradaMedicaRegistroDTO();
-                BeanUtils.copyProperties(entradaEntity, entradaDTO); // Copia campos básicos
+                BeanUtils.copyProperties(entradaEntity, entradaDTO);
 
-                // Mapear informações do responsável
                 if (entradaEntity.getResponsavelMedico() != null) {
                     entradaDTO.setTipoResponsavel("MEDICO");
                     entradaDTO.setResponsavelId(entradaEntity.getResponsavelMedico().getId());
@@ -114,24 +113,18 @@ public class ProntuarioController {
                     entradaDTO.setTipoResponsavel("ADMINISTRADOR");
                     entradaDTO.setResponsavelId(entradaEntity.getResponsavelAdmin().getId());
                     entradaDTO.setResponsavelNomeCompleto(entradaEntity.getResponsavelAdmin().getNome());
-                    // Administrador não tem especialidade ou CRM, então esses campos ficam null
                 } else {
-                    // Fallback se por algum motivo não houver nem médico nem admin associado
-                    // (deve ser prevenido pela lógica do service ao criar a EntradaMedicaRegistroEntity)
                     entradaDTO.setResponsavelNomeCompleto(entradaEntity.getNomeResponsavelDisplay());
                 }
 
-                // Mapear Anexos
                 if (entradaEntity.getAnexos() != null) {
                     entradaDTO.setAnexos(entradaEntity.getAnexos().stream()
-                            .filter(anexoEntradaMedica -> anexoEntradaMedica.getAnexo() != null) // Adicionar verificação de nulidade
+                            .filter(anexoEntradaMedica -> anexoEntradaMedica.getAnexo() != null)
                             .map(anexoEntradaMedica -> {
                                 AnexoEntity anexoReal = anexoEntradaMedica.getAnexo();
                                 AnexoDTO anexoDTO = new AnexoDTO();
                                 anexoDTO.setId(anexoReal.getId());
                                 anexoDTO.setNomeOriginalArquivo(anexoReal.getNomeOriginalArquivo());
-                                // A construção da URL de download/visualização pode ser feita aqui ou no frontend
-                                // Exemplo: anexoDTO.setNomeArquivoArmazenado("/api/anexos/download/" + anexoReal.getNomeArquivoArmazenado());
                                 anexoDTO.setNomeArquivoArmazenado(anexoReal.getNomeArquivoArmazenado());
                                 anexoDTO.setTipoConteudo(anexoReal.getTipoConteudo());
                                 anexoDTO.setTamanhoBytes(anexoReal.getTamanhoBytes());
@@ -146,19 +139,6 @@ public class ProntuarioController {
         } else {
             dto.setEntradasMedicas(new ArrayList<>());
         }
-
-        // TODO: Mapear outras listas (medicacoes, exames, anotacoes) quando implementadas
-        // Exemplo para medicações (se MedicacaoEntity e MedicacaoDTO existirem):
-        // if (entity.getMedicacoes() != null) {
-        //     dto.setMedicacoes(entity.getMedicacoes().stream().map(medEntity -> {
-        //         MedicacaoDTO medDTO = new MedicacaoDTO();
-        //         BeanUtils.copyProperties(medEntity, medDTO);
-        //         return medDTO;
-        //     }).collect(Collectors.toList()));
-        // } else {
-        //     dto.setMedicacoes(new ArrayList<>());
-        // }
-
         return dto;
     }
 
@@ -168,16 +148,29 @@ public class ProntuarioController {
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) String numeroProntuario,
-            @RequestParam(required = false) String tipoTratamento,
-            @RequestParam(required = false) String status
+            // @RequestParam(required = false) String tipoTratamento, // MANTIDO REMOVIDO/COMENTADO
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "dataUltimaAtualizacao,desc") String[] sort
     ) {
-        logger.info("Recebida requisição GET para /api/prontuarios com pagina={}, tamanho={}, termo={}", pagina, tamanho, termo);
-        Pageable pageable = PageRequest.of(pagina, tamanho, Sort.by("dataUltimaAtualizacao").descending());
-        // A lógica de busca avançada com os parâmetros termo, numeroProntuario, etc.
-        // precisaria ser implementada no ProntuarioService e ProntuarioRepository
-        // usando JpaSpecificationExecutor ou queries customizadas.
-        // Por enquanto, está usando o buscarTodos simples.
-        Page<ProntuarioEntity> prontuariosPage = prontuarioService.buscarTodos(pageable);
+        logger.info("CONTROLLER: GET /api/prontuarios - pagina={}, tamanho={}, termo={}, numeroProntuario={}, status={}, sort={}",
+                pagina, tamanho, termo, numeroProntuario, status, sort);
+
+        String sortField = sort[0];
+        String sortDirection = sort.length > 1 ? sort[1] : "desc";
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection.toUpperCase());
+        Sort sortBy = Sort.by(direction, sortField);
+        Pageable pageable = PageRequest.of(pagina, tamanho, sortBy);
+
+        ProntuarioEntity.StatusProntuario statusEnum = null;
+        if (StringUtils.hasText(status)) {
+            try {
+                statusEnum = ProntuarioEntity.StatusProntuario.valueOf(status.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                logger.warn("CONTROLLER: Status de prontuário inválido fornecido: {}", status);
+            }
+        }
+
+        Page<ProntuarioEntity> prontuariosPage = prontuarioService.buscarTodos(pageable, termo, numeroProntuario, statusEnum);
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", prontuariosPage.getContent().stream().map(this::convertToDTO).collect(Collectors.toList()));
@@ -187,6 +180,9 @@ public class ProntuarioController {
         pageableResponse.put("totalPages", prontuariosPage.getTotalPages());
         pageableResponse.put("totalElements", prontuariosPage.getTotalElements());
         response.put("pageable", pageableResponse);
+
+        logger.info("CONTROLLER: Retornando {} prontuários. Página {} de {}. Total de elementos {}.",
+                prontuariosPage.getNumberOfElements(), prontuariosPage.getNumber() + 1, prontuariosPage.getTotalPages(), prontuariosPage.getTotalElements());
         return ResponseEntity.ok(response);
     }
 
@@ -255,7 +251,6 @@ public class ProntuarioController {
             EntradaMedicaRegistroDTO dtoResposta = new EntradaMedicaRegistroDTO();
             BeanUtils.copyProperties(entradaSalva, dtoResposta);
 
-            // Lógica para popular os campos do responsável no DTO
             if (entradaSalva.getResponsavelMedico() != null) {
                 dtoResposta.setTipoResponsavel("MEDICO");
                 dtoResposta.setResponsavelId(entradaSalva.getResponsavelMedico().getId());
@@ -267,8 +262,6 @@ public class ProntuarioController {
                 dtoResposta.setResponsavelId(entradaSalva.getResponsavelAdmin().getId());
                 dtoResposta.setResponsavelNomeCompleto(entradaSalva.getResponsavelAdmin().getNome());
             }
-            // Não é necessário mapear anexos aqui, pois a criação de entrada médica não lida com upload de anexos diretamente.
-            // Anexos seriam adicionados em um endpoint separado para uma entrada médica já existente.
 
             return ResponseEntity.status(HttpStatus.CREATED).body(dtoResposta);
         } catch (ResourceNotFoundException e) {
@@ -289,5 +282,4 @@ public class ProntuarioController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
         }
     }
-    // Adicionar outros Handlers de Exceção se necessário
 }

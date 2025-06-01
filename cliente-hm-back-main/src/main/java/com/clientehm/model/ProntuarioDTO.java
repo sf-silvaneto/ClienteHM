@@ -3,29 +3,29 @@ package com.clientehm.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.ArrayList; // Importar ArrayList
+import java.util.ArrayList;
 
 public class ProntuarioDTO {
     private Long id;
     private String numeroProntuario;
-    private PacienteDTO paciente; // PacienteDTO já deve ter os campos de alergia, etc.
+    private PacienteDTO paciente;
     private MedicoBasicDTO medicoResponsavel;
     private AdministradorBasicDTO administradorCriador;
-    private String tipoTratamento;
+    // private String tipoTratamento; // REMOVIDO
     private LocalDate dataInicio;
     private LocalDateTime dataUltimaAtualizacao;
     private String status;
     private List<HistoricoMedicoDTO> historicoMedico;
-    private List<MedicacaoDTO> medicacoes = new ArrayList<>(); // Inicializar listas
+    private List<MedicacaoDTO> medicacoes = new ArrayList<>();
     private List<ExameDTO> exames = new ArrayList<>();
     private List<AnotacaoDTO> anotacoes = new ArrayList<>();
-    private List<EntradaMedicaRegistroDTO> entradasMedicas = new ArrayList<>(); // NOVA LISTA
+    private List<EntradaMedicaRegistroDTO> entradasMedicas = new ArrayList<>();
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDate dataAlta;
 
-    // Getters e Setters existentes ...
+    // Getters e Setters (remover getter/setter de tipoTratamento)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -36,8 +36,8 @@ public class ProntuarioDTO {
     public void setMedicoResponsavel(MedicoBasicDTO medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorBasicDTO getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorBasicDTO administradorCriador) { this.administradorCriador = administradorCriador; }
-    public String getTipoTratamento() { return tipoTratamento; }
-    public void setTipoTratamento(String tipoTratamento) { this.tipoTratamento = tipoTratamento; }
+    // public String getTipoTratamento() { return tipoTratamento; } // REMOVIDO
+    // public void setTipoTratamento(String tipoTratamento) { this.tipoTratamento = tipoTratamento; } // REMOVIDO
     public LocalDate getDataInicio() { return dataInicio; }
     public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
@@ -52,6 +52,8 @@ public class ProntuarioDTO {
     public void setExames(List<ExameDTO> exames) { this.exames = exames; }
     public List<AnotacaoDTO> getAnotacoes() { return anotacoes; }
     public void setAnotacoes(List<AnotacaoDTO> anotacoes) { this.anotacoes = anotacoes; }
+    public List<EntradaMedicaRegistroDTO> getEntradasMedicas() { return entradasMedicas; }
+    public void setEntradasMedicas(List<EntradaMedicaRegistroDTO> entradasMedicas) { this.entradasMedicas = entradasMedicas; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
@@ -59,11 +61,6 @@ public class ProntuarioDTO {
     public LocalDate getDataAlta() { return dataAlta; }
     public void setDataAlta(LocalDate dataAlta) { this.dataAlta = dataAlta; }
 
-    // Getter e Setter para a nova lista
-    public List<EntradaMedicaRegistroDTO> getEntradasMedicas() { return entradasMedicas; }
-    public void setEntradasMedicas(List<EntradaMedicaRegistroDTO> entradasMedicas) { this.entradasMedicas = entradasMedicas; }
-
-    // Classes aninhadas MedicoBasicDTO e AdministradorBasicDTO (manter como antes)
     public static class MedicoBasicDTO {
         private Long id;
         private String nomeCompleto;
