@@ -1,3 +1,4 @@
+// src/main/java/com/clientehm/controller/ProntuarioController.java
 package com.clientehm.controller;
 
 import com.clientehm.entity.*;
@@ -18,12 +19,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException; // <<< IMPORT ADICIONADO AQUI
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/prontuarios")
@@ -34,11 +36,18 @@ public class ProntuarioController {
     @Autowired
     private ProntuarioService prontuarioService;
 
-    private ProntuarioDTO convertToDTO(ProntuarioEntity entity) {
+    // MedicoService não é mais injetado aqui se ProntuarioService lida com a busca do MedicoEntity
+
+    // --- CONVERSORES DTO ---
+    private ProntuarioDTO convertProntuarioToDTO(ProntuarioEntity entity) {
         if (entity == null) return null;
         ProntuarioDTO dto = new ProntuarioDTO();
-        dto.setId(entity.getId());
-        dto.setNumeroProntuario(entity.getNumeroProntuario());
+        BeanUtils.copyProperties(entity, dto, "historicoGeral", "consultas", "internacoes");
+        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
+        dto.setDataAltaAdministrativa(entity.getDataAltaAdministrativa());
+        dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getDataUltimaAtualizacao());
 
         if (entity.getPaciente() != null) {
             PacienteDTO pacienteDTO = new PacienteDTO();
@@ -56,7 +65,6 @@ public class ProntuarioController {
             pacienteDTO.setComorbidadesDeclaradas(entity.getPaciente().getComorbidadesDeclaradas());
             pacienteDTO.setMedicamentosContinuos(entity.getPaciente().getMedicamentosContinuos());
 
-
             if (entity.getPaciente().getEndereco() != null) {
                 EnderecoDTO enderecoDTO = new EnderecoDTO();
                 BeanUtils.copyProperties(entity.getPaciente().getEndereco(), enderecoDTO);
@@ -67,88 +75,109 @@ public class ProntuarioController {
 
         if (entity.getMedicoResponsavel() != null) {
             ProntuarioDTO.MedicoBasicDTO medicoDTO = new ProntuarioDTO.MedicoBasicDTO();
-            medicoDTO.setId(entity.getMedicoResponsavel().getId());
-            medicoDTO.setNomeCompleto(entity.getMedicoResponsavel().getNomeCompleto());
-            medicoDTO.setCrm(entity.getMedicoResponsavel().getCrm());
-            medicoDTO.setEspecialidade(entity.getMedicoResponsavel().getEspecialidade());
+            BeanUtils.copyProperties(entity.getMedicoResponsavel(), medicoDTO);
             dto.setMedicoResponsavel(medicoDTO);
         }
-
         if (entity.getAdministradorCriador() != null) {
             ProntuarioDTO.AdministradorBasicDTO adminDTO = new ProntuarioDTO.AdministradorBasicDTO();
-            adminDTO.setId(entity.getAdministradorCriador().getId());
-            adminDTO.setNome(entity.getAdministradorCriador().getNome());
-            adminDTO.setEmail(entity.getAdministradorCriador().getEmail());
+            BeanUtils.copyProperties(entity.getAdministradorCriador(), adminDTO);
             dto.setAdministradorCriador(adminDTO);
         }
 
-        // dto.setTipoTratamento(entity.getTipoTratamento() != null ? entity.getTipoTratamento().name() : null); // REMOVIDO
-        dto.setDataInicio(entity.getDataInicio());
-        dto.setDataAlta(entity.getDataAlta());
-        dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
-        dto.setStatus(entity.getStatus() != null ? entity.getStatus().name() : null);
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getDataUltimaAtualizacao());
-
-        if (entity.getHistoricoMedico() != null) {
-            dto.setHistoricoMedico(entity.getHistoricoMedico().stream().map(hist -> {
-                HistoricoMedicoDTO histDTO = new HistoricoMedicoDTO();
-                BeanUtils.copyProperties(hist, histDTO);
-                return histDTO;
-            }).collect(Collectors.toList()));
+        if (entity.getHistoricoGeral() != null) {
+            dto.setHistoricoGeral(entity.getHistoricoGeral().stream()
+                    .map(this::convertHistoricoToDTO).collect(Collectors.toList()));
         }
-
-        if (entity.getEntradasMedicas() != null) {
-            dto.setEntradasMedicas(entity.getEntradasMedicas().stream().map(entradaEntity -> {
-                EntradaMedicaRegistroDTO entradaDTO = new EntradaMedicaRegistroDTO();
-                BeanUtils.copyProperties(entradaEntity, entradaDTO);
-
-                if (entradaEntity.getResponsavelMedico() != null) {
-                    entradaDTO.setTipoResponsavel("MEDICO");
-                    entradaDTO.setResponsavelId(entradaEntity.getResponsavelMedico().getId());
-                    entradaDTO.setResponsavelNomeCompleto(entradaEntity.getResponsavelMedico().getNomeCompleto());
-                    entradaDTO.setResponsavelEspecialidade(entradaEntity.getResponsavelMedico().getEspecialidade());
-                    entradaDTO.setResponsavelCRM(entradaEntity.getResponsavelMedico().getCrm());
-                } else if (entradaEntity.getResponsavelAdmin() != null) {
-                    entradaDTO.setTipoResponsavel("ADMINISTRADOR");
-                    entradaDTO.setResponsavelId(entradaEntity.getResponsavelAdmin().getId());
-                    entradaDTO.setResponsavelNomeCompleto(entradaEntity.getResponsavelAdmin().getNome());
-                } else {
-                    entradaDTO.setResponsavelNomeCompleto(entradaEntity.getNomeResponsavelDisplay());
-                }
-
-                if (entradaEntity.getAnexos() != null) {
-                    entradaDTO.setAnexos(entradaEntity.getAnexos().stream()
-                            .filter(anexoEntradaMedica -> anexoEntradaMedica.getAnexo() != null)
-                            .map(anexoEntradaMedica -> {
-                                AnexoEntity anexoReal = anexoEntradaMedica.getAnexo();
-                                AnexoDTO anexoDTO = new AnexoDTO();
-                                anexoDTO.setId(anexoReal.getId());
-                                anexoDTO.setNomeOriginalArquivo(anexoReal.getNomeOriginalArquivo());
-                                anexoDTO.setNomeArquivoArmazenado(anexoReal.getNomeArquivoArmazenado());
-                                anexoDTO.setTipoConteudo(anexoReal.getTipoConteudo());
-                                anexoDTO.setTamanhoBytes(anexoReal.getTamanhoBytes());
-                                anexoDTO.setDataUpload(anexoReal.getDataUpload());
-                                return anexoDTO;
-                            }).collect(Collectors.toList()));
-                } else {
-                    entradaDTO.setAnexos(new ArrayList<>());
-                }
-                return entradaDTO;
-            }).collect(Collectors.toList()));
-        } else {
-            dto.setEntradasMedicas(new ArrayList<>());
+        if (entity.getConsultas() != null) {
+            dto.setConsultas(entity.getConsultas().stream()
+                    .map(this::convertConsultaToDTO).collect(Collectors.toList()));
+        }
+        if (entity.getInternacoes() != null) {
+            dto.setInternacoes(entity.getInternacoes().stream()
+                    .map(this::convertInternacaoToDTO).collect(Collectors.toList()));
         }
         return dto;
     }
 
+    private HistoricoMedicoDTO convertHistoricoToDTO(HistoricoMedicoEntity entity) {
+        if (entity == null) return null;
+        HistoricoMedicoDTO dto = new HistoricoMedicoDTO();
+        BeanUtils.copyProperties(entity, dto);
+        return dto;
+    }
+
+    private ConsultaDTO convertConsultaToDTO(EntradaMedicaRegistroEntity entity) {
+        if (entity == null) return null;
+        ConsultaDTO dto = new ConsultaDTO();
+        BeanUtils.copyProperties(entity, dto, "dataHoraEntrada", "motivoEntrada");
+
+        dto.setDataHoraConsulta(entity.getDataHoraConsulta());
+        dto.setMotivoConsulta(entity.getMotivoConsulta());
+        dto.setExameFisico(entity.getExameFisico());
+        dto.setHipoteseDiagnostica(entity.getHipoteseDiagnostica());
+        dto.setCondutaPlanoTerapeutico(entity.getCondutaPlanoTerapeutico());
+
+        if (entity.getResponsavelMedico() != null) {
+            dto.setTipoResponsavel("MEDICO");
+            dto.setResponsavelId(entity.getResponsavelMedico().getId());
+            dto.setResponsavelNomeCompleto(entity.getResponsavelMedico().getNomeCompleto());
+            dto.setResponsavelEspecialidade(entity.getResponsavelMedico().getEspecialidade());
+            dto.setResponsavelCRM(entity.getResponsavelMedico().getCrm());
+        } else if (entity.getResponsavelAdmin() != null) {
+            dto.setTipoResponsavel("ADMINISTRADOR");
+            dto.setResponsavelId(entity.getResponsavelAdmin().getId());
+            dto.setResponsavelNomeCompleto(entity.getResponsavelAdmin().getNome());
+        } else {
+            dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
+        }
+        if (entity.getAnexos() != null) {
+            dto.setAnexos(entity.getAnexos().stream()
+                    .filter(anexoEntrada -> anexoEntrada.getAnexo() != null)
+                    .map(anexoEntrada -> {
+                        AnexoDTO anexoDTO = new AnexoDTO();
+                        BeanUtils.copyProperties(anexoEntrada.getAnexo(), anexoDTO);
+                        return anexoDTO;
+                    }).collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    private InternacaoDTO convertInternacaoToDTO(InternacaoEntity entity) {
+        if (entity == null) return null;
+        InternacaoDTO dto = new InternacaoDTO();
+        BeanUtils.copyProperties(entity, dto);
+        if(entity.getProntuario()!=null) dto.setProntuarioId(entity.getProntuario().getId());
+
+        if (entity.getResponsavelAdmissaoMedico() != null) {
+            dto.setTipoResponsavelAdmissao("MEDICO");
+            dto.setResponsavelAdmissaoId(entity.getResponsavelAdmissaoMedico().getId());
+            dto.setResponsavelAdmissaoNomeCompleto(entity.getResponsavelAdmissaoMedico().getNomeCompleto());
+            dto.setResponsavelAdmissaoEspecialidade(entity.getResponsavelAdmissaoMedico().getEspecialidade());
+            dto.setResponsavelAdmissaoCRM(entity.getResponsavelAdmissaoMedico().getCrm());
+        } else if (entity.getResponsavelAdmissaoAdmin() != null) {
+            dto.setTipoResponsavelAdmissao("ADMINISTRADOR");
+            dto.setResponsavelAdmissaoId(entity.getResponsavelAdmissaoAdmin().getId());
+            dto.setResponsavelAdmissaoNomeCompleto(entity.getResponsavelAdmissaoAdmin().getNome());
+        } else if (entity.getNomeResponsavelAdmissaoDisplay() != null) {
+            dto.setResponsavelAdmissaoNomeCompleto(entity.getNomeResponsavelAdmissaoDisplay());
+        }
+
+
+        if (entity.getMedicoResponsavelAlta() != null) {
+            dto.setMedicoResponsavelAltaId(entity.getMedicoResponsavelAlta().getId());
+            dto.setMedicoResponsavelAltaNome(entity.getMedicoResponsavelAlta().getNomeCompleto());
+        }
+        // Mapear anexos de internação se houver
+        return dto;
+    }
+
+    // Endpoint GET /api/prontuarios (buscarTodosPaginado)
     @GetMapping
-    public ResponseEntity<Map<String, Object>> buscarProntuarios(
+    public ResponseEntity<Map<String, Object>> buscarProntuariosPaginado(
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) String numeroProntuario,
-            // @RequestParam(required = false) String tipoTratamento, // MANTIDO REMOVIDO/COMENTADO
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "dataUltimaAtualizacao,desc") String[] sort
     ) {
@@ -161,19 +190,10 @@ public class ProntuarioController {
         Sort sortBy = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(pagina, tamanho, sortBy);
 
-        ProntuarioEntity.StatusProntuario statusEnum = null;
-        if (StringUtils.hasText(status)) {
-            try {
-                statusEnum = ProntuarioEntity.StatusProntuario.valueOf(status.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                logger.warn("CONTROLLER: Status de prontuário inválido fornecido: {}", status);
-            }
-        }
-
-        Page<ProntuarioEntity> prontuariosPage = prontuarioService.buscarTodos(pageable, termo, numeroProntuario, statusEnum);
+        Page<ProntuarioEntity> prontuariosPage = prontuarioService.buscarTodosProntuarios(pageable, termo, numeroProntuario, status);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("content", prontuariosPage.getContent().stream().map(this::convertToDTO).collect(Collectors.toList()));
+        response.put("content", prontuariosPage.getContent().stream().map(this::convertProntuarioToDTO).collect(Collectors.toList()));
         Map<String, Object> pageableResponse = new HashMap<>();
         pageableResponse.put("pageNumber", prontuariosPage.getNumber());
         pageableResponse.put("pageSize", prontuariosPage.getSize());
@@ -181,105 +201,139 @@ public class ProntuarioController {
         pageableResponse.put("totalElements", prontuariosPage.getTotalElements());
         response.put("pageable", pageableResponse);
 
-        logger.info("CONTROLLER: Retornando {} prontuários. Página {} de {}. Total de elementos {}.",
-                prontuariosPage.getNumberOfElements(), prontuariosPage.getNumber() + 1, prontuariosPage.getTotalPages(), prontuariosPage.getTotalElements());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProntuarioDTO> buscarProntuarioPorId(@PathVariable Long id) {
         logger.info("CONTROLLER: GET /api/prontuarios/{}", id);
-        ProntuarioEntity prontuario = prontuarioService.buscarPorId(id);
-        return ResponseEntity.ok(convertToDTO(prontuario));
+        ProntuarioEntity prontuario = prontuarioService.buscarProntuarioPorId(id);
+        return ResponseEntity.ok(convertProntuarioToDTO(prontuario));
     }
 
-
-    @PostMapping
-    public ResponseEntity<?> criarProntuario(
-            @Valid @RequestBody NovoProntuarioRequestDTO novoProntuarioDTO,
+    @PostMapping("/consultas")
+    public ResponseEntity<?> adicionarConsulta(
+            @RequestParam Long pacienteId,
+            @RequestParam Long medicoExecutorId,
+            @Valid @RequestBody CriarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
-        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS_OR_UNAUTHENTICATED";
-        logger.info("Recebida requisição POST para /api/prontuarios pelo admin: {}", adminEmail);
+
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: POST /api/prontuarios/consultas - pacienteId={}, medicoExecutorId={}, admin={}",
+                pacienteId, medicoExecutorId, adminEmail);
 
         if (adminLogado == null) {
-            logger.warn("Tentativa de criar prontuário por usuário não autenticado ou admin não encontrado na sessão.");
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", "Usuário não autenticado ou não autorizado.");
-            errorBody.put("codigo", HttpStatus.UNAUTHORIZED.value());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         }
         try {
-            ProntuarioEntity prontuarioCriado = prontuarioService.criarProntuario(novoProntuarioDTO, adminLogado.getEmail());
-            return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(prontuarioCriado));
+            EntradaMedicaRegistroEntity consultaSalva = prontuarioService.adicionarConsulta(
+                    pacienteId,
+                    consultaDTO,
+                    adminLogado,
+                    medicoExecutorId,
+                    true
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertConsultaToDTO(consultaSalva));
         } catch (ResourceNotFoundException e) {
-            logger.warn("Erro ao criar prontuário: {}", e.getMessage());
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", e.getMessage());
-            errorBody.put("codigo", HttpStatus.NOT_FOUND.value());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody);
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
-            logger.warn("Erro de argumento inválido ao criar prontuário: {}", e.getMessage());
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", e.getMessage());
-            errorBody.put("codigo", HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            logger.error("Erro inesperado ao criar prontuário:", e);
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", "Erro interno ao processar a solicitação.");
-            errorBody.put("codigo", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+            logger.error("Erro inesperado ao adicionar consulta:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar consulta.");
         }
     }
 
-    @PostMapping("/{prontuarioId}/entradas-medicas")
-    public ResponseEntity<?> adicionarEntradaMedica(
-            @PathVariable Long prontuarioId,
-            @Valid @RequestBody CriarEntradaMedicaRequestDTO entradaMedicaDTO,
+    @PostMapping("/internacoes")
+    public ResponseEntity<?> adicionarInternacao(
+            @Valid @RequestBody InternacaoRequestDTO internacaoDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
 
-        logger.info("CONTROLLER: POST /api/prontuarios/{}/entradas-medicas pelo admin: {}", prontuarioId, adminLogado != null ? adminLogado.getEmail() : "ANONIMO");
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: POST /api/prontuarios/internacoes - pacienteId={}, medicoAdmissaoId={}, admin={}",
+                internacaoDTO.getPacienteId(), internacaoDTO.getMedicoResponsavelAdmissaoId(), adminEmail);
+
         if (adminLogado == null) {
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", "Usuário não autenticado ou não autorizado.");
-            errorBody.put("codigo", HttpStatus.UNAUTHORIZED.value());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         }
         try {
-            EntradaMedicaRegistroEntity entradaSalva = prontuarioService.adicionarEntradaMedica(prontuarioId, entradaMedicaDTO, adminLogado);
-
-            EntradaMedicaRegistroDTO dtoResposta = new EntradaMedicaRegistroDTO();
-            BeanUtils.copyProperties(entradaSalva, dtoResposta);
-
-            if (entradaSalva.getResponsavelMedico() != null) {
-                dtoResposta.setTipoResponsavel("MEDICO");
-                dtoResposta.setResponsavelId(entradaSalva.getResponsavelMedico().getId());
-                dtoResposta.setResponsavelNomeCompleto(entradaSalva.getResponsavelMedico().getNomeCompleto());
-                dtoResposta.setResponsavelEspecialidade(entradaSalva.getResponsavelMedico().getEspecialidade());
-                dtoResposta.setResponsavelCRM(entradaSalva.getResponsavelMedico().getCrm());
-            } else if (entradaSalva.getResponsavelAdmin() != null) {
-                dtoResposta.setTipoResponsavel("ADMINISTRADOR");
-                dtoResposta.setResponsavelId(entradaSalva.getResponsavelAdmin().getId());
-                dtoResposta.setResponsavelNomeCompleto(entradaSalva.getResponsavelAdmin().getNome());
-            }
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(dtoResposta);
+            InternacaoEntity internacaoSalva = prontuarioService.adicionarInternacao(
+                    internacaoDTO.getPacienteId(),
+                    internacaoDTO,
+                    adminLogado,
+                    true
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertInternacaoToDTO(internacaoSalva));
         } catch (ResourceNotFoundException e) {
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", e.getMessage());
-            errorBody.put("codigo", HttpStatus.NOT_FOUND.value());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorBody);
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", e.getMessage());
-            errorBody.put("codigo", HttpStatus.BAD_REQUEST.value());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorBody);
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            logger.error("Erro inesperado ao adicionar entrada médica:", e);
-            Map<String, Object> errorBody = new HashMap<>();
-            errorBody.put("mensagem", "Erro interno ao processar a solicitação de adicionar entrada médica.");
-            errorBody.put("codigo", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorBody);
+            logger.error("Erro inesperado ao adicionar internação:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar internação.");
         }
+    }
+
+    @PutMapping("/internacoes/{internacaoId}/alta")
+    public ResponseEntity<?> registrarAlta(
+            @PathVariable Long internacaoId,
+            @Valid @RequestBody RegistrarAltaInternacaoDTO altaDTO,
+            @AuthenticationPrincipal AdministradorEntity adminLogado) {
+
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: PUT /api/prontuarios/internacoes/{}/alta - admin={}", internacaoId, adminEmail);
+
+        if (adminLogado == null) {
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
+        }
+        try {
+            InternacaoEntity internacaoComAlta = prontuarioService.registrarAltaInternacao(internacaoId, altaDTO, adminLogado);
+            return ResponseEntity.ok(convertInternacaoToDTO(internacaoComAlta));
+        } catch (ResourceNotFoundException e) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao registrar alta da internação:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao registrar alta.");
+        }
+    }
+
+    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensagem", message);
+        body.put("codigo", status.value());
+        return ResponseEntity.status(status).body(body);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class) // Linha 310 (aproximadamente)
+    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
+        logger.warn("Erro de validação nos dados da requisição: {}", errors);
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensagem", "Erro de validação nos dados fornecidos");
+        body.put("codigo", HttpStatus.BAD_REQUEST.value());
+        body.put("erros", errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
+        logger.warn("ResourceNotFoundException: {}", ex.getMessage());
+        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        logger.warn("IllegalArgumentException: {}", ex.getMessage());
+        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        logger.error("Exceção genérica não tratada no ProntuarioController:", ex);
+        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado no servidor.");
     }
 }

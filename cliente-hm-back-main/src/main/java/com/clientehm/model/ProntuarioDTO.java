@@ -1,3 +1,4 @@
+// src/main/java/com/clientehm/model/ProntuarioDTO.java
 package com.clientehm.model;
 
 import java.time.LocalDate;
@@ -8,24 +9,26 @@ import java.util.ArrayList;
 public class ProntuarioDTO {
     private Long id;
     private String numeroProntuario;
-    private PacienteDTO paciente;
-    private MedicoBasicDTO medicoResponsavel;
-    private AdministradorBasicDTO administradorCriador;
-    // private String tipoTratamento; // REMOVIDO
+    private PacienteDTO paciente; // Supondo que PacienteDTO já existe e está correto
+    private MedicoBasicDTO medicoResponsavel; // Supondo que MedicoBasicDTO já existe e está correto
+    private AdministradorBasicDTO administradorCriador; // Supondo que AdministradorBasicDTO já existe e está correto
+
     private LocalDate dataInicio;
     private LocalDateTime dataUltimaAtualizacao;
-    private String status;
-    private List<HistoricoMedicoDTO> historicoMedico;
-    private List<MedicacaoDTO> medicacoes = new ArrayList<>();
-    private List<ExameDTO> exames = new ArrayList<>();
-    private List<AnotacaoDTO> anotacoes = new ArrayList<>();
-    private List<EntradaMedicaRegistroDTO> entradasMedicas = new ArrayList<>();
+    private String status; // Será "EM_ELABORACAO", "INTERNADO", "ARQUIVADO"
+
+    private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>(); // Renomeado
+    private List<ConsultaDTO> consultas = new ArrayList<>(); // Renomeado de entradasMedicas
+    private List<InternacaoDTO> internacoes = new ArrayList<>(); // Nova lista
+    // private List<ExameRegistroDTO> exames = new ArrayList<>(); // Exemplo
+    // private List<CirurgiaRegistroDTO> cirurgias = new ArrayList<>(); // Exemplo
+
 
     private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private LocalDate dataAlta;
+    private LocalDateTime updatedAt; // Mapeado de dataUltimaAtualizacao na entidade
+    private LocalDate dataAltaAdministrativa; // Novo campo
 
-    // Getters e Setters (remover getter/setter de tipoTratamento)
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -36,31 +39,32 @@ public class ProntuarioDTO {
     public void setMedicoResponsavel(MedicoBasicDTO medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorBasicDTO getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorBasicDTO administradorCriador) { this.administradorCriador = administradorCriador; }
-    // public String getTipoTratamento() { return tipoTratamento; } // REMOVIDO
-    // public void setTipoTratamento(String tipoTratamento) { this.tipoTratamento = tipoTratamento; } // REMOVIDO
     public LocalDate getDataInicio() { return dataInicio; }
     public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-    public List<HistoricoMedicoDTO> getHistoricoMedico() { return historicoMedico; }
-    public void setHistoricoMedico(List<HistoricoMedicoDTO> historicoMedico) { this.historicoMedico = historicoMedico; }
-    public List<MedicacaoDTO> getMedicacoes() { return medicacoes; }
-    public void setMedicacoes(List<MedicacaoDTO> medicacoes) { this.medicacoes = medicacoes; }
-    public List<ExameDTO> getExames() { return exames; }
-    public void setExames(List<ExameDTO> exames) { this.exames = exames; }
-    public List<AnotacaoDTO> getAnotacoes() { return anotacoes; }
-    public void setAnotacoes(List<AnotacaoDTO> anotacoes) { this.anotacoes = anotacoes; }
-    public List<EntradaMedicaRegistroDTO> getEntradasMedicas() { return entradasMedicas; }
-    public void setEntradasMedicas(List<EntradaMedicaRegistroDTO> entradasMedicas) { this.entradasMedicas = entradasMedicas; }
+
+    public List<HistoricoMedicoDTO> getHistoricoGeral() { return historicoGeral; }
+    public void setHistoricoGeral(List<HistoricoMedicoDTO> historicoGeral) { this.historicoGeral = historicoGeral; }
+
+    public List<ConsultaDTO> getConsultas() { return consultas; }
+    public void setConsultas(List<ConsultaDTO> consultas) { this.consultas = consultas; }
+
+    public List<InternacaoDTO> getInternacoes() { return internacoes; }
+    public void setInternacoes(List<InternacaoDTO> internacoes) { this.internacoes = internacoes; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public LocalDate getDataAlta() { return dataAlta; }
-    public void setDataAlta(LocalDate dataAlta) { this.dataAlta = dataAlta; }
 
+    public LocalDate getDataAltaAdministrativa() { return dataAltaAdministrativa; }
+    public void setDataAltaAdministrativa(LocalDate dataAltaAdministrativa) { this.dataAltaAdministrativa = dataAltaAdministrativa; }
+
+    // Sub-DTOs MedicoBasicDTO e AdministradorBasicDTO permanecem os mesmos
+    // (copiados do arquivo original para referência, caso não existam em arquivos separados)
     public static class MedicoBasicDTO {
         private Long id;
         private String nomeCompleto;

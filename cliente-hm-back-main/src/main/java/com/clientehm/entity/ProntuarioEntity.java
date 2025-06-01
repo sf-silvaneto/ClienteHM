@@ -1,3 +1,4 @@
+// src/main/java/com/clientehm/entity/ProntuarioEntity.java
 package com.clientehm.entity;
 
 import jakarta.persistence.*;
@@ -5,6 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID; // Importar UUID
 
 @Entity
 @Table(name = "prontuarios")
@@ -28,15 +30,12 @@ public class ProntuarioEntity {
     @JoinColumn(name = "administrador_criador_id")
     private AdministradorEntity administradorCriador;
 
-    // @Enumerated(EnumType.STRING) // REMOVIDO
-    // @Column(nullable = false) // REMOVIDO
-    // private TipoTratamento tipoTratamento; // REMOVIDO
-
     @Column(nullable = false)
     private LocalDate dataInicio;
 
-    private LocalDate dataFim;
-    private LocalDate dataAlta;
+    // dataFim não é mais usado diretamente, a alta é controlada pela internação
+    // private LocalDate dataFim;
+    private LocalDate dataAltaAdministrativa; // Para casos de arquivamento manual ou outros fluxos
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,22 +47,33 @@ public class ProntuarioEntity {
     @Column(nullable = false)
     private LocalDateTime dataUltimaAtualizacao;
 
+    // Mantido para histórico geral ou notas não vinculadas a um evento específico
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<HistoricoMedicoEntity> historicoMedico = new ArrayList<>();
+    private List<HistoricoMedicoEntity> historicoGeral = new ArrayList<>();
 
+    // Relação com Entradas Médicas (Consultas)
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<EntradaMedicaRegistroEntity> entradasMedicas = new ArrayList<>();
+    private List<EntradaMedicaRegistroEntity> consultas = new ArrayList<>();
 
-    // TODO: Adicionar outras listas conforme sua modelagem final para Exames, Cirurgias, etc.
-    // Se forem tipos específicos de registros.
+    // Relação com Internações
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<InternacaoEntity> internacoes = new ArrayList<>();
+
+    // TODO: Adicionar outras listas para Exames, Cirurgias se forem entidades separadas.
+    // @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<ExameRegistroEntity> exames = new ArrayList<>();
+
+    // @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    // private List<CirurgiaRegistroEntity> cirurgias = new ArrayList<>();
 
 
     @PrePersist
     protected void onCreate() {
         createdAt = dataUltimaAtualizacao = LocalDateTime.now();
-        if (this.status == null) {
-            this.status = StatusProntuario.ATIVO;
+        if (this.numeroProntuario == null) { // Gerar número do prontuário se não existir
+            this.numeroProntuario = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
+        // O status será definido pela lógica de criação do primeiro evento
     }
 
     @PreUpdate
@@ -71,16 +81,13 @@ public class ProntuarioEntity {
         dataUltimaAtualizacao = LocalDateTime.now();
     }
 
-    // O enum TipoTratamento foi REMOVIDO daqui
-    // public enum TipoTratamento {
-    // TERAPIA_INDIVIDUAL, TERAPIA_CASAL, TERAPIA_GRUPO, TERAPIA_FAMILIAR, OUTRO
-    // }
-
     public enum StatusProntuario {
-        ATIVO, INATIVO, ARQUIVADO, ALTA
+        EM_ELABORACAO, // Status inicial antes do primeiro evento significativo
+        INTERNADO,
+        ARQUIVADO
     }
 
-    // Getters e Setters (remover getter/setter de tipoTratamento)
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -91,22 +98,25 @@ public class ProntuarioEntity {
     public void setMedicoResponsavel(MedicoEntity medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorEntity getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorEntity administradorCriador) { this.administradorCriador = administradorCriador; }
-    // public TipoTratamento getTipoTratamento() { return tipoTratamento; } // REMOVIDO
-    // public void setTipoTratamento(TipoTratamento tipoTratamento) { this.tipoTratamento = tipoTratamento; } // REMOVIDO
     public LocalDate getDataInicio() { return dataInicio; }
     public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
-    public LocalDate getDataFim() { return dataFim; }
-    public void setDataFim(LocalDate dataFim) { this.dataFim = dataFim; }
-    public LocalDate getDataAlta() { return dataAlta; }
-    public void setDataAlta(LocalDate dataAlta) { this.dataAlta = dataAlta; }
+
+    public LocalDate getDataAltaAdministrativa() { return dataAltaAdministrativa; }
+    public void setDataAltaAdministrativa(LocalDate dataAltaAdministrativa) { this.dataAltaAdministrativa = dataAltaAdministrativa; }
+
     public StatusProntuario getStatus() { return status; }
     public void setStatus(StatusProntuario status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
-    public List<HistoricoMedicoEntity> getHistoricoMedico() { return historicoMedico; }
-    public void setHistoricoMedico(List<HistoricoMedicoEntity> historicoMedico) { this.historicoMedico = historicoMedico; }
-    public List<EntradaMedicaRegistroEntity> getEntradasMedicas() { return entradasMedicas; }
-    public void setEntradasMedicas(List<EntradaMedicaRegistroEntity> entradasMedicas) { this.entradasMedicas = entradasMedicas; }
+
+    public List<HistoricoMedicoEntity> getHistoricoGeral() { return historicoGeral; }
+    public void setHistoricoGeral(List<HistoricoMedicoEntity> historicoGeral) { this.historicoGeral = historicoGeral; }
+
+    public List<EntradaMedicaRegistroEntity> getConsultas() { return consultas; }
+    public void setConsultas(List<EntradaMedicaRegistroEntity> consultas) { this.consultas = consultas; }
+
+    public List<InternacaoEntity> getInternacoes() { return internacoes; }
+    public void setInternacoes(List<InternacaoEntity> internacoes) { this.internacoes = internacoes; }
 }
