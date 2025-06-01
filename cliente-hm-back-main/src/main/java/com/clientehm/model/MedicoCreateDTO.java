@@ -21,8 +21,6 @@ public class MedicoCreateDTO {
 
     private String rqe;
 
-
-    // Getters and Setters
     public String getNomeCompleto() {
         return nomeCompleto;
     }

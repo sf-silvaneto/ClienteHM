@@ -9,5 +9,4 @@ import java.util.Optional;
 
 public interface ProntuarioRepository extends JpaRepository<ProntuarioEntity, Long>, JpaSpecificationExecutor<ProntuarioEntity> {
     Optional<ProntuarioEntity> findByNumeroProntuario(String numeroProntuario);
-    // Adicione outros métodos de busca conforme necessário
 }

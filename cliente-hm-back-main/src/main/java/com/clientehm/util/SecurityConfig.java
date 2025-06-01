@@ -1,4 +1,4 @@
-package com.clientehm.util; // Ou o pacote correto
+package com.clientehm.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

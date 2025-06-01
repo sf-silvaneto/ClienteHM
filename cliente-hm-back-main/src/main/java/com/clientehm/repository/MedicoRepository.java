@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface MedicoRepository extends JpaRepository<MedicoEntity, Long>, JpaSpecificationExecutor<MedicoEntity> {
-    Optional<MedicoEntity> findByCrm(String crm); // Usado para unicidade
+    Optional<MedicoEntity> findByCrm(String crm);
     Page<MedicoEntity> findByNomeCompletoContainingIgnoreCase(String nome, Pageable pageable);
     Page<MedicoEntity> findByStatus(StatusMedico status, Pageable pageable);
     Page<MedicoEntity> findByEspecialidadeIgnoreCase(String especialidade, Pageable pageable);

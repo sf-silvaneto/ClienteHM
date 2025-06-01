@@ -27,7 +27,6 @@ public class EnderecoCreateDTO {
     @Pattern(regexp = "^\\d{8}$", message = "CEP deve conter 8 dígitos")
     private String cep;
 
-    // Getters e Setters
     public String getLogradouro() { return logradouro; }
     public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
     public String getNumero() { return numero; }

@@ -18,8 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDate; // Adicionada importação
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -41,12 +40,12 @@ public class PacienteService {
         if (entity.getRacaCor() != null) {
             dto.setRacaCor(entity.getRacaCor().name());
         } else {
-            dto.setRacaCor(null); // Garante que seja null se a entidade for null
+            dto.setRacaCor(null);
         }
         if (entity.getTipoSanguineo() != null) {
             dto.setTipoSanguineo(entity.getTipoSanguineo().name());
         } else {
-            dto.setTipoSanguineo(null); // Garante que seja null se a entidade for null
+            dto.setTipoSanguineo(null);
         }
 
         if (entity.getEndereco() != null) {
@@ -54,6 +53,7 @@ public class PacienteService {
             BeanUtils.copyProperties(entity.getEndereco(), enderecoDTO);
             dto.setEndereco(enderecoDTO);
         }
+
         return dto;
     }
 
@@ -74,18 +74,20 @@ public class PacienteService {
             }
         } catch (IllegalArgumentException e) {
             logger.error("Valor de Enum inválido fornecido na criação: {}", e.getMessage());
-            // Lançar exceção específica ou mapear para um valor padrão/null se apropriado
             throw new IllegalArgumentException("Valor inválido para Gênero, Raça/Cor ou Tipo Sanguíneo: " + e.getMessage());
         }
         entity.setTelefone(dto.getTelefone());
         entity.setEmail(dto.getEmail());
         entity.setNomeMae(dto.getNomeMae());
         entity.setNomePai(dto.getNomePai());
-        // Garante que dataEntrada seja definida, usando o valor do DTO ou a data atual
         entity.setDataEntrada(dto.getDataEntrada() != null ? dto.getDataEntrada() : LocalDate.now());
         entity.setCartaoSus(dto.getCartaoSus());
         entity.setNacionalidade(dto.getNacionalidade());
         entity.setOcupacao(dto.getOcupacao());
+
+        entity.setAlergiasDeclaradas(dto.getAlergiasDeclaradas());
+        entity.setComorbidadesDeclaradas(dto.getComorbidadesDeclaradas());
+        entity.setMedicamentosContinuos(dto.getMedicamentosContinuos());
 
         if (dto.getEndereco() != null) {
             Endereco endereco = new Endereco();
@@ -99,17 +101,13 @@ public class PacienteService {
         if (dto.getDataNascimento() != null) entity.setDataNascimento(dto.getDataNascimento());
         if (StringUtils.hasText(dto.getRg())) entity.setRg(dto.getRg());
 
-        if (dto.getGenero() != null) { // Permite atualizar gênero
+        if (dto.getGenero() != null) {
             if (StringUtils.hasText(dto.getGenero())) {
                 try {
                     entity.setGenero(PacienteEntity.Genero.valueOf(dto.getGenero().toUpperCase()));
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Gênero inválido: " + dto.getGenero());
                 }
-            } else {
-                // Se for uma string vazia e o campo não for obrigatório na entidade, poderia setar para NAO_INFORMADO ou null
-                // Como Genero é obrigatório na entidade, uma string vazia aqui seria um problema de validação no DTO.
-                // Assumindo que o DTO só envia valores válidos do enum ou não envia o campo.
             }
         }
 
@@ -122,9 +120,9 @@ public class PacienteService {
             entity.setEmail(dto.getEmail());
         }
         if (StringUtils.hasText(dto.getNomeMae())) entity.setNomeMae(dto.getNomeMae());
-        if (dto.getNomePai() != null) entity.setNomePai(StringUtils.hasText(dto.getNomePai()) ? dto.getNomePai() : null); // Permite limpar
+        if (dto.getNomePai() != null) entity.setNomePai(StringUtils.hasText(dto.getNomePai()) ? dto.getNomePai() : null);
         if (dto.getDataEntrada() != null) entity.setDataEntrada(dto.getDataEntrada());
-        if (dto.getCartaoSus() != null) entity.setCartaoSus(StringUtils.hasText(dto.getCartaoSus()) ? dto.getCartaoSus() : null); // Permite limpar
+        if (dto.getCartaoSus() != null) entity.setCartaoSus(StringUtils.hasText(dto.getCartaoSus()) ? dto.getCartaoSus() : null);
 
         if (dto.getRacaCor() != null) {
             if (StringUtils.hasText(dto.getRacaCor())) {
@@ -133,7 +131,7 @@ public class PacienteService {
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Raça/Cor inválida: " + dto.getRacaCor());
                 }
-            } else { // Se string vazia, define como null (assumindo que racaCor é opcional)
+            } else {
                 entity.setRacaCor(null);
             }
         }
@@ -145,13 +143,23 @@ public class PacienteService {
                 } catch (IllegalArgumentException e) {
                     throw new IllegalArgumentException("Tipo Sanguíneo inválido: " + dto.getTipoSanguineo());
                 }
-            } else { // Se string vazia, define como null (assumindo que tipoSanguineo é opcional)
+            } else {
                 entity.setTipoSanguineo(null);
             }
         }
 
         if (dto.getNacionalidade() != null) entity.setNacionalidade(StringUtils.hasText(dto.getNacionalidade()) ? dto.getNacionalidade() : null);
         if (dto.getOcupacao() != null) entity.setOcupacao(StringUtils.hasText(dto.getOcupacao()) ? dto.getOcupacao() : null);
+
+        if (dto.getAlergiasDeclaradas() != null) {
+            entity.setAlergiasDeclaradas(StringUtils.hasText(dto.getAlergiasDeclaradas()) ? dto.getAlergiasDeclaradas().trim() : null);
+        }
+        if (dto.getComorbidadesDeclaradas() != null) {
+            entity.setComorbidadesDeclaradas(StringUtils.hasText(dto.getComorbidadesDeclaradas()) ? dto.getComorbidadesDeclaradas().trim() : null);
+        }
+        if (dto.getMedicamentosContinuos() != null) {
+            entity.setMedicamentosContinuos(StringUtils.hasText(dto.getMedicamentosContinuos()) ? dto.getMedicamentosContinuos().trim() : null);
+        }
 
         if (dto.getEndereco() != null) {
             Endereco endereco = entity.getEndereco() != null ? entity.getEndereco() : new Endereco();
@@ -177,27 +185,28 @@ public class PacienteService {
         });
 
         PacienteEntity pacienteEntity = new PacienteEntity();
-        mapCreateDTOToEntity(pacienteCreateDTO, pacienteEntity);
+        mapCreateDTOToEntity(pacienteCreateDTO, pacienteEntity); // Chama o método atualizado
 
         PacienteEntity pacienteSalvo = pacienteRepository.save(pacienteEntity);
         logger.info("SERVICE: Paciente criado com ID: {}", pacienteSalvo.getId());
-        return convertToDTO(pacienteSalvo);
+        return convertToDTO(pacienteSalvo); // Chama o método atualizado
     }
 
     @Transactional(readOnly = true)
     public Page<PacienteDTO> buscarTodosPacientes(Pageable pageable, String nome, String cpf) {
         logger.info("SERVICE: Buscando pacientes. Filtros: nome='{}', cpf='{}'", nome, cpf);
-
-        if (StringUtils.hasText(cpf)) { // Prioriza filtro por CPF se presente
+        Page<PacienteEntity> pacientesPage;
+        if (StringUtils.hasText(cpf)) {
             logger.info("SERVICE: Filtrando por CPF que começa com: {}", cpf);
-            return pacienteRepository.findByCpfStartingWith(cpf, pageable).map(this::convertToDTO);
+            pacientesPage = pacienteRepository.findByCpfStartingWith(cpf, pageable);
         } else if (StringUtils.hasText(nome)) {
             logger.info("SERVICE: Filtrando por nome contendo: {}", nome);
-            return pacienteRepository.findByNomeContainingIgnoreCase(nome, pageable).map(this::convertToDTO);
+            pacientesPage = pacienteRepository.findByNomeContainingIgnoreCase(nome, pageable);
+        } else {
+            logger.info("SERVICE: Buscando todos os pacientes (sem filtros de nome/cpf específicos).");
+            pacientesPage = pacienteRepository.findAll(pageable);
         }
-
-        logger.info("SERVICE: Buscando todos os pacientes (sem filtros de nome/cpf específicos).");
-        return pacienteRepository.findAll(pageable).map(this::convertToDTO);
+        return pacientesPage.map(this::convertToDTO); // Chama o método atualizado
     }
 
     @Transactional(readOnly = true)
@@ -205,7 +214,7 @@ public class PacienteService {
         logger.info("SERVICE: Buscando paciente com ID: {}", id);
         PacienteEntity pacienteEntity = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + id));
-        return convertToDTO(pacienteEntity);
+        return convertToDTO(pacienteEntity); // Chama o método atualizado
     }
 
     @Transactional
@@ -214,11 +223,11 @@ public class PacienteService {
         PacienteEntity pacienteEntity = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + id));
 
-        mapUpdateDTOToEntity(pacienteUpdateDTO, pacienteEntity);
+        mapUpdateDTOToEntity(pacienteUpdateDTO, pacienteEntity); // Chama o método atualizado
 
         PacienteEntity pacienteAtualizado = pacienteRepository.save(pacienteEntity);
         logger.info("SERVICE: Paciente atualizado com ID: {}", pacienteAtualizado.getId());
-        return convertToDTO(pacienteAtualizado);
+        return convertToDTO(pacienteAtualizado); // Chama o método atualizado
     }
 
     @Transactional

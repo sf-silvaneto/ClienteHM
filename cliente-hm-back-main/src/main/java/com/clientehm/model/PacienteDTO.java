@@ -20,17 +20,13 @@ public class PacienteDTO {
     private String tipoSanguineo;
     private String nacionalidade;
     private String ocupacao;
-
-    // NOVOS CAMPOS
     private String alergiasDeclaradas;
     private String comorbidadesDeclaradas;
     private String medicamentosContinuos;
-
     private EnderecoDTO endereco;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Getters e Setters (existente + novos)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -70,6 +66,7 @@ public class PacienteDTO {
     public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
     public String getMedicamentosContinuos() { return medicamentosContinuos; }
     public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+
 
     public EnderecoDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoDTO endereco) { this.endereco = endereco; }

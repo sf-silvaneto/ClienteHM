@@ -20,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,8 +68,6 @@ public class MedicoController {
 
         Page<MedicoDTO> medicosPage;
 
-        // Lógica de Filtro: Aplicar o filtro mais específico fornecido
-        // Idealmente, o service teria um método que aceitasse todos os parâmetros de filtro.
         if (nome != null && !nome.isEmpty()) {
             medicosPage = medicoService.buscarMedicosPorNome(nome, pageable);
         } else if (crm != null && !crm.isEmpty()) { // CRM (número + UF)

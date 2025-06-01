@@ -12,7 +12,6 @@ public class PacienteEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // ... outros campos existentes ...
     @Column(nullable = false)
     private String nome;
 
@@ -52,7 +51,6 @@ public class PacienteEntity {
     private String nacionalidade;
     private String ocupacao;
 
-    // NOVOS CAMPOS PARA O CABEÇALHO FIXO
     @Column(columnDefinition = "TEXT")
     private String alergiasDeclaradas;
 
@@ -61,7 +59,6 @@ public class PacienteEntity {
 
     @Column(columnDefinition = "TEXT")
     private String medicamentosContinuos;
-    // FIM DOS NOVOS CAMPOS
 
     @Embedded
     @AttributeOverrides({
@@ -101,7 +98,6 @@ public class PacienteEntity {
     public enum RacaCor { BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO }
     public enum TipoSanguineo { A_POSITIVO, A_NEGATIVO, B_POSITIVO, B_NEGATIVO, AB_POSITIVO, AB_NEGATIVO, O_POSITIVO, O_NEGATIVO, NAO_SABE, NAO_INFORMADO }
 
-    // --- Getters e Setters para campos existentes ...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -142,12 +138,11 @@ public class PacienteEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    // --- Getters e Setters para os NOVOS CAMPOS ---
     public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
     public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
     public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
     public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
     public String getMedicamentosContinuos() { return medicamentosContinuos; }
     public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+
 }

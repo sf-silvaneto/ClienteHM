@@ -1,8 +1,6 @@
 package com.clientehm.service;
 
 import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
-// import com.clientehm.model.UpdateProfileRequestDTO; // Removido se não for mais usado
-// import com.clientehm.model.UpdateKeywordRequestDTO; // Removido pois foi substituído
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.model.AdministradorLoginDTO;
 import com.clientehm.model.AdministradorRegistroDTO;

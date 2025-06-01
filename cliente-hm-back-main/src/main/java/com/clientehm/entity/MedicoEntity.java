@@ -15,7 +15,7 @@ public class MedicoEntity {
     private String nomeCompleto;
 
     @Column(nullable = false, unique = true)
-    private String crm; // Conselho Regional de Medicina
+    private String crm;
 
     @Column(nullable = false)
     private String especialidade;
@@ -23,7 +23,7 @@ public class MedicoEntity {
     @Column(columnDefinition = "TEXT")
     private String resumoEspecialidade;
 
-    private String rqe; // Registro de Qualificação de Especialista (opcional, mas recomendado)
+    private String rqe;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

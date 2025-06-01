@@ -1,7 +1,8 @@
 package com.clientehm.model;
 
 import java.time.LocalDateTime;
-// import java.util.List; // Para AnexoDTO
+import java.util.List; // IMPORTAR LIST
+import java.util.ArrayList; // IMPORTAR ARRAYLIST
 
 public class EntradaMedicaRegistroDTO {
     private Long id;
@@ -19,9 +20,17 @@ public class EntradaMedicaRegistroDTO {
     private Boolean usaMedicamentosContinuos;
     private String medicamentosContinuosDetalhes;
     private String historicoFamiliarRelevante;
-    private String nomeResponsavelDisplay;
-    // private String responsavelDetalhes; // Se quiser CRM/Especialidade
-    // private List<AnexoDTO> anexos; // Se houver anexos
+
+    // CAMPOS DO RESPONSÁVEL ATUALIZADOS/ADICIONADOS
+    // private String nomeResponsavelDisplay; // Pode ser mantido ou removido se os abaixo forem suficientes
+    private String tipoResponsavel; // Ex: "MEDICO", "ADMINISTRADOR"
+    private Long responsavelId; // ID do médico ou admin
+    private String responsavelNomeCompleto;
+    private String responsavelEspecialidade; // Apenas se for médico
+    private String responsavelCRM;           // Apenas se for médico
+
+    private List<AnexoDTO> anexos = new ArrayList<>(); // NOVA LISTA DE ANEXOS
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -56,8 +65,24 @@ public class EntradaMedicaRegistroDTO {
     public void setMedicamentosContinuosDetalhes(String medicamentosContinuosDetalhes) { this.medicamentosContinuosDetalhes = medicamentosContinuosDetalhes; }
     public String getHistoricoFamiliarRelevante() { return historicoFamiliarRelevante; }
     public void setHistoricoFamiliarRelevante(String historicoFamiliarRelevante) { this.historicoFamiliarRelevante = historicoFamiliarRelevante; }
-    public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
-    public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+
+    // public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
+    // public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+
+    public String getTipoResponsavel() { return tipoResponsavel; }
+    public void setTipoResponsavel(String tipoResponsavel) { this.tipoResponsavel = tipoResponsavel; }
+    public Long getResponsavelId() { return responsavelId; }
+    public void setResponsavelId(Long responsavelId) { this.responsavelId = responsavelId; }
+    public String getResponsavelNomeCompleto() { return responsavelNomeCompleto; }
+    public void setResponsavelNomeCompleto(String responsavelNomeCompleto) { this.responsavelNomeCompleto = responsavelNomeCompleto; }
+    public String getResponsavelEspecialidade() { return responsavelEspecialidade; }
+    public void setResponsavelEspecialidade(String responsavelEspecialidade) { this.responsavelEspecialidade = responsavelEspecialidade; }
+    public String getResponsavelCRM() { return responsavelCRM; }
+    public void setResponsavelCRM(String responsavelCRM) { this.responsavelCRM = responsavelCRM; }
+
+    public List<AnexoDTO> getAnexos() { return anexos; }
+    public void setAnexos(List<AnexoDTO> anexos) { this.anexos = anexos; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -23,11 +23,11 @@ public class PacienteCreateDTO {
     @Pattern(regexp = "^\\d{11}$", message = "CPF deve conter 11 dígitos")
     private String cpf;
 
-    @Pattern(regexp = "^[0-9]{5,15}$", message = "RG deve conter entre 5 e 15 dígitos (apenas números)")
-    private String rg; // Opcional, ajuste o pattern conforme necessidade
+    @Pattern(regexp = "^[0-9]{1,9}$", message = "RG deve conter no máximo 9 dígitos (apenas números)")
+    private String rg;
 
     @NotBlank(message = "Gênero é obrigatório")
-    private String genero; // MASCULINO, FEMININO, OUTRO, NAO_INFORMADO
+    private String genero;
 
     @NotBlank(message = "Telefone é obrigatório")
     @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve conter 10 ou 11 dígitos")
@@ -42,23 +42,26 @@ public class PacienteCreateDTO {
     private String nomeMae;
 
     @Size(min = 3, message = "Nome do pai deve ter no mínimo 3 caracteres (se informado)")
-    private String nomePai; // Opcional
+    private String nomePai;
 
-    private LocalDate dataEntrada; // Opcional na criação, pode ser default no backend
+    private LocalDate dataEntrada;
 
     @Pattern(regexp = "^\\d{15}$", message = "Cartão SUS deve conter 15 dígitos (se informado)")
-    private String cartaoSus; // Opcional
+    private String cartaoSus;
 
-    private String racaCor; // Opcional - BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO
-    private String tipoSanguineo; // Opcional - A_POSITIVO, A_NEGATIVO, etc.
-    private String nacionalidade; // Opcional
-    private String ocupacao; // Opcional
+    private String racaCor;
+    private String tipoSanguineo;
+    private String nacionalidade;
+    private String ocupacao;
+
+    private String alergiasDeclaradas;
+    private String comorbidadesDeclaradas;
+    private String medicamentosContinuos;
 
     @NotNull(message = "Endereço é obrigatório")
     @Valid
     private EnderecoCreateDTO endereco;
 
-    // Getters e Setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public LocalDate getDataNascimento() { return dataNascimento; }
@@ -91,4 +94,10 @@ public class PacienteCreateDTO {
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
     public EnderecoCreateDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoCreateDTO endereco) { this.endereco = endereco; }
+    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
+    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
+    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
+    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
+    public String getMedicamentosContinuos() { return medicamentosContinuos; }
+    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
 }

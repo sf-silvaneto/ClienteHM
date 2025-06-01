@@ -12,10 +12,8 @@ public class RedefinirSenhaDTO {
 
     @NotBlank(message = "Nova senha não pode ser vazia")
     @Size(min = 6, message = "Nova senha deve ter no mínimo 6 caracteres")
-    // Validação de força da senha (isSenhaForte) mantida no serviço/controller
     private String novaSenha;
 
-    // Getters e Setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getNovaSenha() { return novaSenha; }

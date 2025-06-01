@@ -12,7 +12,6 @@ public class VerificarPalavraChaveDTO {
     @NotBlank(message = "Palavra-chave não pode ser vazia")
     private String palavraChave;
 
-    // Getters e Setters
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPalavraChave() { return palavraChave; }

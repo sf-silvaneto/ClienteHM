@@ -1,4 +1,3 @@
-// Em com.clientehm.model.VerifiedProfileUpdateRequestDTO.java
 package com.clientehm.model;
 
 import jakarta.validation.constraints.Email;
@@ -7,15 +6,14 @@ import jakarta.validation.constraints.Size;
 public class VerifiedProfileUpdateRequestDTO {
 
     @Size(min = 3, message = "Nome deve ter no mínimo 3 caracteres, se fornecido.")
-    private String nome; // Opcional
+    private String nome;
 
     @Email(message = "Formato de email inválido, se fornecido.")
-    private String email; // Opcional
+    private String email;
 
     @Size(min = 4, message = "Nova palavra-chave deve ter no mínimo 4 caracteres, se fornecida.")
-    private String novaPalavraChave; // Opcional
+    private String novaPalavraChave;
 
-    // Construtores, Getters e Setters
     public VerifiedProfileUpdateRequestDTO() {}
 
     public VerifiedProfileUpdateRequestDTO(String nome, String email, String novaPalavraChave) {

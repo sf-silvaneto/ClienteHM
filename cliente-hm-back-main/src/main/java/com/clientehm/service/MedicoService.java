@@ -16,7 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
@@ -37,20 +36,17 @@ public class MedicoService {
     @Transactional
     public MedicoDTO criarMedico(MedicoCreateDTO medicoCreateDTO) {
         logger.info("SERVICE: Tentando criar médico com CRM: {}", medicoCreateDTO.getCrm());
-        // Assume que MedicoCreateDTO.getCrm() retorna o CRM completo (numero+UF) se for o caso,
-        // ou apenas o número se o campo na entidade for só número.
-        // A lógica de combinação de CRM+UF do MedicoForm.tsx deve ser consistente com o que é esperado aqui.
         if (medicoRepository.findByCrm(medicoCreateDTO.getCrm()).isPresent()) {
             throw new CrmAlreadyExistsException("CRM " + medicoCreateDTO.getCrm() + " já cadastrado.");
         }
 
         MedicoEntity medicoEntity = new MedicoEntity();
         medicoEntity.setNomeCompleto(medicoCreateDTO.getNomeCompleto());
-        medicoEntity.setCrm(medicoCreateDTO.getCrm()); // Salva o CRM como recebido
+        medicoEntity.setCrm(medicoCreateDTO.getCrm());
         medicoEntity.setEspecialidade(medicoCreateDTO.getEspecialidade());
         medicoEntity.setResumoEspecialidade(medicoCreateDTO.getResumoEspecialidade());
         medicoEntity.setRqe(medicoCreateDTO.getRqe());
-        medicoEntity.setStatus(StatusMedico.ATIVO); // Default status
+        medicoEntity.setStatus(StatusMedico.ATIVO);
 
         MedicoEntity medicoSalvo = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico criado com ID: {}", medicoSalvo.getId());
@@ -75,14 +71,12 @@ public class MedicoService {
         return medicoRepository.findByStatus(status, pageable).map(this::convertToDTO);
     }
 
-    // Método para buscar por especialidade
     @Transactional(readOnly = true)
     public Page<MedicoDTO> buscarMedicosPorEspecialidade(String especialidade, Pageable pageable) {
         logger.info("SERVICE: Buscando médicos pela especialidade: {}", especialidade); // Esta seria aproximadamente a linha 59
         return medicoRepository.findByEspecialidadeIgnoreCase(especialidade, pageable).map(this::convertToDTO);
     }
 
-    // Método para buscar por CRM
     @Transactional(readOnly = true)
     public Page<MedicoDTO> buscarMedicosPorCrm(String crm, Pageable pageable) {
         logger.info("SERVICE: Buscando médicos pelo CRM: {}", crm);
@@ -103,7 +97,6 @@ public class MedicoService {
         MedicoEntity medicoEntity = medicoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Médico não encontrado com ID: " + id));
 
-        // Lógica para atualizar CRM (considerando que MedicoUpdateDTO.getCrm() pode ser o CRM completo com UF)
         if (medicoUpdateDTO.getCrm() != null && !medicoUpdateDTO.getCrm().trim().isEmpty() && !medicoUpdateDTO.getCrm().equals(medicoEntity.getCrm())) {
             Optional<MedicoEntity> medicoExistenteComCrm = medicoRepository.findByCrm(medicoUpdateDTO.getCrm());
             if (medicoExistenteComCrm.isPresent() && !medicoExistenteComCrm.get().getId().equals(id)) {

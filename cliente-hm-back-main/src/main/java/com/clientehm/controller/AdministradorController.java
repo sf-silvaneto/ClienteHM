@@ -5,16 +5,11 @@ import com.clientehm.model.AdministradorRegistroDTO;
 import com.clientehm.model.RedefinirSenhaDTO;
 import com.clientehm.model.VerificarPalavraChaveDTO;
 import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
-// import com.clientehm.model.UpdateProfileRequestDTO; // Removido pois o DTO e o endpoint que o usava foram removidos
-// import com.clientehm.model.UpdateKeywordRequestDTO; // Removido pois foi substituído
-
 import com.clientehm.service.AdministradorService;
-
 import com.clientehm.exception.AdminNotFoundException;
 import com.clientehm.exception.InvalidCredentialsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.exception.WeakPasswordException;
-
 import com.clientehm.entity.AdministradorEntity;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +32,6 @@ public class AdministradorController {
     @Autowired
     private AdministradorService administradorService;
 
-    // Métodos utilitários createResponse, createSuccessResponse, createErrorResponse (sem alteração)
     private ResponseEntity<Map<String, Object>> createResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -58,7 +50,6 @@ public class AdministradorController {
         return createResponse(status, message, null);
     }
 
-    // Endpoints de Autenticação e Registro (sem alterações)
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AdministradorLoginDTO loginDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /login com email: {}", loginDTO.getEmail());
@@ -110,17 +101,12 @@ public class AdministradorController {
         return ResponseEntity.ok(response);
     }
 
-    // <<< ENDPOINT @PutMapping("/profile") REMOVIDO >>>
-    // Removido porque UpdateProfileRequestDTO foi excluído e o fluxo agora usa /profile/verified-update
-
-    // Endpoint para atualizar nome, email E/OU palavra-chave APÓS verificação da palavra-chave atual
     @PutMapping("/profile/verified-update")
     public ResponseEntity<?> updateVerifiedProfileDetails(
             @AuthenticationPrincipal AdministradorEntity currentAdmin,
             @Valid @RequestBody VerifiedProfileUpdateRequestDTO dto) {
         logger.info("CONTROLLER: Recebida requisição PUT para /profile/verified-update para o usuário: {}", currentAdmin.getEmail());
 
-        // Certifique-se que o AdministradorService tenha o método updateVerifiedProfileDetails
         AdministradorEntity updatedAdmin = administradorService.updateVerifiedProfileDetails(currentAdmin.getEmail(), dto);
 
         Map<String, Object> adminData = new HashMap<>();
@@ -136,7 +122,6 @@ public class AdministradorController {
         return ResponseEntity.ok(response);
     }
 
-    // --- MANIPULADORES DE EXCEÇÃO --- (sem alterações aqui)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

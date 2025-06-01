@@ -2,12 +2,11 @@ package com.clientehm.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-// Se você criar uma entidade Anexo para múltiplos anexos por entrada:
-// import java.util.List;
-// import java.util.ArrayList;
+import java.util.List; // IMPORTAR LIST
+import java.util.ArrayList; // IMPORTAR ARRAYLIST
 
 @Entity
-@Table(name = "entradas_medicas_registros") // Nome da tabela no plural
+@Table(name = "entradas_medicas_registros")
 public class EntradaMedicaRegistroEntity {
 
     @Id
@@ -27,10 +26,10 @@ public class EntradaMedicaRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String queixasPrincipais;
 
-    private String pressaoArterial; // Ex: "120/80"
-    private String temperatura; // Armazenar como String para flexibilidade de formato ex: "36.5 °C"
-    private String frequenciaCardiaca; // Ex: "75 bpm"
-    private String saturacao; // Ex: "98%"
+    private String pressaoArterial;
+    private String temperatura;
+    private String frequenciaCardiaca;
+    private String saturacao;
 
     @Column(columnDefinition = "TEXT")
     private String alergiasDetalhe;
@@ -47,26 +46,21 @@ public class EntradaMedicaRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String historicoFamiliarRelevante;
 
-    // Responsável pelo registro da entrada
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsavel_admin_id")
-    private AdministradorEntity responsavelAdmin; // Se um admin puder registrar
+    private AdministradorEntity responsavelAdmin;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsavel_medico_id")
-    private MedicoEntity responsavelMedico; // Se um médico puder registrar
+    private MedicoEntity responsavelMedico;
 
     @Column(nullable = false)
-    private String nomeResponsavelDisplay; // Nome a ser exibido (do admin ou médico)
+    private String nomeResponsavelDisplay;
 
 
-    // Para anexos (se decidir por uma relação direta simples com AnexoEntity)
-    // @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    // @JoinColumn(name = "anexo_id", referencedColumnName = "id")
-    // private AnexoEntity anexoPrincipal;
-    // Ou, para múltiplos anexos:
-    // @OneToMany(mappedBy = "entradaMedica", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    // private List<AnexoEntradaMedicaEntity> anexos = new ArrayList<>();
+    // MODIFICAÇÃO/ADIÇÃO PARA ANEXOS
+    @OneToMany(mappedBy = "entradaMedica", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<AnexoEntradaMedicaEntity> anexos = new ArrayList<>();
 
 
     @Column(nullable = false, updatable = false)
@@ -128,6 +122,8 @@ public class EntradaMedicaRegistroEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    // public List<AnexoEntradaMedicaEntity> getAnexos() { return anexos; }
-    // public void setAnexos(List<AnexoEntradaMedicaEntity> anexos) { this.anexos = anexos; }
+
+    // GETTER E SETTER PARA ANEXOS
+    public List<AnexoEntradaMedicaEntity> getAnexos() { return anexos; }
+    public void setAnexos(List<AnexoEntradaMedicaEntity> anexos) { this.anexos = anexos; }
 }

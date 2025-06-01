@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +45,6 @@ public class PacienteController {
         body.put("dados", data);
         return ResponseEntity.status(status).body(body);
     }
-
 
     @PostMapping
     public ResponseEntity<?> criarPaciente(@Valid @RequestBody PacienteCreateDTO pacienteCreateDTO) {
@@ -123,7 +121,6 @@ public class PacienteController {
         }
     }
 
-    // --- MANIPULADORES DE EXCEÇÃO ---
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

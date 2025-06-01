@@ -16,16 +16,10 @@ public class AdministradorEntity implements UserDetails { // Implementar UserDet
     private Long id;
     private String nome;
 
-    @Column(unique = true) // Boa prática ter email único
+    @Column(unique = true)
     private String email;
     private String senha;
     private String palavraChave;
-
-    // Campos UserDetails (adicionar se não existirem, ou mapear para existentes)
-    // private boolean accountNonExpired = true;
-    // private boolean accountNonLocked = true;
-    // private boolean credentialsNonExpired = true;
-    // private boolean enabled = true;
 
     public AdministradorEntity() {
     }
@@ -37,23 +31,19 @@ public class AdministradorEntity implements UserDetails { // Implementar UserDet
         this.palavraChave = palavraChave;
     }
 
-    // Getters e Setters existentes ...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    // Não exponha o setter da senha diretamente se for gerenciada apenas pelo BCrypt
     public String getSenha() { return senha; }
     public void setSenha(String senha) { this.senha = senha; }
     public String getPalavraChave() { return palavraChave; }
     public void setPalavraChave(String palavraChave) { this.palavraChave = palavraChave; }
 
-    // --- Implementação dos métodos UserDetails ---
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Se você tiver roles, mapeie-as aqui. Por enquanto, um admin simples.
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
@@ -64,26 +54,26 @@ public class AdministradorEntity implements UserDetails { // Implementar UserDet
 
     @Override
     public String getUsername() {
-        return this.email; // Email é o username
+        return this.email;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true; // Adicione lógica se necessário
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true; // Adicione lógica se necessário
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true; // Adicione lógica se necessário
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return true; // Adicione lógica se necessário (ex: verificação de email)
+        return true;
     }
 }

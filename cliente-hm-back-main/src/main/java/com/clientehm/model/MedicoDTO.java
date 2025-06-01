@@ -14,8 +14,6 @@ public class MedicoDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Constructors, Getters, and Setters
-
     public MedicoDTO() {
     }
 

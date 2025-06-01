@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class EnderecoUpdateDTO {
-    // Todos os campos são opcionais para atualização
     private String logradouro;
     private String numero;
     private String complemento;

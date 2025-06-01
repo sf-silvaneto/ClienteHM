@@ -18,15 +18,12 @@ public class AdministradorRegistroDTO {
 
     @NotBlank(message = "Senha não pode ser vazia")
     @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
-    // A validação de força da senha (isSenhaForte) será mantida no serviço/controller
-    // por ser mais complexa que uma simples anotação, mas @Size já ajuda.
     private String senha;
 
     @NotBlank(message = "Palavra-chave não pode ser vazia")
     @Size(min = 4, message = "Palavra-chave deve ter no mínimo 4 caracteres")
     private String palavraChave;
 
-    // Getters e Setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public String getEmail() { return email; }

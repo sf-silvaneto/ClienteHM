@@ -9,7 +9,6 @@ public class EnderecoDTO {
     private String estado;
     private String cep;
 
-    // Construtores, Getters e Setters
     public EnderecoDTO() {
     }
 

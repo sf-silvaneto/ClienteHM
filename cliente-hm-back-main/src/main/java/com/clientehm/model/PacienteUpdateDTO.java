@@ -15,13 +15,10 @@ public class PacienteUpdateDTO {
     @PastOrPresent(message = "Data de nascimento deve ser no passado ou presente")
     private LocalDate dataNascimento;
 
-    // CPF geralmente não é alterável. Se for, precisa de validação cuidadosa.
-    // private String cpf;
-
-    @Pattern(regexp = "^[0-9]{5,15}$", message = "RG deve conter entre 5 e 15 dígitos (apenas números)")
+    @Pattern(regexp = "^[0-9]{1,9}$", message = "RG deve conter no máximo 9 dígitos (apenas números)")
     private String rg;
 
-    private String genero; // MASCULINO, FEMININO, OUTRO, NAO_INFORMADO
+    private String genero;
 
     @Pattern(regexp = "^\\d{10,11}$", message = "Telefone deve conter 10 ou 11 dígitos")
     private String telefone;
@@ -45,10 +42,13 @@ public class PacienteUpdateDTO {
     private String nacionalidade;
     private String ocupacao;
 
+    private String alergiasDeclaradas;
+    private String comorbidadesDeclaradas;
+    private String medicamentosContinuos;
+
     @Valid
     private EnderecoUpdateDTO endereco;
 
-    // Getters e Setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
     public LocalDate getDataNascimento() { return dataNascimento; }
@@ -79,4 +79,11 @@ public class PacienteUpdateDTO {
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
     public EnderecoUpdateDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoUpdateDTO endereco) { this.endereco = endereco; }
+
+    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
+    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
+    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
+    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
+    public String getMedicamentosContinuos() { return medicamentosContinuos; }
+    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
 }

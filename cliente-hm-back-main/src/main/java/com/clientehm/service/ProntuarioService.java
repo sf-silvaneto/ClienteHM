@@ -1,10 +1,10 @@
 package com.clientehm.service;
 
-import com.clientehm.entity.*; // Import all entities from the package
+import com.clientehm.entity.*;
 import com.clientehm.exception.ResourceNotFoundException;
-import com.clientehm.model.CriarEntradaMedicaRequestDTO; // Importar novo DTO
+import com.clientehm.model.CriarEntradaMedicaRequestDTO;
 import com.clientehm.model.NovoProntuarioRequestDTO;
-import com.clientehm.repository.*; // Import all repositories
+import com.clientehm.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,6 @@ public class ProntuarioService {
     @Autowired private AdministradorRepository administradorRepository;
     @Autowired private EntradaMedicaRegistroRepository entradaMedicaRegistroRepository; // NOVO REPOSITÓRIO
 
-    // ... (métodos existentes buscarTodos, buscarPorId, criarProntuario) ...
     @Transactional(readOnly = true)
     public Page<ProntuarioEntity> buscarTodos(Pageable pageable) {
         return prontuarioRepository.findAll(pageable);
@@ -37,13 +36,8 @@ public class ProntuarioService {
 
     @Transactional(readOnly = true)
     public ProntuarioEntity buscarPorId(Long id) {
-        // Para popular a timeline, você pode precisar carregar as coleções aqui
-        // Ex: usando um fetch join na query do repositório ou Hibernate.initialize()
         ProntuarioEntity prontuario = prontuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
-        // Exemplo para carregar explicitamente se for LAZY e necessário:
-        // Hibernate.initialize(prontuario.getEntradasMedicas());
-        // Hibernate.initialize(prontuario.getHistoricoMedico());
         return prontuario;
     }
 
@@ -132,12 +126,8 @@ public class ProntuarioService {
 
         novaEntrada.setHistoricoFamiliarRelevante(dto.getHistoricoFamiliarRelevante());
 
-        // Definir o responsável pelo registro
-        // Aqui, assumimos que o admin logado é o responsável. Poderia ser um médico.
         novaEntrada.setResponsavelAdmin(adminLogado);
         novaEntrada.setNomeResponsavelDisplay(adminLogado.getNome());
-        // Se um médico também puder registrar, você precisaria de lógica para determinar qual é o responsável
-        // e possivelmente um campo no DTO para indicar quem é o profissional registrando.
 
         return entradaMedicaRegistroRepository.save(novaEntrada);
     }
