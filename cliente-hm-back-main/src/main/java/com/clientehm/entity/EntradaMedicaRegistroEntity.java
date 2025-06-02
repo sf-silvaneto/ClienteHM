@@ -1,14 +1,14 @@
-// src/main/java/com/clientehm/entity/EntradaMedicaRegistroEntity.java
+// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/entity/EntradaMedicaRegistroEntity.java
 package com.clientehm.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
+// import java.util.List; // Não é mais necessário para anexos
+// import java.util.ArrayList; // Não é mais necessário para anexos
 
 @Entity
-@Table(name = "registros_consultas") // Nome da tabela já sugerido
-public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRegistroEntity
+@Table(name = "registros_consultas")
+public class EntradaMedicaRegistroEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,21 +32,6 @@ public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRe
     private String frequenciaCardiaca;
     private String saturacao;
 
-    // Campos de antecedentes como alergias, comorbidades, etc., foram removidos
-    // do formulário de CADA consulta. Se você decidiu que eles NÃO DEVEM MAIS
-    // ser armazenados AQUI (nesta entidade de consulta), então remova os campos abaixo:
-    // @Column(columnDefinition = "TEXT")
-    // private String alergiasDetalhe;
-    // private Boolean semAlergiasConhecidas;
-    // private Boolean temComorbidades;
-    // @Column(columnDefinition = "TEXT")
-    // private String comorbidadesDetalhes;
-    // private Boolean usaMedicamentosContinuos;
-    // @Column(columnDefinition = "TEXT")
-    // private String medicamentosContinuosDetalhes;
-    // @Column(columnDefinition = "TEXT")
-    // private String historicoFamiliarRelevante;
-
     @Column(columnDefinition = "TEXT")
     private String exameFisico;
 
@@ -56,7 +41,6 @@ public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRe
     @Column(columnDefinition = "TEXT")
     private String condutaPlanoTerapeutico;
 
-    // NOVOS CAMPOS
     @Column(columnDefinition = "TEXT")
     private String detalhesConsulta;
 
@@ -74,8 +58,7 @@ public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRe
     @Column(nullable = false)
     private String nomeResponsavelDisplay;
 
-    @OneToMany(mappedBy = "entradaMedica", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<AnexoEntradaMedicaEntity> anexos = new ArrayList<>();
+    // Removido: private List<AnexoEntradaMedicaEntity> anexos = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -94,7 +77,7 @@ public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRe
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters (incluir para os novos campos e remover os de antecedentes se foram excluídos da entidade)
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
@@ -113,43 +96,23 @@ public class EntradaMedicaRegistroEntity { // Pode ser renomeada para ConsultaRe
     public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
     public String getSaturacao() { return saturacao; }
     public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
-
-    // Se removeu os campos de antecedentes da entidade, remova os getters/setters abaixo
-    // public String getAlergiasDetalhe() { return alergiasDetalhe; }
-    // public void setAlergiasDetalhe(String alergiasDetalhe) { this.alergiasDetalhe = alergiasDetalhe; }
-    // public Boolean getSemAlergiasConhecidas() { return semAlergiasConhecidas; }
-    // public void setSemAlergiasConhecidas(Boolean semAlergiasConhecidas) { this.semAlergiasConhecidas = semAlergiasConhecidas; }
-    // public Boolean getTemComorbidades() { return temComorbidades; }
-    // public void setTemComorbidades(Boolean temComorbidades) { this.temComorbidades = temComorbidades; }
-    // public String getComorbidadesDetalhes() { return comorbidadesDetalhes; }
-    // public void setComorbidadesDetalhes(String comorbidadesDetalhes) { this.comorbidadesDetalhes = comorbidadesDetalhes; }
-    // public Boolean getUsaMedicamentosContinuos() { return usaMedicamentosContinuos; }
-    // public void setUsaMedicamentosContinuos(Boolean usaMedicamentosContinuos) { this.usaMedicamentosContinuos = usaMedicamentosContinuos; }
-    // public String getMedicamentosContinuosDetalhes() { return medicamentosContinuosDetalhes; }
-    // public void setMedicamentosContinuosDetalhes(String medicamentosContinuosDetalhes) { this.medicamentosContinuosDetalhes = medicamentosContinuosDetalhes; }
-    // public String getHistoricoFamiliarRelevante() { return historicoFamiliarRelevante; }
-    // public void setHistoricoFamiliarRelevante(String historicoFamiliarRelevante) { this.historicoFamiliarRelevante = historicoFamiliarRelevante; }
-
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }
     public void setHipoteseDiagnostica(String hipoteseDiagnostica) { this.hipoteseDiagnostica = hipoteseDiagnostica; }
     public String getCondutaPlanoTerapeutico() { return condutaPlanoTerapeutico; }
     public void setCondutaPlanoTerapeutico(String condutaPlanoTerapeutico) { this.condutaPlanoTerapeutico = condutaPlanoTerapeutico; }
-
     public String getDetalhesConsulta() { return detalhesConsulta; }
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
-
     public AdministradorEntity getResponsavelAdmin() { return responsavelAdmin; }
     public void setResponsavelAdmin(AdministradorEntity responsavelAdmin) { this.responsavelAdmin = responsavelAdmin; }
     public MedicoEntity getResponsavelMedico() { return responsavelMedico; }
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
     public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
-    public List<AnexoEntradaMedicaEntity> getAnexos() { return anexos; }
-    public void setAnexos(List<AnexoEntradaMedicaEntity> anexos) { this.anexos = anexos; }
+    // Removido getter/setter para anexos
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

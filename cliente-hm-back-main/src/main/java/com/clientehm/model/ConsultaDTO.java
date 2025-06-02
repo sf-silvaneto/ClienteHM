@@ -1,9 +1,9 @@
-// src/main/java/com/clientehm/model/ConsultaDTO.java
+// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/model/ConsultaDTO.java
 package com.clientehm.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
+// import java.util.List; // Não é mais necessário para anexos
+// import java.util.ArrayList; // Não é mais necessário para anexos
 
 public class ConsultaDTO {
     private Long id;
@@ -14,22 +14,11 @@ public class ConsultaDTO {
     private String temperatura;
     private String frequenciaCardiaca;
     private String saturacao;
-    // Os campos de Alergias, Comorbidades, etc., que foram removidos do formulário,
-    // podem ou não ser mantidos aqui dependendo se ainda vêm da entidade.
-    // Se foram removidos da entidade EntradaMedicaRegistroEntity também, remova-os daqui.
-    // private String alergiasDetalhe;
-    // private Boolean semAlergiasConhecidas;
-    // private Boolean temComorbidades;
-    // private String comorbidadesDetalhes;
-    // private Boolean usaMedicamentosContinuos;
-    // private String medicamentosContinuosDetalhes;
-    // private String historicoFamiliarRelevante;
 
     private String exameFisico;
     private String hipoteseDiagnostica;
     private String condutaPlanoTerapeutico;
 
-    // NOVOS CAMPOS
     private String detalhesConsulta;
     private String observacoesConsulta;
 
@@ -39,7 +28,7 @@ public class ConsultaDTO {
     private String responsavelEspecialidade;
     private String responsavelCRM;
 
-    private List<AnexoDTO> anexos = new ArrayList<>();
+    // private List<AnexoDTO> anexos = new ArrayList<>(); // REMOVIDO
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -84,8 +73,8 @@ public class ConsultaDTO {
     public void setResponsavelEspecialidade(String responsavelEspecialidade) { this.responsavelEspecialidade = responsavelEspecialidade; }
     public String getResponsavelCRM() { return responsavelCRM; }
     public void setResponsavelCRM(String responsavelCRM) { this.responsavelCRM = responsavelCRM; }
-    public List<AnexoDTO> getAnexos() { return anexos; }
-    public void setAnexos(List<AnexoDTO> anexos) { this.anexos = anexos; }
+    // public List<AnexoDTO> getAnexos() { return anexos; } // REMOVIDO
+    // public void setAnexos(List<AnexoDTO> anexos) { this.anexos = anexos; } // REMOVIDO
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

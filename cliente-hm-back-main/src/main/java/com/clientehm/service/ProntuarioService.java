@@ -1,18 +1,15 @@
+// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/service/ProntuarioService.java
 package com.clientehm.service;
 
-// Imports explícitos para as entidades usadas
 import com.clientehm.entity.ProntuarioEntity;
 import com.clientehm.entity.PacienteEntity;
-import com.clientehm.entity.MedicoEntity; // Import explícito
-import com.clientehm.entity.StatusMedico; // Import explícito
+import com.clientehm.entity.MedicoEntity;
+import com.clientehm.entity.StatusMedico;
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.entity.EntradaMedicaRegistroEntity;
-import com.clientehm.entity.InternacaoEntity;
 
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.model.CriarConsultaRequestDTO;
-import com.clientehm.model.InternacaoRequestDTO;
-import com.clientehm.model.RegistrarAltaInternacaoDTO;
 import com.clientehm.repository.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -46,21 +43,10 @@ public class ProntuarioService {
     @Autowired private MedicoRepository medicoRepository;
     @Autowired private AdministradorRepository administradorRepository;
     @Autowired private EntradaMedicaRegistroRepository consultaRepository;
-    @Autowired private InternacaoRepository internacaoRepository;
 
     @Transactional(readOnly = true)
-    public Page<ProntuarioEntity> buscarTodosProntuarios(Pageable pageable, String termo, String numeroProntuarioFilter, String statusFilterString) {
-        logger.info("SERVICE: Iniciando busca de prontuários. Termo: '{}', NumProntuario: '{}', Status: '{}'", termo, numeroProntuarioFilter, statusFilterString);
-
-        ProntuarioEntity.StatusProntuario statusEnum = null;
-        if (StringUtils.hasText(statusFilterString)) {
-            try {
-                statusEnum = ProntuarioEntity.StatusProntuario.valueOf(statusFilterString.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                logger.warn("Status de prontuário inválido fornecido para busca: {}", statusFilterString);
-            }
-        }
-        final ProntuarioEntity.StatusProntuario finalStatusEnum = statusEnum;
+    public Page<ProntuarioEntity> buscarTodosProntuarios(Pageable pageable, String termo, String numeroProntuarioFilter) {
+        logger.info("SERVICE: Iniciando busca de prontuários. Termo: '{}', NumProntuario: '{}'", termo, numeroProntuarioFilter);
 
         Specification<ProntuarioEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -77,12 +63,9 @@ public class ProntuarioService {
             if (StringUtils.hasText(numeroProntuarioFilter)) {
                 predicates.add(cb.like(cb.lower(root.get("numeroProntuario")), "%" + numeroProntuarioFilter.toLowerCase() + "%"));
             }
-            if (finalStatusEnum != null) {
-                predicates.add(cb.equal(root.get("status"), finalStatusEnum));
-            }
-            query.distinct(true); // Para evitar duplicatas se houver múltiplos joins que podem causar isso
-            root.fetch("paciente", JoinType.LEFT); // Eager fetch para evitar N+1
-            root.fetch("medicoResponsavel", JoinType.LEFT); // Eager fetch
+            query.distinct(true);
+            root.fetch("paciente", JoinType.LEFT);
+            root.fetch("medicoResponsavel", JoinType.LEFT);
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
@@ -101,9 +84,7 @@ public class ProntuarioService {
     public ProntuarioEntity buscarProntuarioPorId(Long id) {
         ProntuarioEntity prontuario = prontuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
-        // Forçar inicialização de coleções LAZY
         prontuario.getConsultas().size();
-        prontuario.getInternacoes().size();
         prontuario.getHistoricoGeral().size();
         return prontuario;
     }
@@ -122,9 +103,9 @@ public class ProntuarioService {
             return prontuarioExistente;
         } else {
             logger.info("Nenhum prontuário existente para o paciente ID: {}. Criando um novo.", pacienteId);
-            MedicoEntity medicoResponsavel = medicoRepository.findById(medicoResponsavelId) // Usa MedicoEntity
+            MedicoEntity medicoResponsavel = medicoRepository.findById(medicoResponsavelId)
                     .orElseThrow(() -> new ResourceNotFoundException("Médico responsável não encontrado com ID: " + medicoResponsavelId));
-            if (medicoResponsavel.getStatus() != StatusMedico.ATIVO) { // Usa StatusMedico
+            if (medicoResponsavel.getStatus() != StatusMedico.ATIVO) {
                 throw new IllegalArgumentException("Médico selecionado ("+ medicoResponsavel.getNomeCompleto() +") para ser responsável pelo prontuário não está ativo.");
             }
 
@@ -132,9 +113,7 @@ public class ProntuarioService {
             novoProntuario.setPaciente(paciente);
             novoProntuario.setMedicoResponsavel(medicoResponsavel);
             novoProntuario.setAdministradorCriador(adminLogado);
-            novoProntuario.setNumeroProntuario(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
-            novoProntuario.setDataInicio(LocalDate.now());
-            novoProntuario.setStatus(ProntuarioEntity.StatusProntuario.EM_ELABORACAO);
+            // numeroProntuario e dataInicio serão definidos no @PrePersist via ProntuarioEntity
 
             return prontuarioRepository.save(novoProntuario);
         }
@@ -148,9 +127,9 @@ public class ProntuarioService {
             Long medicoExecutorId,
             boolean criarProntuarioSeNaoExistir) {
 
-        MedicoEntity medicoExecutor = medicoRepository.findById(medicoExecutorId) // Usa MedicoEntity
+        MedicoEntity medicoExecutor = medicoRepository.findById(medicoExecutorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Médico executor da consulta não encontrado com ID: " + medicoExecutorId));
-        if (medicoExecutor.getStatus() != StatusMedico.ATIVO) { // Usa StatusMedico
+        if (medicoExecutor.getStatus() != StatusMedico.ATIVO) {
             throw new IllegalArgumentException("Médico executor da consulta ("+ medicoExecutor.getNomeCompleto() +") não está ativo.");
         }
 
@@ -183,78 +162,15 @@ public class ProntuarioService {
         novaConsulta.setResponsavelMedico(medicoExecutor);
         novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
-        if (prontuario.getStatus() != ProntuarioEntity.StatusProntuario.INTERNADO) {
-            prontuario.setStatus(ProntuarioEntity.StatusProntuario.ARQUIVADO);
-        }
-        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-        prontuarioRepository.save(prontuario);
+        // A dataUltimaAtualizacao do prontuário será setada automaticamente pelo @PreUpdate
+        prontuarioRepository.save(prontuario); // Garante que o @PreUpdate seja chamado se necessário
 
         return consultaRepository.save(novaConsulta);
     }
 
-    @Transactional
-    public InternacaoEntity adicionarInternacao(Long pacienteIdParaProntuario, InternacaoRequestDTO dto, AdministradorEntity adminLogado, boolean criarProntuarioSeNaoExistir) {
-        ProntuarioEntity prontuario;
-        MedicoEntity medicoAdmissao = medicoRepository.findById(dto.getMedicoResponsavelAdmissaoId()) // Usa MedicoEntity
-                .orElseThrow(() -> new ResourceNotFoundException("Médico de admissão não encontrado com ID: " + dto.getMedicoResponsavelAdmissaoId()));
-        if (medicoAdmissao.getStatus() != StatusMedico.ATIVO) { // Usa StatusMedico
-            throw new IllegalArgumentException("Médico de admissão ("+ medicoAdmissao.getNomeCompleto() +") não está ativo.");
-        }
-
-        if (criarProntuarioSeNaoExistir) {
-            prontuario = findOrCreateProntuario(pacienteIdParaProntuario, dto.getMedicoResponsavelAdmissaoId(), adminLogado);
-        } else {
-            prontuario = prontuarioRepository.findById(pacienteIdParaProntuario)
-                    .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + pacienteIdParaProntuario));
-        }
-
-        logger.info("Adicionando internação ao prontuário ID: {} pelo admin: {}", prontuario.getId(), adminLogado.getEmail());
-
-        InternacaoEntity novaInternacao = new InternacaoEntity();
-        novaInternacao.setProntuario(prontuario);
-        novaInternacao.setDataAdmissao(dto.getDataAdmissao());
-        novaInternacao.setMotivoInternacao(dto.getMotivoInternacao());
-        novaInternacao.setHistoriaDoencaAtual(dto.getHistoriaDoencaAtual());
-        novaInternacao.setDataAltaPrevista(dto.getDataAltaPrevista());
-
-        novaInternacao.setResponsavelAdmissaoMedico(medicoAdmissao); // Usa MedicoEntity
-        novaInternacao.setNomeResponsavelAdmissaoDisplay(medicoAdmissao.getNomeCompleto());
-
-        prontuario.setStatus(ProntuarioEntity.StatusProntuario.INTERNADO);
-        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-        prontuarioRepository.save(prontuario);
-
-        return internacaoRepository.save(novaInternacao);
-    }
 
     @Transactional
-    public InternacaoEntity registrarAltaInternacao(Long internacaoId, RegistrarAltaInternacaoDTO dto, AdministradorEntity adminLogado) {
-        logger.info("Registrando alta para internação ID: {} pelo admin: {}", internacaoId, adminLogado != null ? adminLogado.getEmail() : "SISTEMA");
-        InternacaoEntity internacao = internacaoRepository.findById(internacaoId)
-                .orElseThrow(() -> new ResourceNotFoundException("Internação não encontrada com ID: " + internacaoId));
-
-        MedicoEntity medicoAlta = medicoRepository.findById(dto.getMedicoResponsavelAltaId()) // Usa MedicoEntity
-                .orElseThrow(() -> new ResourceNotFoundException("Médico responsável pela alta não encontrado com ID: " + dto.getMedicoResponsavelAltaId()));
-        if (medicoAlta.getStatus() != StatusMedico.ATIVO) { // Usa StatusMedico
-            throw new IllegalArgumentException("Médico da alta ("+ medicoAlta.getNomeCompleto() +") não está ativo.");
-        }
-
-        internacao.setDataAltaEfetiva(dto.getDataAltaEfetiva());
-        internacao.setResumoAlta(dto.getResumoAlta());
-        internacao.setMedicoResponsavelAlta(medicoAlta); // Usa MedicoEntity
-
-        ProntuarioEntity prontuario = internacao.getProntuario();
-        prontuario.setStatus(ProntuarioEntity.StatusProntuario.ARQUIVADO);
-        prontuario.setDataAltaAdministrativa(dto.getDataAltaEfetiva().toLocalDate());
-        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-        prontuarioRepository.save(prontuario);
-
-        return internacaoRepository.save(internacao);
-    }
-
-    // Este é o método provavelmente na linha 255 ou próxima a ela
-    @Transactional
-    public ProntuarioEntity atualizarDadosBasicosProntuario(Long prontuarioId, Long medicoResponsavelIdNovo, ProntuarioEntity.StatusProntuario novoStatus, LocalDate novaDataAltaAdministrativa) {
+    public ProntuarioEntity atualizarDadosBasicosProntuario(Long prontuarioId, Long medicoResponsavelIdNovo) {
         ProntuarioEntity prontuario = prontuarioRepository.findById(prontuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + prontuarioId));
 
@@ -262,11 +178,9 @@ public class ProntuarioService {
         if (medicoResponsavelIdNovo != null &&
                 (prontuario.getMedicoResponsavel() == null || !medicoResponsavelIdNovo.equals(prontuario.getMedicoResponsavel().getId()))) {
 
-            // A linha abaixo usa MedicoEntity. O import explícito ou o wildcard deve resolver.
             MedicoEntity medicoNovo = medicoRepository.findById(medicoResponsavelIdNovo)
                     .orElseThrow(() -> new ResourceNotFoundException("Médico responsável não encontrado com ID: " + medicoResponsavelIdNovo));
 
-            // A linha abaixo usa StatusMedico. O import explícito ou o wildcard deve resolver.
             if (medicoNovo.getStatus() != StatusMedico.ATIVO) {
                 throw new IllegalArgumentException("Novo médico responsável selecionado ("+ medicoNovo.getNomeCompleto() +") não está ativo.");
             }
@@ -274,31 +188,10 @@ public class ProntuarioService {
             modificado = true;
         }
 
-        if (novoStatus != null && novoStatus != prontuario.getStatus()) {
-            if (novoStatus == ProntuarioEntity.StatusProntuario.INTERNADO &&
-                    !prontuario.getInternacoes().stream().anyMatch(i -> i.getDataAltaEfetiva() == null)) {
-                throw new IllegalArgumentException("Não é possível definir o status para INTERNADO manualmente sem uma internação ativa.");
-            }
-            prontuario.setStatus(novoStatus);
-            modificado = true;
-        }
-
-        if (novaDataAltaAdministrativa != null &&
-                (prontuario.getDataAltaAdministrativa() == null || !novaDataAltaAdministrativa.isEqual(prontuario.getDataAltaAdministrativa()))) {
-            prontuario.setDataAltaAdministrativa(novaDataAltaAdministrativa);
-            if(prontuario.getStatus() != ProntuarioEntity.StatusProntuario.INTERNADO) {
-                prontuario.setStatus(ProntuarioEntity.StatusProntuario.ARQUIVADO);
-            }
-            modificado = true;
-        } else if (novaDataAltaAdministrativa == null && prontuario.getDataAltaAdministrativa() != null) {
-            prontuario.setDataAltaAdministrativa(null);
-            modificado = true;
-        }
-
         if (modificado) {
-            prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+            // dataUltimaAtualizacao será setada pelo @PreUpdate ao salvar
             return prontuarioRepository.save(prontuario);
         }
         return prontuario;
     }
-}
+} // ESTA É A CHAVE FINAL DA CLASSE
