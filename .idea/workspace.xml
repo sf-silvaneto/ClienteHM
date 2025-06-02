@@ -21,6 +21,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "main",
     "vue.rearranger.settings.migration": "true"
   }
@@ -42,6 +43,7 @@
       <updated>1748558565610</updated>
       <workItem from="1748558566782" duration="3000" />
       <workItem from="1748653686728" duration="4000" />
+      <workItem from="1748883496165" duration="21000" />
     </task>
     <servers />
   </component>
