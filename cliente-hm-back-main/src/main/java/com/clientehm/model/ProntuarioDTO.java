@@ -16,9 +16,14 @@ public class ProntuarioDTO {
     private LocalDateTime dataUltimaAtualizacao;
     private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>();
     private List<ConsultaDTO> consultas = new ArrayList<>();
+    // NOVAS LISTAS DE DTOs ADICIONADAS
+    private List<ExameRegistroDTO> examesRegistrados = new ArrayList<>();
+    private List<ProcedimentoRegistroDTO> procedimentosRegistrados = new ArrayList<>();
+    private List<EncaminhamentoRegistroDTO> encaminhamentosRegistrados = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    // Getters e Setters existentes...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -41,6 +46,15 @@ public class ProntuarioDTO {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    // GETTERS E SETTERS PARA AS NOVAS LISTAS DE DTOs
+    public List<ExameRegistroDTO> getExamesRegistrados() { return examesRegistrados; }
+    public void setExamesRegistrados(List<ExameRegistroDTO> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
+    public List<ProcedimentoRegistroDTO> getProcedimentosRegistrados() { return procedimentosRegistrados; }
+    public void setProcedimentosRegistrados(List<ProcedimentoRegistroDTO> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
+    public List<EncaminhamentoRegistroDTO> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
+    public void setEncaminhamentosRegistrados(List<EncaminhamentoRegistroDTO> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
+
 
     public static class MedicoBasicDTO {
         private Long id;

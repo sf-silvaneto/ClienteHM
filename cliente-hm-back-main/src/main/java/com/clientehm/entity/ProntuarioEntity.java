@@ -23,7 +23,7 @@ public class ProntuarioEntity {
     private PacienteEntity paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_id", nullable = false)
+    @JoinColumn(name = "medico_id", nullable = false) // Médico responsável geral pelo prontuário
     private MedicoEntity medicoResponsavel;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +45,16 @@ public class ProntuarioEntity {
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<EntradaMedicaRegistroEntity> consultas = new ArrayList<>();
 
+    // NOVAS LISTAS ADICIONADAS
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ExameRegistroEntity> examesRegistrados = new ArrayList<>();
+
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ProcedimentoRegistroEntity> procedimentosRegistrados = new ArrayList<>();
+
+    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<EncaminhamentoRegistroEntity> encaminhamentosRegistrados = new ArrayList<>();
+
 
     @PrePersist
     protected void onCreate() {
@@ -62,6 +72,7 @@ public class ProntuarioEntity {
         dataUltimaAtualizacao = LocalDateTime.now();
     }
 
+    // Getters e Setters existentes...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -83,4 +94,11 @@ public class ProntuarioEntity {
     public List<EntradaMedicaRegistroEntity> getConsultas() { return consultas; }
     public void setConsultas(List<EntradaMedicaRegistroEntity> consultas) { this.consultas = consultas; }
 
+    // GETTERS E SETTERS PARA AS NOVAS LISTAS
+    public List<ExameRegistroEntity> getExamesRegistrados() { return examesRegistrados; }
+    public void setExamesRegistrados(List<ExameRegistroEntity> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
+    public List<ProcedimentoRegistroEntity> getProcedimentosRegistrados() { return procedimentosRegistrados; }
+    public void setProcedimentosRegistrados(List<ProcedimentoRegistroEntity> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
+    public List<EncaminhamentoRegistroEntity> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
+    public void setEncaminhamentosRegistrados(List<EncaminhamentoRegistroEntity> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
 }

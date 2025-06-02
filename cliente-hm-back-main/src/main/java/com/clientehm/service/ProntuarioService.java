@@ -1,21 +1,15 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/service/ProntuarioService.java
 package com.clientehm.service;
 
-import com.clientehm.entity.ProntuarioEntity;
-import com.clientehm.entity.PacienteEntity;
-import com.clientehm.entity.MedicoEntity;
-import com.clientehm.entity.StatusMedico;
-import com.clientehm.entity.AdministradorEntity;
-import com.clientehm.entity.EntradaMedicaRegistroEntity;
-
+import com.clientehm.entity.*;
 import com.clientehm.exception.ResourceNotFoundException;
-import com.clientehm.model.CriarConsultaRequestDTO;
+import com.clientehm.model.*;
 import com.clientehm.repository.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,12 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ProntuarioService {
@@ -43,30 +36,195 @@ public class ProntuarioService {
     @Autowired private MedicoRepository medicoRepository;
     @Autowired private AdministradorRepository administradorRepository;
     @Autowired private EntradaMedicaRegistroRepository consultaRepository;
+    @Autowired private ExameRegistroRepository exameRepository;
+    @Autowired private ProcedimentoRegistroRepository procedimentoRepository;
+    @Autowired private EncaminhamentoRegistroRepository encaminhamentoRepository;
+
+    // --- MÉTODOS DE CONVERSÃO INTERNOS AO SERVIÇO ---
+
+    private ProntuarioDTO.MedicoBasicDTO convertMedicoToBasicDTO(MedicoEntity medico) {
+        if (medico == null) return null;
+        ProntuarioDTO.MedicoBasicDTO dto = new ProntuarioDTO.MedicoBasicDTO();
+        BeanUtils.copyProperties(medico, dto);
+        return dto;
+    }
+
+    private ProntuarioDTO.AdministradorBasicDTO convertAdminToBasicDTO(AdministradorEntity admin) {
+        if (admin == null) return null;
+        ProntuarioDTO.AdministradorBasicDTO dto = new ProntuarioDTO.AdministradorBasicDTO();
+        dto.setId(admin.getId());
+        dto.setNome(admin.getNome());
+        dto.setEmail(admin.getEmail()); // Acesso seguro dentro da transação
+        return dto;
+    }
+
+    private PacienteDTO convertPacienteToDTO(PacienteEntity paciente) {
+        if (paciente == null) return null;
+        PacienteDTO dto = new PacienteDTO();
+        BeanUtils.copyProperties(paciente, dto, "endereco");
+        if (paciente.getGenero() != null) dto.setGenero(paciente.getGenero().name());
+        if (paciente.getRacaCor() != null) dto.setRacaCor(paciente.getRacaCor().name());
+        if (paciente.getTipoSanguineo() != null) dto.setTipoSanguineo(paciente.getTipoSanguineo().name());
+        dto.setAlergiasDeclaradas(paciente.getAlergiasDeclaradas());
+        dto.setComorbidadesDeclaradas(paciente.getComorbidadesDeclaradas());
+        dto.setMedicamentosContinuos(paciente.getMedicamentosContinuos());
+        if (paciente.getEndereco() != null) {
+            EnderecoDTO enderecoDTO = new EnderecoDTO();
+            BeanUtils.copyProperties(paciente.getEndereco(), enderecoDTO);
+            dto.setEndereco(enderecoDTO);
+        }
+        return dto;
+    }
+
+
+    // Conversor para a LISTAGEM (DTO mais leve)
+    private ProntuarioDTO convertProntuarioEntityToBasicListDTO(ProntuarioEntity entity) {
+        if (entity == null) return null;
+        ProntuarioDTO dto = new ProntuarioDTO();
+
+        dto.setId(entity.getId());
+        dto.setNumeroProntuario(entity.getNumeroProntuario());
+        dto.setDataInicio(entity.getDataInicio());
+        dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getDataUltimaAtualizacao()); // ou entity.getUpdatedAt() se existir
+
+        if (entity.getPaciente() != null) {
+            dto.setPaciente(convertPacienteToDTO(entity.getPaciente()));
+        }
+        if (entity.getMedicoResponsavel() != null) {
+            dto.setMedicoResponsavel(convertMedicoToBasicDTO(entity.getMedicoResponsavel()));
+        }
+        // Não incluir administradorCriador ou listas de registros para a listagem básica
+        return dto;
+    }
+
+    // Conversor para DETALHES (DTO completo)
+    private ProntuarioDTO convertProntuarioEntityToDetailedDTO(ProntuarioEntity entity) {
+        if (entity == null) return null;
+        ProntuarioDTO dto = convertProntuarioEntityToBasicListDTO(entity); // Reutiliza o básico
+
+        // Adiciona o criador e as coleções detalhadas
+        if (entity.getAdministradorCriador() != null) {
+            dto.setAdministradorCriador(convertAdminToBasicDTO(entity.getAdministradorCriador()));
+        }
+
+        if (entity.getHistoricoGeral() != null && !entity.getHistoricoGeral().isEmpty()) {
+            dto.setHistoricoGeral(entity.getHistoricoGeral().stream()
+                    .map(this::convertHistoricoEntityToDTO).collect(Collectors.toList()));
+        }
+        if (entity.getConsultas() != null && !entity.getConsultas().isEmpty()) {
+            dto.setConsultas(entity.getConsultas().stream()
+                    .map(this::convertConsultaEntityToDTO).collect(Collectors.toList()));
+        }
+        if (entity.getExamesRegistrados() != null && !entity.getExamesRegistrados().isEmpty()) {
+            dto.setExamesRegistrados(entity.getExamesRegistrados().stream()
+                    .map(this::convertExameRegistroEntityToDTO).collect(Collectors.toList()));
+        }
+        if (entity.getProcedimentosRegistrados() != null && !entity.getProcedimentosRegistrados().isEmpty()) {
+            dto.setProcedimentosRegistrados(entity.getProcedimentosRegistrados().stream()
+                    .map(this::convertProcedimentoRegistroEntityToDTO).collect(Collectors.toList()));
+        }
+        if (entity.getEncaminhamentosRegistrados() != null && !entity.getEncaminhamentosRegistrados().isEmpty()) {
+            dto.setEncaminhamentosRegistrados(entity.getEncaminhamentosRegistrados().stream()
+                    .map(this::convertEncaminhamentoRegistroEntityToDTO).collect(Collectors.toList()));
+        }
+        return dto;
+    }
+
+    private HistoricoMedicoDTO convertHistoricoEntityToDTO(HistoricoMedicoEntity entity) {
+        if (entity == null) return null;
+        HistoricoMedicoDTO dto = new HistoricoMedicoDTO();
+        BeanUtils.copyProperties(entity, dto);
+        return dto;
+    }
+
+    private ConsultaDTO convertConsultaEntityToDTO(EntradaMedicaRegistroEntity entity) {
+        if (entity == null) return null;
+        ConsultaDTO dto = new ConsultaDTO();
+        BeanUtils.copyProperties(entity, dto, "prontuario");
+        dto.setId(entity.getId());
+
+        if (entity.getResponsavelMedico() != null) {
+            dto.setTipoResponsavel("MEDICO");
+            dto.setResponsavelId(entity.getResponsavelMedico().getId());
+            dto.setResponsavelNomeCompleto(entity.getResponsavelMedico().getNomeCompleto());
+            dto.setResponsavelEspecialidade(entity.getResponsavelMedico().getEspecialidade());
+            dto.setResponsavelCRM(entity.getResponsavelMedico().getCrm());
+        } else if (entity.getResponsavelAdmin() != null) {
+            dto.setTipoResponsavel("ADMINISTRADOR");
+            dto.setResponsavelId(entity.getResponsavelAdmin().getId());
+            dto.setResponsavelNomeCompleto(entity.getResponsavelAdmin().getNome());
+        } else {
+            dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
+        }
+        return dto;
+    }
+
+    private ExameRegistroDTO convertExameRegistroEntityToDTO(ExameRegistroEntity entity) {
+        if (entity == null) return null;
+        ExameRegistroDTO dto = new ExameRegistroDTO();
+        BeanUtils.copyProperties(entity, dto, "prontuario", "medicoResponsavelExame");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoResponsavelExame() != null) {
+            dto.setMedicoResponsavelExameId(entity.getMedicoResponsavelExame().getId());
+            dto.setMedicoResponsavelExameNome(entity.getMedicoResponsavelExame().getNomeCompleto());
+        }
+        return dto;
+    }
+    private ProcedimentoRegistroDTO convertProcedimentoRegistroEntityToDTO(ProcedimentoRegistroEntity entity) {
+        if (entity == null) return null;
+        ProcedimentoRegistroDTO dto = new ProcedimentoRegistroDTO();
+        BeanUtils.copyProperties(entity, dto, "prontuario", "medicoExecutor");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoExecutor() != null) {
+            dto.setMedicoExecutorId(entity.getMedicoExecutor().getId());
+            dto.setMedicoExecutorNome(entity.getMedicoExecutor().getNomeCompleto());
+        }
+        return dto;
+    }
+
+    private EncaminhamentoRegistroDTO convertEncaminhamentoRegistroEntityToDTO(EncaminhamentoRegistroEntity entity) {
+        if (entity == null) return null;
+        EncaminhamentoRegistroDTO dto = new EncaminhamentoRegistroDTO();
+        BeanUtils.copyProperties(entity, dto, "prontuario", "medicoSolicitante");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoSolicitante() != null) {
+            dto.setMedicoSolicitanteId(entity.getMedicoSolicitante().getId());
+            dto.setMedicoSolicitanteNome(entity.getMedicoSolicitante().getNomeCompleto());
+            dto.setMedicoSolicitanteCRM(entity.getMedicoSolicitante().getCrm());
+        }
+        return dto;
+    }
 
     @Transactional(readOnly = true)
-    public Page<ProntuarioEntity> buscarTodosProntuarios(Pageable pageable, String termo, String numeroProntuarioFilter) {
-        logger.info("SERVICE: Iniciando busca de prontuários. Termo: '{}', NumProntuario: '{}'", termo, numeroProntuarioFilter);
+    public Page<ProntuarioDTO> buscarTodosProntuarios(Pageable pageable, String termo, String numeroProntuarioFilter) {
+        logger.info("SERVICE: Iniciando busca de prontuários (retornando DTO básico). Termo: '{}', NumProntuario: '{}'", termo, numeroProntuarioFilter);
 
         Specification<ProntuarioEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Join<ProntuarioEntity, PacienteEntity> pacienteJoin = root.join("paciente", JoinType.LEFT);
+
+            root.fetch("paciente", JoinType.LEFT);
+            root.fetch("medicoResponsavel", JoinType.LEFT);
+            // Não precisa buscar o administradorCriador para a listagem básica, para otimizar
+            // root.fetch("administradorCriador", JoinType.LEFT);
 
             if (StringUtils.hasText(termo)) {
                 String termoLike = "%" + termo.toLowerCase() + "%";
+                Join<ProntuarioEntity, PacienteEntity> pacienteJoinForFilter = root.join("paciente", JoinType.LEFT);
                 predicates.add(cb.or(
                         cb.like(cb.lower(root.get("numeroProntuario")), termoLike),
-                        cb.like(cb.lower(pacienteJoin.get("nome")), termoLike),
-                        cb.like(pacienteJoin.get("cpf"), termoLike)
+                        cb.like(cb.lower(pacienteJoinForFilter.get("nome")), termoLike),
+                        cb.like(pacienteJoinForFilter.get("cpf"), termoLike)
                 ));
             }
             if (StringUtils.hasText(numeroProntuarioFilter)) {
                 predicates.add(cb.like(cb.lower(root.get("numeroProntuario")), "%" + numeroProntuarioFilter.toLowerCase() + "%"));
             }
             query.distinct(true);
-            root.fetch("paciente", JoinType.LEFT);
-            root.fetch("medicoResponsavel", JoinType.LEFT);
-
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -75,22 +233,38 @@ public class ProntuarioService {
             pageableComSort = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("dataUltimaAtualizacao").descending());
         }
 
-        Page<ProntuarioEntity> resultado = prontuarioRepository.findAll(spec, pageableComSort);
-        logger.info("SERVICE: Busca concluída. Encontrados {} prontuários na página {} de {}.", resultado.getNumberOfElements(), resultado.getNumber() + 1, resultado.getTotalPages());
-        return resultado;
+        Page<ProntuarioEntity> resultadoEntities = prontuarioRepository.findAll(spec, pageableComSort);
+        Page<ProntuarioDTO> resultadoDTOs = resultadoEntities.map(this::convertProntuarioEntityToBasicListDTO); // Usa o conversor básico
+
+        logger.info("SERVICE: Busca DTO (básico) concluída. Encontrados {} prontuários na página {} de {}.", resultadoDTOs.getNumberOfElements(), resultadoDTOs.getNumber() + 1, resultadoDTOs.getTotalPages());
+        return resultadoDTOs;
     }
 
     @Transactional(readOnly = true)
-    public ProntuarioEntity buscarProntuarioPorId(Long id) {
+    public ProntuarioDTO buscarProntuarioPorIdDetalhado(Long id) {
         ProntuarioEntity prontuario = prontuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
+
+        // Forçar o carregamento das coleções LAZY antes de converter para DTO detalhado
         prontuario.getConsultas().size();
+        prontuario.getExamesRegistrados().size();
+        prontuario.getProcedimentosRegistrados().size();
+        prontuario.getEncaminhamentosRegistrados().size();
         prontuario.getHistoricoGeral().size();
-        return prontuario;
+        // Acessar o administrador criador para garantir que seja carregado, se for LAZY
+        if (prontuario.getAdministradorCriador() != null) {
+            prontuario.getAdministradorCriador().getNome(); // Acessa uma propriedade para inicializar
+        }
+
+        return convertProntuarioEntityToDetailedDTO(prontuario);
     }
 
-    private ProntuarioEntity findOrCreateProntuario(Long pacienteId, Long medicoResponsavelId, AdministradorEntity adminLogado) {
-        logger.debug("Procurando ou criando prontuário para paciente ID: {} com médico responsável ID: {}", pacienteId, medicoResponsavelId);
+    // ... (findOrCreateProntuario, adicionarConsulta, adicionarExame, adicionarProcedimento, adicionarEncaminhamento, atualizarDadosBasicosProntuario) ...
+    // Estes métodos permanecem como na versão anterior, mas lembre-se que eles retornam ENTIDADES de registro.
+    // O Controller irá chamar os métodos de conversão apropriados.
+
+    private ProntuarioEntity findOrCreateProntuario(Long pacienteId, Long medicoResponsavelProntuarioId, AdministradorEntity adminLogado) {
+        logger.debug("Procurando ou criando prontuário para paciente ID: {} com médico responsável ID: {}", pacienteId, medicoResponsavelProntuarioId);
 
         PacienteEntity paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + pacienteId));
@@ -103,8 +277,8 @@ public class ProntuarioService {
             return prontuarioExistente;
         } else {
             logger.info("Nenhum prontuário existente para o paciente ID: {}. Criando um novo.", pacienteId);
-            MedicoEntity medicoResponsavel = medicoRepository.findById(medicoResponsavelId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Médico responsável não encontrado com ID: " + medicoResponsavelId));
+            MedicoEntity medicoResponsavel = medicoRepository.findById(medicoResponsavelProntuarioId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Médico responsável pelo prontuário não encontrado com ID: " + medicoResponsavelProntuarioId));
             if (medicoResponsavel.getStatus() != StatusMedico.ATIVO) {
                 throw new IllegalArgumentException("Médico selecionado ("+ medicoResponsavel.getNomeCompleto() +") para ser responsável pelo prontuário não está ativo.");
             }
@@ -113,15 +287,13 @@ public class ProntuarioService {
             novoProntuario.setPaciente(paciente);
             novoProntuario.setMedicoResponsavel(medicoResponsavel);
             novoProntuario.setAdministradorCriador(adminLogado);
-            // numeroProntuario e dataInicio serão definidos no @PrePersist via ProntuarioEntity
-
             return prontuarioRepository.save(novoProntuario);
         }
     }
 
     @Transactional
     public EntradaMedicaRegistroEntity adicionarConsulta(
-            Long pacienteIdParaProntuario,
+            Long pacienteId,
             CriarConsultaRequestDTO dto,
             AdministradorEntity adminLogado,
             Long medicoExecutorId,
@@ -133,39 +305,104 @@ public class ProntuarioService {
             throw new IllegalArgumentException("Médico executor da consulta ("+ medicoExecutor.getNomeCompleto() +") não está ativo.");
         }
 
-        ProntuarioEntity prontuario;
-        if (criarProntuarioSeNaoExistir) {
-            prontuario = findOrCreateProntuario(pacienteIdParaProntuario, medicoExecutorId, adminLogado);
-        } else {
-            prontuario = prontuarioRepository.findById(pacienteIdParaProntuario)
-                    .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + pacienteIdParaProntuario));
-        }
+        ProntuarioEntity prontuario = findOrCreateProntuario(pacienteId, medicoExecutorId, adminLogado);
 
         logger.info("Adicionando consulta ao prontuário ID: {} pelo admin: {}", prontuario.getId(), adminLogado.getEmail());
 
         EntradaMedicaRegistroEntity novaConsulta = new EntradaMedicaRegistroEntity();
         novaConsulta.setProntuario(prontuario);
-        novaConsulta.setDataHoraConsulta(dto.getDataHoraConsulta());
-        novaConsulta.setMotivoConsulta(dto.getMotivoConsulta());
-        novaConsulta.setQueixasPrincipais(dto.getQueixasPrincipais());
-        novaConsulta.setPressaoArterial(dto.getPressaoArterial());
-        novaConsulta.setTemperatura(dto.getTemperatura());
-        novaConsulta.setFrequenciaCardiaca(dto.getFrequenciaCardiaca());
-        novaConsulta.setSaturacao(dto.getSaturacao());
-
-        novaConsulta.setExameFisico(dto.getExameFisico());
-        novaConsulta.setHipoteseDiagnostica(dto.getHipoteseDiagnostica());
-        novaConsulta.setCondutaPlanoTerapeutico(dto.getCondutaPlanoTerapeutico());
-        novaConsulta.setDetalhesConsulta(dto.getDetalhesConsulta());
-        novaConsulta.setObservacoesConsulta(dto.getObservacoesConsulta());
-
+        BeanUtils.copyProperties(dto, novaConsulta);
         novaConsulta.setResponsavelMedico(medicoExecutor);
         novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
-        // A dataUltimaAtualizacao do prontuário será setada automaticamente pelo @PreUpdate
-        prontuarioRepository.save(prontuario); // Garante que o @PreUpdate seja chamado se necessário
-
+        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        // prontuarioRepository.save(prontuario); // O save do registro abaixo já deve atualizar o prontuário se houver cascade e @PreUpdate
         return consultaRepository.save(novaConsulta);
+    }
+
+    @Transactional
+    public ExameRegistroEntity adicionarExame(
+            Long pacienteId,
+            CriarExameRequestDTO dto,
+            AdministradorEntity adminLogado,
+            Long medicoResponsavelExameId,
+            boolean criarProntuarioSeNaoExistir) {
+
+        MedicoEntity medicoExame = medicoRepository.findById(medicoResponsavelExameId)
+                .orElseThrow(() -> new ResourceNotFoundException("Médico responsável pelo exame não encontrado com ID: " + medicoResponsavelExameId));
+        if (medicoExame.getStatus() != StatusMedico.ATIVO) {
+            throw new IllegalArgumentException("Médico responsável pelo exame ("+ medicoExame.getNomeCompleto() +") não está ativo.");
+        }
+
+        ProntuarioEntity prontuario = findOrCreateProntuario(pacienteId, medicoResponsavelExameId, adminLogado);
+
+        logger.info("Adicionando exame ao prontuário ID: {} pelo admin: {}", prontuario.getId(), adminLogado.getEmail());
+
+        ExameRegistroEntity novoExame = new ExameRegistroEntity();
+        novoExame.setProntuario(prontuario);
+        novoExame.setNome(dto.getNome());
+        novoExame.setDataExame(dto.getData());
+        novoExame.setResultado(dto.getResultado());
+        novoExame.setObservacoes(dto.getObservacoes());
+        novoExame.setMedicoResponsavelExame(medicoExame);
+        novoExame.setNomeResponsavelDisplay(adminLogado.getNome());
+
+        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        return exameRepository.save(novoExame);
+    }
+
+    @Transactional
+    public ProcedimentoRegistroEntity adicionarProcedimento(
+            Long pacienteId,
+            CriarProcedimentoRequestDTO dto,
+            AdministradorEntity adminLogado,
+            boolean criarProntuarioSeNaoExistir) {
+
+        MedicoEntity medicoExecutor = medicoRepository.findById(dto.getMedicoExecutorId())
+                .orElseThrow(() -> new ResourceNotFoundException("Médico executor do procedimento não encontrado com ID: " + dto.getMedicoExecutorId()));
+        if (medicoExecutor.getStatus() != StatusMedico.ATIVO) {
+            throw new IllegalArgumentException("Médico executor do procedimento ("+ medicoExecutor.getNomeCompleto() +") não está ativo.");
+        }
+
+        ProntuarioEntity prontuario = findOrCreateProntuario(pacienteId, dto.getMedicoExecutorId(), adminLogado);
+
+        logger.info("Adicionando procedimento ao prontuário ID: {} pelo admin: {}", prontuario.getId(), adminLogado.getEmail());
+
+        ProcedimentoRegistroEntity novoProcedimento = new ProcedimentoRegistroEntity();
+        novoProcedimento.setProntuario(prontuario);
+        BeanUtils.copyProperties(dto, novoProcedimento, "medicoExecutorId");
+        novoProcedimento.setMedicoExecutor(medicoExecutor);
+        novoProcedimento.setNomeResponsavelDisplay(adminLogado.getNome());
+
+        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        return procedimentoRepository.save(novoProcedimento);
+    }
+
+    @Transactional
+    public EncaminhamentoRegistroEntity adicionarEncaminhamento(
+            Long pacienteId,
+            CriarEncaminhamentoRequestDTO dto,
+            AdministradorEntity adminLogado,
+            boolean criarProntuarioSeNaoExistir) {
+
+        MedicoEntity medicoSolicitante = medicoRepository.findById(dto.getMedicoSolicitanteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Médico solicitante do encaminhamento não encontrado com ID: " + dto.getMedicoSolicitanteId()));
+        if (medicoSolicitante.getStatus() != StatusMedico.ATIVO) {
+            throw new IllegalArgumentException("Médico solicitante ("+ medicoSolicitante.getNomeCompleto() +") não está ativo.");
+        }
+
+        ProntuarioEntity prontuario = findOrCreateProntuario(pacienteId, dto.getMedicoSolicitanteId(), adminLogado);
+
+        logger.info("Adicionando encaminhamento ao prontuário ID: {} pelo admin: {}", prontuario.getId(), adminLogado.getEmail());
+
+        EncaminhamentoRegistroEntity novoEncaminhamento = new EncaminhamentoRegistroEntity();
+        novoEncaminhamento.setProntuario(prontuario);
+        BeanUtils.copyProperties(dto, novoEncaminhamento, "medicoSolicitanteId");
+        novoEncaminhamento.setMedicoSolicitante(medicoSolicitante);
+        novoEncaminhamento.setNomeResponsavelDisplay(adminLogado.getNome());
+
+        prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        return encaminhamentoRepository.save(novoEncaminhamento);
     }
 
 
@@ -189,9 +426,9 @@ public class ProntuarioService {
         }
 
         if (modificado) {
-            // dataUltimaAtualizacao será setada pelo @PreUpdate ao salvar
+            // A dataUltimaAtualizacao será setada pelo @PreUpdate ao salvar
             return prontuarioRepository.save(prontuario);
         }
         return prontuario;
     }
-} // ESTA É A CHAVE FINAL DA CLASSE
+}

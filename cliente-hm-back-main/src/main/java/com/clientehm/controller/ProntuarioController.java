@@ -1,4 +1,3 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/controller/ProntuarioController.java
 package com.clientehm.controller;
 
 import com.clientehm.entity.*;
@@ -8,7 +7,8 @@ import com.clientehm.service.ProntuarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
+// Removido BeanUtils, pois a conversão principal agora está no Service
+// import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +22,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+// Removido Collectors, pois a conversão da Page é feita no service
+// import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/prontuarios")
@@ -33,76 +34,17 @@ public class ProntuarioController {
     @Autowired
     private ProntuarioService prontuarioService;
 
-    // --- CONVERSORES DTO ---
-    private ProntuarioDTO convertProntuarioToDTO(ProntuarioEntity entity) {
-        if (entity == null) return null;
-        ProntuarioDTO dto = new ProntuarioDTO();
-        BeanUtils.copyProperties(entity, dto, "historicoGeral", "consultas");
-        // Campos removidos: status, dataAltaAdministrativa, internacoes
-        dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getDataUltimaAtualizacao()); // Correto é updatedAt da entidade
+    // --- MÉTODOS DE CONVERSÃO DE ENTIDADES DE REGISTRO PARA DTOs DE REGISTRO ---
+    // (Necessários aqui porque os métodos de adicionar evento no serviço retornam as ENTIDADES de registro)
 
-        if (entity.getPaciente() != null) {
-            PacienteDTO pacienteDTO = new PacienteDTO();
-            BeanUtils.copyProperties(entity.getPaciente(), pacienteDTO);
-            if (entity.getPaciente().getGenero() != null) {
-                pacienteDTO.setGenero(entity.getPaciente().getGenero().name());
-            }
-            if (entity.getPaciente().getRacaCor() != null) {
-                pacienteDTO.setRacaCor(entity.getPaciente().getRacaCor().name());
-            }
-            if (entity.getPaciente().getTipoSanguineo() != null) {
-                pacienteDTO.setTipoSanguineo(entity.getPaciente().getTipoSanguineo().name());
-            }
-            pacienteDTO.setAlergiasDeclaradas(entity.getPaciente().getAlergiasDeclaradas());
-            pacienteDTO.setComorbidadesDeclaradas(entity.getPaciente().getComorbidadesDeclaradas());
-            pacienteDTO.setMedicamentosContinuos(entity.getPaciente().getMedicamentosContinuos());
-
-            if (entity.getPaciente().getEndereco() != null) {
-                EnderecoDTO enderecoDTO = new EnderecoDTO();
-                BeanUtils.copyProperties(entity.getPaciente().getEndereco(), enderecoDTO);
-                pacienteDTO.setEndereco(enderecoDTO);
-            }
-            dto.setPaciente(pacienteDTO);
-        }
-
-        if (entity.getMedicoResponsavel() != null) {
-            ProntuarioDTO.MedicoBasicDTO medicoDTO = new ProntuarioDTO.MedicoBasicDTO();
-            BeanUtils.copyProperties(entity.getMedicoResponsavel(), medicoDTO);
-            dto.setMedicoResponsavel(medicoDTO);
-        }
-        if (entity.getAdministradorCriador() != null) {
-            ProntuarioDTO.AdministradorBasicDTO adminDTO = new ProntuarioDTO.AdministradorBasicDTO();
-            BeanUtils.copyProperties(entity.getAdministradorCriador(), adminDTO);
-            dto.setAdministradorCriador(adminDTO);
-        }
-
-        if (entity.getHistoricoGeral() != null) {
-            dto.setHistoricoGeral(entity.getHistoricoGeral().stream()
-                    .map(this::convertHistoricoToDTO).collect(Collectors.toList()));
-        }
-        if (entity.getConsultas() != null) {
-            dto.setConsultas(entity.getConsultas().stream()
-                    .map(this::convertConsultaToDTO).collect(Collectors.toList()));
-        }
-        return dto;
-    }
-
-    private HistoricoMedicoDTO convertHistoricoToDTO(HistoricoMedicoEntity entity) {
-        if (entity == null) return null;
-        HistoricoMedicoDTO dto = new HistoricoMedicoDTO();
-        BeanUtils.copyProperties(entity, dto);
-        return dto;
-    }
-
-    private ConsultaDTO convertConsultaToDTO(EntradaMedicaRegistroEntity entity) {
+    private ConsultaDTO convertConsultaEntityToDTO(EntradaMedicaRegistroEntity entity) {
         if (entity == null) return null;
         ConsultaDTO dto = new ConsultaDTO();
-        BeanUtils.copyProperties(entity, dto); // Copia a maioria dos campos
-
-        // Se os nomes em EntradaMedicaRegistroEntity e ConsultaDTO forem diferentes,
-        // pode ser necessário mapeamento explícito, mas assumindo que são iguais ou BeanUtils.copyProperties lida com isso.
+        // Copiar campos de EntradaMedicaRegistroEntity para ConsultaDTO
+        // O BeanUtils.copyProperties pode ser usado aqui se os nomes dos campos forem compatíveis.
+        // Exemplo:
+        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario"); // Ignora o prontuário para evitar ciclos
+        dto.setId(entity.getId()); // Garante que o ID da consulta seja copiado
 
         if (entity.getResponsavelMedico() != null) {
             dto.setTipoResponsavel("MEDICO");
@@ -117,17 +59,61 @@ public class ProntuarioController {
         } else {
             dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
         }
-        // Remoção de anexos de ConsultaDTO já foi feita no DTO em si
+        // Se ConsultaDTO tiver um campo prontuarioId, você pode setá-lo aqui:
+        // dto.setProntuarioId(entity.getProntuario().getId());
         return dto;
     }
 
+    private ExameRegistroDTO convertExameRegistroEntityToDTO(ExameRegistroEntity entity) {
+        if (entity == null) return null;
+        ExameRegistroDTO dto = new ExameRegistroDTO();
+        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario", "medicoResponsavelExame");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoResponsavelExame() != null) {
+            dto.setMedicoResponsavelExameId(entity.getMedicoResponsavelExame().getId());
+            dto.setMedicoResponsavelExameNome(entity.getMedicoResponsavelExame().getNomeCompleto());
+        }
+        return dto;
+    }
+
+    private ProcedimentoRegistroDTO convertProcedimentoRegistroEntityToDTO(ProcedimentoRegistroEntity entity) {
+        if (entity == null) return null;
+        ProcedimentoRegistroDTO dto = new ProcedimentoRegistroDTO();
+        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario", "medicoExecutor");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoExecutor() != null) {
+            dto.setMedicoExecutorId(entity.getMedicoExecutor().getId());
+            dto.setMedicoExecutorNome(entity.getMedicoExecutor().getNomeCompleto());
+        }
+        return dto;
+    }
+
+    private EncaminhamentoRegistroDTO convertEncaminhamentoRegistroEntityToDTO(EncaminhamentoRegistroEntity entity) {
+        if (entity == null) return null;
+        EncaminhamentoRegistroDTO dto = new EncaminhamentoRegistroDTO();
+        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario", "medicoSolicitante");
+        dto.setId(entity.getId());
+        dto.setProntuarioId(entity.getProntuario().getId());
+        if (entity.getMedicoSolicitante() != null) {
+            dto.setMedicoSolicitanteId(entity.getMedicoSolicitante().getId());
+            dto.setMedicoSolicitanteNome(entity.getMedicoSolicitante().getNomeCompleto());
+            dto.setMedicoSolicitanteCRM(entity.getMedicoSolicitante().getCrm());
+        }
+        return dto;
+    }
+
+    // O método convertProntuarioEntityToDetailedDTO foi movido para o ProntuarioService,
+    // mas os conversores de registros específicos (acima) são usados pelos endpoints de criação.
+
+
     @GetMapping
-    public ResponseEntity<Map<String, Object>> buscarProntuariosPaginado(
+    public ResponseEntity<Page<ProntuarioDTO>> buscarProntuariosPaginado(
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) String numeroProntuario,
-            // REMOVIDO: @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "dataUltimaAtualizacao,desc") String[] sort
     ) {
         logger.info("CONTROLLER: GET /api/prontuarios - pagina={}, tamanho={}, termo={}, numeroProntuario={}, sort={}",
@@ -139,25 +125,15 @@ public class ProntuarioController {
         Sort sortBy = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(pagina, tamanho, sortBy);
 
-        Page<ProntuarioEntity> prontuariosPage = prontuarioService.buscarTodosProntuarios(pageable, termo, numeroProntuario);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", prontuariosPage.getContent().stream().map(this::convertProntuarioToDTO).collect(Collectors.toList()));
-        Map<String, Object> pageableResponse = new HashMap<>();
-        pageableResponse.put("pageNumber", prontuariosPage.getNumber());
-        pageableResponse.put("pageSize", prontuariosPage.getSize());
-        pageableResponse.put("totalPages", prontuariosPage.getTotalPages());
-        pageableResponse.put("totalElements", prontuariosPage.getTotalElements());
-        response.put("pageable", pageableResponse);
-
-        return ResponseEntity.ok(response);
+        Page<ProntuarioDTO> prontuariosPageDTO = prontuarioService.buscarTodosProntuarios(pageable, termo, numeroProntuario);
+        return ResponseEntity.ok(prontuariosPageDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProntuarioDTO> buscarProntuarioPorId(@PathVariable Long id) {
         logger.info("CONTROLLER: GET /api/prontuarios/{}", id);
-        ProntuarioEntity prontuario = prontuarioService.buscarProntuarioPorId(id);
-        return ResponseEntity.ok(convertProntuarioToDTO(prontuario));
+        ProntuarioDTO prontuarioDTO = prontuarioService.buscarProntuarioPorIdDetalhado(id);
+        return ResponseEntity.ok(prontuarioDTO);
     }
 
     @PostMapping("/consultas")
@@ -176,13 +152,9 @@ public class ProntuarioController {
         }
         try {
             EntradaMedicaRegistroEntity consultaSalva = prontuarioService.adicionarConsulta(
-                    pacienteId,
-                    consultaDTO,
-                    adminLogado,
-                    medicoExecutorId,
-                    true // criarProntuarioSeNaoExistir
+                    pacienteId, consultaDTO, adminLogado, medicoExecutorId, true
             );
-            return ResponseEntity.status(HttpStatus.CREATED).body(convertConsultaToDTO(consultaSalva));
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertConsultaEntityToDTO(consultaSalva));
         } catch (ResourceNotFoundException e) {
             return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -193,10 +165,95 @@ public class ProntuarioController {
         }
     }
 
+    @PostMapping("/exames")
+    public ResponseEntity<?> adicionarExame(
+            @RequestParam Long pacienteId,
+            @RequestParam Long medicoResponsavelExameId,
+            @Valid @RequestBody CriarExameRequestDTO exameDTO,
+            @AuthenticationPrincipal AdministradorEntity adminLogado) {
+
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: POST /api/prontuarios/exames - pacienteId={}, medicoResponsavelExameId={}, admin={}",
+                pacienteId, medicoResponsavelExameId, adminEmail);
+
+        if (adminLogado == null) {
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
+        }
+        try {
+            ExameRegistroEntity exameSalvo = prontuarioService.adicionarExame(
+                    pacienteId, exameDTO, adminLogado, medicoResponsavelExameId, true
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertExameRegistroEntityToDTO(exameSalvo));
+        } catch (ResourceNotFoundException e) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao adicionar exame:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar exame.");
+        }
+    }
+
+    @PostMapping("/procedimentos")
+    public ResponseEntity<?> adicionarProcedimento(
+            @RequestParam Long pacienteId,
+            @Valid @RequestBody CriarProcedimentoRequestDTO procedimentoDTO,
+            @AuthenticationPrincipal AdministradorEntity adminLogado) {
+
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: POST /api/prontuarios/procedimentos - pacienteId={}, medicoExecutorId={}, admin={}",
+                pacienteId, procedimentoDTO.getMedicoExecutorId(), adminEmail);
+
+        if (adminLogado == null) {
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
+        }
+        try {
+            ProcedimentoRegistroEntity procedimentoSalvo = prontuarioService.adicionarProcedimento(
+                    pacienteId, procedimentoDTO, adminLogado, true
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertProcedimentoRegistroEntityToDTO(procedimentoSalvo));
+        } catch (ResourceNotFoundException e) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao adicionar procedimento:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar procedimento.");
+        }
+    }
+
+    @PostMapping("/encaminhamentos")
+    public ResponseEntity<?> adicionarEncaminhamento(
+            @RequestParam Long pacienteId,
+            @Valid @RequestBody CriarEncaminhamentoRequestDTO encaminhamentoDTO,
+            @AuthenticationPrincipal AdministradorEntity adminLogado) {
+
+        String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS";
+        logger.info("CONTROLLER: POST /api/prontuarios/encaminhamentos - pacienteId={}, medicoSolicitanteId={}, admin={}",
+                pacienteId, encaminhamentoDTO.getMedicoSolicitanteId(), adminEmail);
+
+        if (adminLogado == null) {
+            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
+        }
+        try {
+            EncaminhamentoRegistroEntity encaminhamentoSalvo = prontuarioService.adicionarEncaminhamento(
+                    pacienteId, encaminhamentoDTO, adminLogado, true
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertEncaminhamentoRegistroEntityToDTO(encaminhamentoSalvo));
+        } catch (ResourceNotFoundException e) {
+            return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (Exception e) {
+            logger.error("Erro inesperado ao adicionar encaminhamento:", e);
+            return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar encaminhamento.");
+        }
+    }
+
     @PutMapping("/{id}/dados-basicos")
     public ResponseEntity<?> atualizarDadosBasicosProntuario(
             @PathVariable Long id,
-            @Valid @RequestBody ProntuarioUpdateDadosBasicosDTO updateDTO, // DTO já foi simplificado
+            @Valid @RequestBody ProntuarioUpdateDadosBasicosDTO updateDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
 
         String adminEmail = (adminLogado != null) ? adminLogado.getEmail() : "ANONYMOUS_UPDATE";
@@ -207,12 +264,14 @@ public class ProntuarioController {
             return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         }
         try {
-            ProntuarioEntity prontuarioAtualizado = prontuarioService.atualizarDadosBasicosProntuario(
+            // O método do service retorna a entidade, então convertemos para o DTO detalhado aqui
+            ProntuarioEntity prontuarioAtualizadoEntity = prontuarioService.atualizarDadosBasicosProntuario(
                     id,
                     updateDTO.getMedicoResponsavelId()
-                    // Não há mais status ou dataAltaAdministrativa aqui
             );
-            return ResponseEntity.ok(convertProntuarioToDTO(prontuarioAtualizado));
+            // Precisamos garantir que o DTO retornado aqui seja o detalhado e completo
+            ProntuarioDTO prontuarioAtualizadoDTO = prontuarioService.buscarProntuarioPorIdDetalhado(prontuarioAtualizadoEntity.getId());
+            return ResponseEntity.ok(prontuarioAtualizadoDTO);
         } catch (ResourceNotFoundException e) {
             return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         } catch (IllegalArgumentException e) {
