@@ -25,11 +25,11 @@ public class ProcedimentoRegistroEntity {
     private String relatorioProcedimento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_executor_id", nullable = false) // Médico que executou o procedimento
+    @JoinColumn(name = "medico_executor_id", nullable = false)
     private MedicoEntity medicoExecutor;
 
     @Column(nullable = false)
-    private String nomeResponsavelDisplay; // Nome do médico ou admin que registrou
+    private String nomeResponsavelDisplay;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,7 +48,6 @@ public class ProcedimentoRegistroEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }

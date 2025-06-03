@@ -18,9 +18,8 @@ public class CriarProcedimentoRequestDTO {
     private String relatorioProcedimento;
 
     @NotNull(message = "ID do médico executor é obrigatório")
-    private Long medicoExecutorId; // Este ID virá do frontend, do médico selecionado para o evento
+    private Long medicoExecutorId;
 
-    // Getters e Setters
     public LocalDateTime getDataProcedimento() { return dataProcedimento; }
     public void setDataProcedimento(LocalDateTime dataProcedimento) { this.dataProcedimento = dataProcedimento; }
     public String getDescricaoProcedimento() { return descricaoProcedimento; }

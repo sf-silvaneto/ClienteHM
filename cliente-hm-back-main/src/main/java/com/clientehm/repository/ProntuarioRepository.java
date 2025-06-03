@@ -10,6 +10,5 @@ import java.util.Optional;
 public interface ProntuarioRepository extends JpaRepository<ProntuarioEntity, Long>, JpaSpecificationExecutor<ProntuarioEntity> {
     Optional<ProntuarioEntity> findByNumeroProntuario(String numeroProntuario);
 
-    // MÉTODO ADICIONADO AQUI
     Optional<ProntuarioEntity> findByPacienteId(Long pacienteId);
 }

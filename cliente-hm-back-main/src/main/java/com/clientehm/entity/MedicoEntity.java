@@ -48,7 +48,6 @@ public class MedicoEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Constructors
     public MedicoEntity() {
     }
 
@@ -61,7 +60,6 @@ public class MedicoEntity {
         this.status = status;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

@@ -1,4 +1,3 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/entity/ProntuarioEntity.java
 package com.clientehm.entity;
 
 import jakarta.persistence.*;
@@ -72,7 +71,6 @@ public class ProntuarioEntity {
         dataUltimaAtualizacao = LocalDateTime.now();
     }
 
-    // Getters e Setters existentes...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -93,8 +91,6 @@ public class ProntuarioEntity {
     public void setHistoricoGeral(List<HistoricoMedicoEntity> historicoGeral) { this.historicoGeral = historicoGeral; }
     public List<EntradaMedicaRegistroEntity> getConsultas() { return consultas; }
     public void setConsultas(List<EntradaMedicaRegistroEntity> consultas) { this.consultas = consultas; }
-
-    // GETTERS E SETTERS PARA AS NOVAS LISTAS
     public List<ExameRegistroEntity> getExamesRegistrados() { return examesRegistrados; }
     public void setExamesRegistrados(List<ExameRegistroEntity> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
     public List<ProcedimentoRegistroEntity> getProcedimentosRegistrados() { return procedimentosRegistrados; }

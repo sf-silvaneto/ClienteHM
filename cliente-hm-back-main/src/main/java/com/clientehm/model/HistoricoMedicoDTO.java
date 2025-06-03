@@ -10,11 +10,9 @@ public class HistoricoMedicoDTO {
     private LocalDateTime createdAt; // Alterado para LocalDateTime
     private LocalDateTime updatedAt; // Alterado para LocalDateTime
 
-    // Construtores
     public HistoricoMedicoDTO() {
     }
 
-    // Getters e Setters atualizados
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public LocalDateTime getData() { return data; }

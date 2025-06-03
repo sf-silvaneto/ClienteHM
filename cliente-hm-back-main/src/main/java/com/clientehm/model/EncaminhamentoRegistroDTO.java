@@ -12,11 +12,10 @@ public class EncaminhamentoRegistroDTO {
     private String medicoSolicitanteNome;
     private String medicoSolicitanteCRM;
     private String observacoes;
-    private String nomeResponsavelDisplay; // Quem registrou no sistema
+    private String nomeResponsavelDisplay;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Long getProntuarioId() { return prontuarioId; }

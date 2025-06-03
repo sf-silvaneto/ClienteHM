@@ -17,11 +17,11 @@ public class HistoricoMedicoEntity {
     @Column(nullable = false)
     private LocalDateTime data;
 
-    @Lob // Para textos longos
+    @Lob
     @Column(nullable = false)
     private String descricao;
 
-    private String responsavel; // Nome do profissional
+    private String responsavel;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -40,7 +40,6 @@ public class HistoricoMedicoEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }

@@ -19,7 +19,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +39,6 @@ public class ProntuarioService {
     @Autowired private ProcedimentoRegistroRepository procedimentoRepository;
     @Autowired private EncaminhamentoRegistroRepository encaminhamentoRepository;
 
-    // --- MÉTODOS DE CONVERSÃO INTERNOS AO SERVIÇO ---
-
     private ProntuarioDTO.MedicoBasicDTO convertMedicoToBasicDTO(MedicoEntity medico) {
         if (medico == null) return null;
         ProntuarioDTO.MedicoBasicDTO dto = new ProntuarioDTO.MedicoBasicDTO();
@@ -54,7 +51,7 @@ public class ProntuarioService {
         ProntuarioDTO.AdministradorBasicDTO dto = new ProntuarioDTO.AdministradorBasicDTO();
         dto.setId(admin.getId());
         dto.setNome(admin.getNome());
-        dto.setEmail(admin.getEmail()); // Acesso seguro dentro da transação
+        dto.setEmail(admin.getEmail());
         return dto;
     }
 
@@ -76,8 +73,6 @@ public class ProntuarioService {
         return dto;
     }
 
-
-    // Conversor para a LISTAGEM (DTO mais leve)
     private ProntuarioDTO convertProntuarioEntityToBasicListDTO(ProntuarioEntity entity) {
         if (entity == null) return null;
         ProntuarioDTO dto = new ProntuarioDTO();
@@ -95,16 +90,13 @@ public class ProntuarioService {
         if (entity.getMedicoResponsavel() != null) {
             dto.setMedicoResponsavel(convertMedicoToBasicDTO(entity.getMedicoResponsavel()));
         }
-        // Não incluir administradorCriador ou listas de registros para a listagem básica
         return dto;
     }
 
-    // Conversor para DETALHES (DTO completo)
     private ProntuarioDTO convertProntuarioEntityToDetailedDTO(ProntuarioEntity entity) {
         if (entity == null) return null;
         ProntuarioDTO dto = convertProntuarioEntityToBasicListDTO(entity); // Reutiliza o básico
 
-        // Adiciona o criador e as coleções detalhadas
         if (entity.getAdministradorCriador() != null) {
             dto.setAdministradorCriador(convertAdminToBasicDTO(entity.getAdministradorCriador()));
         }
@@ -209,8 +201,6 @@ public class ProntuarioService {
 
             root.fetch("paciente", JoinType.LEFT);
             root.fetch("medicoResponsavel", JoinType.LEFT);
-            // Não precisa buscar o administradorCriador para a listagem básica, para otimizar
-            // root.fetch("administradorCriador", JoinType.LEFT);
 
             if (StringUtils.hasText(termo)) {
                 String termoLike = "%" + termo.toLowerCase() + "%";
@@ -245,23 +235,17 @@ public class ProntuarioService {
         ProntuarioEntity prontuario = prontuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
 
-        // Forçar o carregamento das coleções LAZY antes de converter para DTO detalhado
         prontuario.getConsultas().size();
         prontuario.getExamesRegistrados().size();
         prontuario.getProcedimentosRegistrados().size();
         prontuario.getEncaminhamentosRegistrados().size();
         prontuario.getHistoricoGeral().size();
-        // Acessar o administrador criador para garantir que seja carregado, se for LAZY
         if (prontuario.getAdministradorCriador() != null) {
-            prontuario.getAdministradorCriador().getNome(); // Acessa uma propriedade para inicializar
+            prontuario.getAdministradorCriador().getNome();
         }
 
         return convertProntuarioEntityToDetailedDTO(prontuario);
     }
-
-    // ... (findOrCreateProntuario, adicionarConsulta, adicionarExame, adicionarProcedimento, adicionarEncaminhamento, atualizarDadosBasicosProntuario) ...
-    // Estes métodos permanecem como na versão anterior, mas lembre-se que eles retornam ENTIDADES de registro.
-    // O Controller irá chamar os métodos de conversão apropriados.
 
     private ProntuarioEntity findOrCreateProntuario(Long pacienteId, Long medicoResponsavelProntuarioId, AdministradorEntity adminLogado) {
         logger.debug("Procurando ou criando prontuário para paciente ID: {} com médico responsável ID: {}", pacienteId, medicoResponsavelProntuarioId);
@@ -316,7 +300,6 @@ public class ProntuarioService {
         novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
         prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-        // prontuarioRepository.save(prontuario); // O save do registro abaixo já deve atualizar o prontuário se houver cascade e @PreUpdate
         return consultaRepository.save(novaConsulta);
     }
 
@@ -426,7 +409,6 @@ public class ProntuarioService {
         }
 
         if (modificado) {
-            // A dataUltimaAtualizacao será setada pelo @PreUpdate ao salvar
             return prontuarioRepository.save(prontuario);
         }
         return prontuario;

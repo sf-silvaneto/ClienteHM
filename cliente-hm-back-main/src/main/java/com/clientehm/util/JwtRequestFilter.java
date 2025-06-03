@@ -20,8 +20,6 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    // private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
-
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -33,8 +31,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authorizationHeader = request.getHeader("Authorization");
-        // String path = request.getRequestURI();
-        // logger.info("JwtRequestFilter: Processando requisição para " + path);
 
         String username = null;
         String jwt = null;
@@ -43,24 +39,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.validateTokenAndGetUsername(jwt);
-                // logger.info("JwtRequestFilter: Token extraído e usuário (email) validado: " + username);
             } catch (IllegalArgumentException e) {
-                // logger.error("Não foi possível obter o token JWT: " + e.getMessage());
             } catch (ExpiredJwtException e) {
-                // logger.warn("Token JWT expirou: " + e.getMessage());
             } catch (Exception e) {
-                // logger.error("Erro ao validar token JWT: " + e.toString(), e);
             }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // logger.info("JwtRequestFilter: Usuário '" + username + "' encontrado no token, e não há autenticação no SecurityContextHolder.");
-
             AdministradorEntity admin = this.administradorRepository.findByEmail(username).orElse(null);
 
             if (admin != null) {
-                // logger.info("JwtRequestFilter: Administrador '" + username + "' encontrado no banco. Configurando SecurityContext.");
-
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         admin, null, admin.getAuthorities());
 
@@ -68,13 +56,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                // logger.info("JwtRequestFilter: Autenticação configurada para '" + username + "' no SecurityContextHolder. Autenticação é: " + SecurityContextHolder.getContext().getAuthentication());
-            } else {
-                // logger.warn("JwtRequestFilter: Usuário '" + username + "' do token não encontrado no banco.");
-            }
+                } else {
+                }
         } else if (username != null && SecurityContextHolder.getContext().getAuthentication() != null) {
-            // logger.info("JwtRequestFilter: Autenticação para '" + username + "' já existe no SecurityContextHolder para o caminho " + path);
-        }
+            }
 
         chain.doFilter(request, response);
     }

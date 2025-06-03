@@ -7,8 +7,6 @@ import com.clientehm.service.ProntuarioService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// Removido BeanUtils, pois a conversão principal agora está no Service
-// import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-
 import java.util.HashMap;
 import java.util.Map;
-// Removido Collectors, pois a conversão da Page é feita no service
-// import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/prontuarios")
@@ -34,17 +29,11 @@ public class ProntuarioController {
     @Autowired
     private ProntuarioService prontuarioService;
 
-    // --- MÉTODOS DE CONVERSÃO DE ENTIDADES DE REGISTRO PARA DTOs DE REGISTRO ---
-    // (Necessários aqui porque os métodos de adicionar evento no serviço retornam as ENTIDADES de registro)
-
     private ConsultaDTO convertConsultaEntityToDTO(EntradaMedicaRegistroEntity entity) {
         if (entity == null) return null;
         ConsultaDTO dto = new ConsultaDTO();
-        // Copiar campos de EntradaMedicaRegistroEntity para ConsultaDTO
-        // O BeanUtils.copyProperties pode ser usado aqui se os nomes dos campos forem compatíveis.
-        // Exemplo:
-        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario"); // Ignora o prontuário para evitar ciclos
-        dto.setId(entity.getId()); // Garante que o ID da consulta seja copiado
+        org.springframework.beans.BeanUtils.copyProperties(entity, dto, "prontuario");
+        dto.setId(entity.getId());
 
         if (entity.getResponsavelMedico() != null) {
             dto.setTipoResponsavel("MEDICO");
@@ -59,8 +48,6 @@ public class ProntuarioController {
         } else {
             dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
         }
-        // Se ConsultaDTO tiver um campo prontuarioId, você pode setá-lo aqui:
-        // dto.setProntuarioId(entity.getProntuario().getId());
         return dto;
     }
 
@@ -103,10 +90,6 @@ public class ProntuarioController {
         }
         return dto;
     }
-
-    // O método convertProntuarioEntityToDetailedDTO foi movido para o ProntuarioService,
-    // mas os conversores de registros específicos (acima) são usados pelos endpoints de criação.
-
 
     @GetMapping
     public ResponseEntity<Page<ProntuarioDTO>> buscarProntuariosPaginado(
@@ -264,12 +247,10 @@ public class ProntuarioController {
             return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         }
         try {
-            // O método do service retorna a entidade, então convertemos para o DTO detalhado aqui
             ProntuarioEntity prontuarioAtualizadoEntity = prontuarioService.atualizarDadosBasicosProntuario(
                     id,
                     updateDTO.getMedicoResponsavelId()
             );
-            // Precisamos garantir que o DTO retornado aqui seja o detalhado e completo
             ProntuarioDTO prontuarioAtualizadoDTO = prontuarioService.buscarProntuarioPorIdDetalhado(prontuarioAtualizadoEntity.getId());
             return ResponseEntity.ok(prontuarioAtualizadoDTO);
         } catch (ResourceNotFoundException e) {

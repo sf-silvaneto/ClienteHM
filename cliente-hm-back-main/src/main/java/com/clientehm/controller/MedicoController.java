@@ -51,7 +51,7 @@ public class MedicoController {
             @RequestParam(defaultValue = "0") int pagina,
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String nome,
-            @RequestParam(required = false) String crm, // Frontend enviará CRM (número + UF concatenado)
+            @RequestParam(required = false) String crm,
             @RequestParam(required = false) String especialidade,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "nomeCompleto,asc") String[] sort) {

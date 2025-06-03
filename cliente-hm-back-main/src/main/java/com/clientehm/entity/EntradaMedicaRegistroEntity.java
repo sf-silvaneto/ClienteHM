@@ -1,10 +1,7 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/entity/EntradaMedicaRegistroEntity.java
 package com.clientehm.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-// import java.util.List; // Não é mais necessário para anexos
-// import java.util.ArrayList; // Não é mais necessário para anexos
 
 @Entity
 @Table(name = "registros_consultas")
@@ -58,8 +55,6 @@ public class EntradaMedicaRegistroEntity {
     @Column(nullable = false)
     private String nomeResponsavelDisplay;
 
-    // Removido: private List<AnexoEntradaMedicaEntity> anexos = new ArrayList<>();
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -77,7 +72,6 @@ public class EntradaMedicaRegistroEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
@@ -112,7 +106,6 @@ public class EntradaMedicaRegistroEntity {
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
     public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
-    // Removido getter/setter para anexos
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -1,4 +1,3 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/model/ProntuarioDTO.java
 package com.clientehm.model;
 
 import java.time.LocalDate;
@@ -16,14 +15,12 @@ public class ProntuarioDTO {
     private LocalDateTime dataUltimaAtualizacao;
     private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>();
     private List<ConsultaDTO> consultas = new ArrayList<>();
-    // NOVAS LISTAS DE DTOs ADICIONADAS
     private List<ExameRegistroDTO> examesRegistrados = new ArrayList<>();
     private List<ProcedimentoRegistroDTO> procedimentosRegistrados = new ArrayList<>();
     private List<EncaminhamentoRegistroDTO> encaminhamentosRegistrados = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Getters e Setters existentes...
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }

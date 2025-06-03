@@ -1,4 +1,3 @@
-// src/main/java/com/clientehm/model/CriarConsultaRequestDTO.java
 package com.clientehm.model;
 
 import jakarta.validation.constraints.NotBlank;
@@ -40,14 +39,12 @@ public class CriarConsultaRequestDTO {
     @Size(max = 5000, message = "Conduta / Plano terapêutico não pode exceder 5000 caracteres")
     private String condutaPlanoTerapeutico;
 
-    // NOVOS CAMPOS
     @Size(max = 10000, message = "Detalhes da consulta não podem exceder 10000 caracteres")
     private String detalhesConsulta;
 
     @Size(max = 5000, message = "Observações da consulta não podem exceder 5000 caracteres")
     private String observacoesConsulta;
 
-    // Getters e Setters
     public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
     public void setDataHoraConsulta(LocalDateTime dataHoraConsulta) { this.dataHoraConsulta = dataHoraConsulta; }
     public String getMotivoConsulta() { return motivoConsulta; }
@@ -68,7 +65,6 @@ public class CriarConsultaRequestDTO {
     public void setHipoteseDiagnostica(String hipoteseDiagnostica) { this.hipoteseDiagnostica = hipoteseDiagnostica; }
     public String getCondutaPlanoTerapeutico() { return condutaPlanoTerapeutico; }
     public void setCondutaPlanoTerapeutico(String condutaPlanoTerapeutico) { this.condutaPlanoTerapeutico = condutaPlanoTerapeutico; }
-
     public String getDetalhesConsulta() { return detalhesConsulta; }
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }

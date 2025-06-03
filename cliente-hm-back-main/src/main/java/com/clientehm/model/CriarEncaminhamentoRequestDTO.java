@@ -19,12 +19,11 @@ public class CriarEncaminhamentoRequestDTO {
     private String motivoEncaminhamento;
 
     @NotNull(message = "ID do médico solicitante é obrigatório")
-    private Long medicoSolicitanteId; // Este ID virá do frontend
+    private Long medicoSolicitanteId;
 
     @Size(max = 2000, message = "Observações não podem exceder 2000 caracteres")
     private String observacoes;
 
-    // Getters e Setters
     public LocalDateTime getDataEncaminhamento() { return dataEncaminhamento; }
     public void setDataEncaminhamento(LocalDateTime dataEncaminhamento) { this.dataEncaminhamento = dataEncaminhamento; }
     public String getEspecialidadeDestino() { return especialidadeDestino; }

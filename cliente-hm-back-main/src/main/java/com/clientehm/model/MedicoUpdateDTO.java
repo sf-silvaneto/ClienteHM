@@ -20,7 +20,6 @@ public class MedicoUpdateDTO {
 
     private StatusMedico status;
 
-    // Getters and Setters
     public String getNomeCompleto() {
         return nomeCompleto;
     }

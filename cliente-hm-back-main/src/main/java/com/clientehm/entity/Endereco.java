@@ -20,10 +20,10 @@ public class Endereco {
     @Column(nullable = false)
     private String cidade;
 
-    @Column(nullable = false, length = 2) // Garante que o BD aceite apenas 2 caracteres
+    @Column(nullable = false, length = 2)
     private String estado;
 
-    @Column(nullable = false, length = 8) // Garante que o BD aceite apenas 8 caracteres
+    @Column(nullable = false, length = 8)
     private String cep;
 
     // Construtores
@@ -40,7 +40,6 @@ public class Endereco {
         this.cep = cep;
     }
 
-    // Getters e Setters
     public String getLogradouro() { return logradouro; }
     public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
     public String getNumero() { return numero; }

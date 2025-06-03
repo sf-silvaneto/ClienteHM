@@ -16,7 +16,7 @@ public class ExameRegistroEntity {
     private ProntuarioEntity prontuario;
 
     @Column(nullable = false)
-    private String nome; // Nome do exame
+    private String nome;
 
     @Column(nullable = false)
     private LocalDateTime dataExame;
@@ -27,13 +27,12 @@ public class ExameRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
-    // O médico que solicitou/interpretou este exame específico
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medico_responsavel_exame_id")
     private MedicoEntity medicoResponsavelExame;
 
     @Column(nullable = false)
-    private String nomeResponsavelDisplay; // Nome do médico ou admin que registrou
+    private String nomeResponsavelDisplay;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -52,7 +51,6 @@ public class ExameRegistroEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }

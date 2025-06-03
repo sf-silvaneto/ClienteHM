@@ -1,9 +1,6 @@
-// sf-silvaneto/clientehm/ClienteHM-057824fed8786ee29c7b4f9a2010aca3a83abc37/cliente-hm-back-main/src/main/java/com/clientehm/model/ConsultaDTO.java
 package com.clientehm.model;
 
 import java.time.LocalDateTime;
-// import java.util.List; // Não é mais necessário para anexos
-// import java.util.ArrayList; // Não é mais necessário para anexos
 
 public class ConsultaDTO {
     private Long id;
@@ -14,26 +11,19 @@ public class ConsultaDTO {
     private String temperatura;
     private String frequenciaCardiaca;
     private String saturacao;
-
     private String exameFisico;
     private String hipoteseDiagnostica;
     private String condutaPlanoTerapeutico;
-
     private String detalhesConsulta;
     private String observacoesConsulta;
-
     private String tipoResponsavel;
     private Long responsavelId;
     private String responsavelNomeCompleto;
     private String responsavelEspecialidade;
     private String responsavelCRM;
-
-    // private List<AnexoDTO> anexos = new ArrayList<>(); // REMOVIDO
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
@@ -50,19 +40,16 @@ public class ConsultaDTO {
     public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
     public String getSaturacao() { return saturacao; }
     public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
-
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }
     public void setHipoteseDiagnostica(String hipoteseDiagnostica) { this.hipoteseDiagnostica = hipoteseDiagnostica; }
     public String getCondutaPlanoTerapeutico() { return condutaPlanoTerapeutico; }
     public void setCondutaPlanoTerapeutico(String condutaPlanoTerapeutico) { this.condutaPlanoTerapeutico = condutaPlanoTerapeutico; }
-
     public String getDetalhesConsulta() { return detalhesConsulta; }
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
-
     public String getTipoResponsavel() { return tipoResponsavel; }
     public void setTipoResponsavel(String tipoResponsavel) { this.tipoResponsavel = tipoResponsavel; }
     public Long getResponsavelId() { return responsavelId; }
@@ -73,8 +60,6 @@ public class ConsultaDTO {
     public void setResponsavelEspecialidade(String responsavelEspecialidade) { this.responsavelEspecialidade = responsavelEspecialidade; }
     public String getResponsavelCRM() { return responsavelCRM; }
     public void setResponsavelCRM(String responsavelCRM) { this.responsavelCRM = responsavelCRM; }
-    // public List<AnexoDTO> getAnexos() { return anexos; } // REMOVIDO
-    // public void setAnexos(List<AnexoDTO> anexos) { this.anexos = anexos; } // REMOVIDO
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

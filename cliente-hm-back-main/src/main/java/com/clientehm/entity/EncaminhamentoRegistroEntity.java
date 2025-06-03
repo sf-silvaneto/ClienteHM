@@ -25,14 +25,14 @@ public class EncaminhamentoRegistroEntity {
     private String motivoEncaminhamento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_solicitante_id", nullable = false) // Médico que solicitou o encaminhamento
+    @JoinColumn(name = "medico_solicitante_id", nullable = false)
     private MedicoEntity medicoSolicitante;
 
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
     @Column(nullable = false)
-    private String nomeResponsavelDisplay; // Nome do médico ou admin que registrou
+    private String nomeResponsavelDisplay;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -51,7 +51,6 @@ public class EncaminhamentoRegistroEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
