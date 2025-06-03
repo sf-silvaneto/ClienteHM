@@ -13,7 +13,8 @@ public class ProntuarioDTO {
     private AdministradorBasicDTO administradorCriador;
     private LocalDate dataInicio;
     private LocalDateTime dataUltimaAtualizacao;
-    private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>();
+    // REMOVER ESTA LISTA
+    // private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>();
     private List<ConsultaDTO> consultas = new ArrayList<>();
     private List<ExameRegistroDTO> examesRegistrados = new ArrayList<>();
     private List<ProcedimentoRegistroDTO> procedimentosRegistrados = new ArrayList<>();
@@ -35,23 +36,23 @@ public class ProntuarioDTO {
     public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
-    public List<HistoricoMedicoDTO> getHistoricoGeral() { return historicoGeral; }
-    public void setHistoricoGeral(List<HistoricoMedicoDTO> historicoGeral) { this.historicoGeral = historicoGeral; }
+
+    // REMOVER GETTER E SETTER PARA historicoGeral
+    // public List<HistoricoMedicoDTO> getHistoricoGeral() { return historicoGeral; }
+    // public void setHistoricoGeral(List<HistoricoMedicoDTO> historicoGeral) { this.historicoGeral = historicoGeral; }
+
     public List<ConsultaDTO> getConsultas() { return consultas; }
     public void setConsultas(List<ConsultaDTO> consultas) { this.consultas = consultas; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-
-    // GETTERS E SETTERS PARA AS NOVAS LISTAS DE DTOs
     public List<ExameRegistroDTO> getExamesRegistrados() { return examesRegistrados; }
     public void setExamesRegistrados(List<ExameRegistroDTO> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
     public List<ProcedimentoRegistroDTO> getProcedimentosRegistrados() { return procedimentosRegistrados; }
     public void setProcedimentosRegistrados(List<ProcedimentoRegistroDTO> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
     public List<EncaminhamentoRegistroDTO> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
     public void setEncaminhamentosRegistrados(List<EncaminhamentoRegistroDTO> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
-
 
     public static class MedicoBasicDTO {
         private Long id;

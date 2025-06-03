@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-// import com.clientehm.entity.Endereco; // REMOVA ESTA LINHA (se referir ao Embeddable antigo)
-import com.clientehm.entity.EnderecoEntity; // ADICIONE ESTA LINHA
+import com.clientehm.entity.EnderecoEntity;
+import com.clientehm.entity.ContatoEntity; // Importar a nova entidade
 
 @Entity
 @Table(name = "pacientes")
@@ -29,11 +29,9 @@ public class PacienteEntity {
     @Column(nullable = false)
     private Genero genero;
 
-    @Column(nullable = false)
-    private String telefone;
-
-    @Column(unique = true, nullable = false)
-    private String email;
+    // CAMPOS REMOVIDOS:
+    // private String telefone;
+    // private String email;
 
     private String nomeMae;
     private String nomePai;
@@ -62,25 +60,14 @@ public class PacienteEntity {
     @Column(columnDefinition = "TEXT")
     private String medicamentosContinuos;
 
-    // REMOVA O ANTIGO @Embedded Endereco
-    /*
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name="logradouro", column=@Column(name="endereco_logradouro")),
-            @AttributeOverride(name="numero", column=@Column(name="endereco_numero")),
-            @AttributeOverride(name="complemento", column=@Column(name="endereco_complemento")),
-            @AttributeOverride(name="bairro", column=@Column(name="endereco_bairro")),
-            @AttributeOverride(name="cidade", column=@Column(name="endereco_cidade")),
-            @AttributeOverride(name="estado", column=@Column(name="endereco_estado")),
-            @AttributeOverride(name="cep", column=@Column(name="endereco_cep"))
-    })
-    private Endereco endereco;
-    */
-
-    // ADICIONE O NOVO RELACIONAMENTO @OneToOne com EnderecoEntity
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "endereco_id", referencedColumnName = "id") // Isso cria a chave estrangeira 'endereco_id' na tabela 'pacientes'
+    @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
+
+    // NOVO CAMPO E RELACIONAMENTO
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "contato_id", referencedColumnName = "id", unique = true) // unique=true se um contato pertence a um único paciente
+    private ContatoEntity contato;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProntuarioEntity> prontuarios;
@@ -108,7 +95,7 @@ public class PacienteEntity {
     public enum RacaCor { BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO }
     public enum TipoSanguineo { A_POSITIVO, A_NEGATIVO, B_POSITIVO, B_NEGATIVO, AB_POSITIVO, AB_NEGATIVO, O_POSITIVO, O_NEGATIVO, NAO_SABE, NAO_INFORMADO }
 
-    // Getters e Setters para todos os campos, incluindo o novo EnderecoEntity
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -121,10 +108,6 @@ public class PacienteEntity {
     public void setRg(String rg) { this.rg = rg; }
     public Genero getGenero() { return genero; }
     public void setGenero(Genero genero) { this.genero = genero; }
-    public String getTelefone() { return telefone; }
-    public void setTelefone(String telefone) { this.telefone = telefone; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
     public String getNomeMae() { return nomeMae; }
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
@@ -141,10 +124,12 @@ public class PacienteEntity {
     public void setNacionalidade(String nacionalidade) { this.nacionalidade = nacionalidade; }
     public String getOcupacao() { return ocupacao; }
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
-
-    // Getter e Setter ATUALIZADOS para EnderecoEntity
     public EnderecoEntity getEndereco() { return endereco; }
     public void setEndereco(EnderecoEntity endereco) { this.endereco = endereco; }
+
+    // Getter e Setter para ContatoEntity
+    public ContatoEntity getContato() { return contato; }
+    public void setContato(ContatoEntity contato) { this.contato = contato; }
 
     public List<ProntuarioEntity> getProntuarios() { return prontuarios; }
     public void setProntuarios(List<ProntuarioEntity> prontuarios) { this.prontuarios = prontuarios; }

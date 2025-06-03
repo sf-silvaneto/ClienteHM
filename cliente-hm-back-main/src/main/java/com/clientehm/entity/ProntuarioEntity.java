@@ -22,7 +22,7 @@ public class ProntuarioEntity {
     private PacienteEntity paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_id", nullable = false) // Médico responsável geral pelo prontuário
+    @JoinColumn(name = "medico_id", nullable = false)
     private MedicoEntity medicoResponsavel;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,12 +39,8 @@ public class ProntuarioEntity {
     private LocalDateTime dataUltimaAtualizacao;
 
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<HistoricoMedicoEntity> historicoGeral = new ArrayList<>();
-
-    @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<EntradaMedicaRegistroEntity> consultas = new ArrayList<>();
 
-    // NOVAS LISTAS ADICIONADAS
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ExameRegistroEntity> examesRegistrados = new ArrayList<>();
 
@@ -71,6 +67,7 @@ public class ProntuarioEntity {
         dataUltimaAtualizacao = LocalDateTime.now();
     }
 
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -87,8 +84,6 @@ public class ProntuarioEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
-    public List<HistoricoMedicoEntity> getHistoricoGeral() { return historicoGeral; }
-    public void setHistoricoGeral(List<HistoricoMedicoEntity> historicoGeral) { this.historicoGeral = historicoGeral; }
     public List<EntradaMedicaRegistroEntity> getConsultas() { return consultas; }
     public void setConsultas(List<EntradaMedicaRegistroEntity> consultas) { this.consultas = consultas; }
     public List<ExameRegistroEntity> getExamesRegistrados() { return examesRegistrados; }

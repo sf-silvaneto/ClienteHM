@@ -58,7 +58,8 @@ public class ProntuarioService {
     private PacienteDTO convertPacienteToDTO(PacienteEntity paciente) {
         if (paciente == null) return null;
         PacienteDTO dto = new PacienteDTO();
-        BeanUtils.copyProperties(paciente, dto, "endereco");
+        // Excluir 'contato' da cópia se ele for adicionado ao PacienteEntity como um objeto separado
+        BeanUtils.copyProperties(paciente, dto, "endereco", "contato");
         if (paciente.getGenero() != null) dto.setGenero(paciente.getGenero().name());
         if (paciente.getRacaCor() != null) dto.setRacaCor(paciente.getRacaCor().name());
         if (paciente.getTipoSanguineo() != null) dto.setTipoSanguineo(paciente.getTipoSanguineo().name());
@@ -69,6 +70,11 @@ public class ProntuarioService {
             EnderecoDTO enderecoDTO = new EnderecoDTO();
             BeanUtils.copyProperties(paciente.getEndereco(), enderecoDTO);
             dto.setEndereco(enderecoDTO);
+        }
+        // Se 'contato' for uma entidade separada em PacienteEntity:
+        if (paciente.getContato() != null) {
+            dto.setTelefone(paciente.getContato().getTelefone());
+            dto.setEmail(paciente.getContato().getEmail());
         }
         return dto;
     }
@@ -82,7 +88,7 @@ public class ProntuarioService {
         dto.setDataInicio(entity.getDataInicio());
         dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
         dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getDataUltimaAtualizacao()); // ou entity.getUpdatedAt() se existir
+        dto.setUpdatedAt(entity.getDataUltimaAtualizacao());
 
         if (entity.getPaciente() != null) {
             dto.setPaciente(convertPacienteToDTO(entity.getPaciente()));
@@ -95,16 +101,18 @@ public class ProntuarioService {
 
     private ProntuarioDTO convertProntuarioEntityToDetailedDTO(ProntuarioEntity entity) {
         if (entity == null) return null;
-        ProntuarioDTO dto = convertProntuarioEntityToBasicListDTO(entity); // Reutiliza o básico
+        ProntuarioDTO dto = convertProntuarioEntityToBasicListDTO(entity);
 
         if (entity.getAdministradorCriador() != null) {
             dto.setAdministradorCriador(convertAdminToBasicDTO(entity.getAdministradorCriador()));
         }
 
-        if (entity.getHistoricoGeral() != null && !entity.getHistoricoGeral().isEmpty()) {
-            dto.setHistoricoGeral(entity.getHistoricoGeral().stream()
-                    .map(this::convertHistoricoEntityToDTO).collect(Collectors.toList()));
-        }
+        // historicoGeral foi removido
+        // if (entity.getHistoricoGeral() != null && !entity.getHistoricoGeral().isEmpty()) {
+        //     dto.setHistoricoGeral(entity.getHistoricoGeral().stream()
+        //             .map(this::convertHistoricoEntityToDTO).collect(Collectors.toList()));
+        // }
+
         if (entity.getConsultas() != null && !entity.getConsultas().isEmpty()) {
             dto.setConsultas(entity.getConsultas().stream()
                     .map(this::convertConsultaEntityToDTO).collect(Collectors.toList()));
@@ -124,12 +132,7 @@ public class ProntuarioService {
         return dto;
     }
 
-    private HistoricoMedicoDTO convertHistoricoEntityToDTO(HistoricoMedicoEntity entity) {
-        if (entity == null) return null;
-        HistoricoMedicoDTO dto = new HistoricoMedicoDTO();
-        BeanUtils.copyProperties(entity, dto);
-        return dto;
-    }
+    // convertHistoricoEntityToDTO foi removido
 
     private ConsultaDTO convertConsultaEntityToDTO(EntradaMedicaRegistroEntity entity) {
         if (entity == null) return null;
@@ -224,7 +227,7 @@ public class ProntuarioService {
         }
 
         Page<ProntuarioEntity> resultadoEntities = prontuarioRepository.findAll(spec, pageableComSort);
-        Page<ProntuarioDTO> resultadoDTOs = resultadoEntities.map(this::convertProntuarioEntityToBasicListDTO); // Usa o conversor básico
+        Page<ProntuarioDTO> resultadoDTOs = resultadoEntities.map(this::convertProntuarioEntityToBasicListDTO);
 
         logger.info("SERVICE: Busca DTO (básico) concluída. Encontrados {} prontuários na página {} de {}.", resultadoDTOs.getNumberOfElements(), resultadoDTOs.getNumber() + 1, resultadoDTOs.getTotalPages());
         return resultadoDTOs;
@@ -239,10 +242,13 @@ public class ProntuarioService {
         prontuario.getExamesRegistrados().size();
         prontuario.getProcedimentosRegistrados().size();
         prontuario.getEncaminhamentosRegistrados().size();
-        prontuario.getHistoricoGeral().size();
+        // historicoGeral foi removido
+        // prontuario.getHistoricoGeral().size();
         if (prontuario.getAdministradorCriador() != null) {
             prontuario.getAdministradorCriador().getNome();
         }
+        if (prontuario.getPaciente() != null) prontuario.getPaciente().getNome();
+        if (prontuario.getMedicoResponsavel() != null) prontuario.getMedicoResponsavel().getNomeCompleto();
 
         return convertProntuarioEntityToDetailedDTO(prontuario);
     }
@@ -300,6 +306,7 @@ public class ProntuarioService {
         novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
         prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        prontuarioRepository.save(prontuario); // Garante que a data de atualização do prontuário seja salva
         return consultaRepository.save(novaConsulta);
     }
 
@@ -331,6 +338,7 @@ public class ProntuarioService {
         novoExame.setNomeResponsavelDisplay(adminLogado.getNome());
 
         prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        prontuarioRepository.save(prontuario);
         return exameRepository.save(novoExame);
     }
 
@@ -358,6 +366,7 @@ public class ProntuarioService {
         novoProcedimento.setNomeResponsavelDisplay(adminLogado.getNome());
 
         prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        prontuarioRepository.save(prontuario);
         return procedimentoRepository.save(novoProcedimento);
     }
 
@@ -385,6 +394,7 @@ public class ProntuarioService {
         novoEncaminhamento.setNomeResponsavelDisplay(adminLogado.getNome());
 
         prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
+        prontuarioRepository.save(prontuario);
         return encaminhamentoRepository.save(novoEncaminhamento);
     }
 
@@ -409,6 +419,7 @@ public class ProntuarioService {
         }
 
         if (modificado) {
+            // dataUltimaAtualizacao será atualizado pelo @PreUpdate em ProntuarioEntity
             return prontuarioRepository.save(prontuario);
         }
         return prontuario;

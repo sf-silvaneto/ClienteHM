@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface PacienteRepository extends JpaRepository<PacienteEntity, Long>, JpaSpecificationExecutor<PacienteEntity> {
     Optional<PacienteEntity> findByCpf(String cpf);
-    Optional<PacienteEntity> findByEmail(String email);
+    // REMOVIDO: Optional<PacienteEntity> findByEmail(String email);
     Page<PacienteEntity> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
     Page<PacienteEntity> findByCpfStartingWith(String cpf, Pageable pageable);
 }
