@@ -1,6 +1,6 @@
 package com.clientehm.model;
 
-import java.time.LocalDate;
+// O import java.time.LocalDate pode ser removido se não houver outro campo LocalDate.
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,10 +11,8 @@ public class ProntuarioDTO {
     private PacienteDTO paciente;
     private MedicoBasicDTO medicoResponsavel;
     private AdministradorBasicDTO administradorCriador;
-    private LocalDate dataInicio;
+    // O campo dataInicio foi REMOVIDO daqui
     private LocalDateTime dataUltimaAtualizacao;
-    // REMOVER ESTA LISTA
-    // private List<HistoricoMedicoDTO> historicoGeral = new ArrayList<>();
     private List<ConsultaDTO> consultas = new ArrayList<>();
     private List<ExameRegistroDTO> examesRegistrados = new ArrayList<>();
     private List<ProcedimentoRegistroDTO> procedimentosRegistrados = new ArrayList<>();
@@ -32,14 +30,9 @@ public class ProntuarioDTO {
     public void setMedicoResponsavel(MedicoBasicDTO medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorBasicDTO getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorBasicDTO administradorCriador) { this.administradorCriador = administradorCriador; }
-    public LocalDate getDataInicio() { return dataInicio; }
-    public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
+    // Os getters e setters para dataInicio foram REMOVIDOS
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
-
-    // REMOVER GETTER E SETTER PARA historicoGeral
-    // public List<HistoricoMedicoDTO> getHistoricoGeral() { return historicoGeral; }
-    // public void setHistoricoGeral(List<HistoricoMedicoDTO> historicoGeral) { this.historicoGeral = historicoGeral; }
 
     public List<ConsultaDTO> getConsultas() { return consultas; }
     public void setConsultas(List<ConsultaDTO> consultas) { this.consultas = consultas; }

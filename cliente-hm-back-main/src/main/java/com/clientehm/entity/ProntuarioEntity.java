@@ -1,11 +1,11 @@
 package com.clientehm.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalDateTime; // Mantido para createdAt e dataUltimaAtualizacao
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+// O import java.time.LocalDate pode ser removido se não houver outro campo LocalDate na entidade.
 
 @Entity
 @Table(name = "prontuarios")
@@ -29,8 +29,7 @@ public class ProntuarioEntity {
     @JoinColumn(name = "administrador_criador_id")
     private AdministradorEntity administradorCriador;
 
-    @Column(nullable = false)
-    private LocalDate dataInicio;
+    // O campo dataInicio foi REMOVIDO daqui
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -57,9 +56,7 @@ public class ProntuarioEntity {
         if (this.numeroProntuario == null) {
             this.numeroProntuario = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         }
-        if (this.dataInicio == null) {
-            this.dataInicio = LocalDate.now();
-        }
+        // A inicialização de dataInicio foi REMOVIDA daqui
     }
 
     @PreUpdate
@@ -78,8 +75,7 @@ public class ProntuarioEntity {
     public void setMedicoResponsavel(MedicoEntity medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorEntity getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorEntity administradorCriador) { this.administradorCriador = administradorCriador; }
-    public LocalDate getDataInicio() { return dataInicio; }
-    public void setDataInicio(LocalDate dataInicio) { this.dataInicio = dataInicio; }
+    // Os getters e setters para dataInicio foram REMOVIDOS
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
