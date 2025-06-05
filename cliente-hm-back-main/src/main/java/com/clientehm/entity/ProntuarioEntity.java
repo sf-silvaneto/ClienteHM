@@ -1,70 +1,78 @@
 package com.clientehm.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.time.LocalDateTime; // Mantido para createdAt e dataUltimaAtualizacao
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.UUID;
-// O import java.time.LocalDate pode ser removido se não houver outro campo LocalDate na entidade.
 
 @Entity
 @Table(name = "prontuarios")
 public class ProntuarioEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String numeroProntuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "paciente_id", nullable = false)
+    @JsonManagedReference
     private PacienteEntity paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "medico_id", nullable = false)
+    @JoinColumn(name = "medico_responsavel_id")
     private MedicoEntity medicoResponsavel;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "administrador_criador_id")
+    @JoinColumn(name = "administrador_criador_id", nullable = false)
     private AdministradorEntity administradorCriador;
 
-    // O campo dataInicio foi REMOVIDO daqui
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(nullable = false)
+    // Este campo pode ser redundante se 'updatedAt' com @UpdateTimestamp e ON UPDATE já cobre a necessidade.
+    // Se você o mantém, certifique-se que sua lógica de atualização via @PreUpdate está correta.
+    // Para simplificar e evitar conflito com 'updatedAt' gerenciado pelo banco,
+    // vamos focar em 'createdAt' e 'updatedAt' para timestamps automáticos.
+    // Se 'dataUltimaAtualizacao' tem uma semântica diferente, mantenha-o, mas
+    // para o erro atual, o problema é com 'updated_at' (e potencialmente 'created_at').
+    @Column(name = "data_ultima_atualizacao")
     private LocalDateTime dataUltimaAtualizacao;
 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false,
+            columnDefinition = "DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6)")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false,
+            columnDefinition = "DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
+    private LocalDateTime updatedAt;
+
+
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<EntradaMedicaRegistroEntity> consultas = new ArrayList<>();
+    private Set<ConsultaRegistroEntity> consultas = new HashSet<>();
 
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ExameRegistroEntity> examesRegistrados = new ArrayList<>();
+    private Set<ExameRegistroEntity> examesRegistrados = new HashSet<>();
 
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<ProcedimentoRegistroEntity> procedimentosRegistrados = new ArrayList<>();
+    private Set<ProcedimentoRegistroEntity> procedimentosRegistrados = new HashSet<>();
 
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<EncaminhamentoRegistroEntity> encaminhamentosRegistrados = new ArrayList<>();
+    private Set<EncaminhamentoRegistroEntity> encaminhamentosRegistrados = new HashSet<>();
 
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = dataUltimaAtualizacao = LocalDateTime.now();
-        if (this.numeroProntuario == null) {
-            this.numeroProntuario = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        }
-        // A inicialização de dataInicio foi REMOVIDA daqui
+    public ProntuarioEntity() {
     }
 
-    @PreUpdate
-    protected void onUpdate() {
-        dataUltimaAtualizacao = LocalDateTime.now();
-    }
+    // Getters e Setters (sem alterações nos getters/setters, apenas nos campos e anotações acima)
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNumeroProntuario() { return numeroProntuario; }
@@ -75,17 +83,50 @@ public class ProntuarioEntity {
     public void setMedicoResponsavel(MedicoEntity medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorEntity getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorEntity administradorCriador) { this.administradorCriador = administradorCriador; }
-    // Os getters e setters para dataInicio foram REMOVIDOS
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
     public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
-    public List<EntradaMedicaRegistroEntity> getConsultas() { return consultas; }
-    public void setConsultas(List<EntradaMedicaRegistroEntity> consultas) { this.consultas = consultas; }
-    public List<ExameRegistroEntity> getExamesRegistrados() { return examesRegistrados; }
-    public void setExamesRegistrados(List<ExameRegistroEntity> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
-    public List<ProcedimentoRegistroEntity> getProcedimentosRegistrados() { return procedimentosRegistrados; }
-    public void setProcedimentosRegistrados(List<ProcedimentoRegistroEntity> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
-    public List<EncaminhamentoRegistroEntity> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
-    public void setEncaminhamentosRegistrados(List<EncaminhamentoRegistroEntity> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public Set<ConsultaRegistroEntity> getConsultas() { return consultas; }
+    public void setConsultas(Set<ConsultaRegistroEntity> consultas) { this.consultas = consultas; }
+    public Set<ExameRegistroEntity> getExamesRegistrados() { return examesRegistrados; }
+    public void setExamesRegistrados(Set<ExameRegistroEntity> examesRegistrados) { this.examesRegistrados = examesRegistrados; }
+    public Set<ProcedimentoRegistroEntity> getProcedimentosRegistrados() { return procedimentosRegistrados; }
+    public void setProcedimentosRegistrados(Set<ProcedimentoRegistroEntity> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
+    public Set<EncaminhamentoRegistroEntity> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
+    public void setEncaminhamentosRegistrados(Set<EncaminhamentoRegistroEntity> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
+
+    @PrePersist
+    protected void onCreate() {
+        this.numeroProntuario = UUID.randomUUID().toString();
+        // createdAt e updatedAt agora são melhor gerenciados pelo banco com columnDefinition
+        // e pelas anotações @CreationTimestamp/@UpdateTimestamp do Hibernate.
+        // O @PrePersist para dataUltimaAtualizacao é mantido se tiver uma lógica específica.
+        if (this.dataUltimaAtualizacao == null) {
+            this.dataUltimaAtualizacao = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        // updatedAt é melhor gerenciado pelo banco com ON UPDATE CURRENT_TIMESTAMP
+        // e pela anotação @UpdateTimestamp do Hibernate.
+        // Se dataUltimaAtualizacao deve sempre refletir a última modificação via aplicação:
+        this.dataUltimaAtualizacao = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProntuarioEntity that = (ProntuarioEntity) o;
+        return Objects.equals(id, that.id) && Objects.equals(numeroProntuario, that.numeroProntuario);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, numeroProntuario);
+    }
 }

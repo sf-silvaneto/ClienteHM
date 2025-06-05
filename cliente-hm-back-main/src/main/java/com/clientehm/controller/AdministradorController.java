@@ -5,7 +5,9 @@ import com.clientehm.model.AdministradorRegistroDTO;
 import com.clientehm.model.RedefinirSenhaDTO;
 import com.clientehm.model.VerificarPalavraChaveDTO;
 import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
+import com.clientehm.model.dto.AdministradorDadosDTO; // Importar DTO
 import com.clientehm.service.AdministradorService;
+import com.clientehm.mapper.AdministradorMapper; // Importar Mapper
 import com.clientehm.exception.AdminNotFoundException;
 import com.clientehm.exception.InvalidCredentialsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
@@ -32,6 +34,9 @@ public class AdministradorController {
     @Autowired
     private AdministradorService administradorService;
 
+    @Autowired
+    private AdministradorMapper administradorMapper; // Injetar o Mapper
+
     private ResponseEntity<Map<String, Object>> createResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -42,8 +47,14 @@ public class AdministradorController {
         return ResponseEntity.status(status).body(body);
     }
 
-    private ResponseEntity<Map<String, Object>> createSuccessResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
-        return createResponse(status, message, additionalData);
+    private ResponseEntity<Map<String, Object>> createSuccessResponse(HttpStatus status, String message, Object data) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensagem", message);
+        body.put("codigo", status.value());
+        if (data != null) {
+            body.put("dados", data);
+        }
+        return ResponseEntity.status(status).body(body);
     }
 
     private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
@@ -53,28 +64,30 @@ public class AdministradorController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AdministradorLoginDTO loginDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /login com email: {}", loginDTO.getEmail());
+        // O serviço já retorna o Map formatado pelo mapper
         Map<String, Object> loginData = administradorService.login(loginDTO);
-        return createSuccessResponse(HttpStatus.OK, (String) loginData.remove("mensagem"), loginData);
+        // A mensagem já está incluída no loginData pelo mapper/serviço
+        return ResponseEntity.status(HttpStatus.OK).body(loginData);
     }
 
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(@Valid @RequestBody AdministradorRegistroDTO registroDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /registrar com email: {}", registroDTO.getEmail());
-        administradorService.register(registroDTO);
-        return createSuccessResponse(HttpStatus.CREATED, "Administrador registrado com sucesso", null);
+        AdministradorDadosDTO adminDTO = administradorService.register(registroDTO);
+        return createSuccessResponse(HttpStatus.CREATED, "Administrador registrado com sucesso", adminDTO);
     }
 
     @PostMapping("/verificar-palavra-chave")
     public ResponseEntity<?> verificarPalavraChave(@Valid @RequestBody VerificarPalavraChaveDTO verificarDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /verificar-palavra-chave para o email: {}", verificarDTO.getEmail());
-        administradorService.verifyKeyword(verificarDTO);
+        administradorService.verifyKeyword(verificarDTO); // Serviço retorna boolean, mas o controller já trata o sucesso
         return createSuccessResponse(HttpStatus.OK, "Palavra-chave correta.", null);
     }
 
     @PutMapping("/redefinir-senha")
     public ResponseEntity<?> redefinirSenha(@Valid @RequestBody RedefinirSenhaDTO redefinirDTO) {
         logger.info("CONTROLLER: Recebida requisição PUT para /redefinir-senha para o email: {}", redefinirDTO.getEmail());
-        administradorService.resetPassword(redefinirDTO);
+        administradorService.resetPassword(redefinirDTO); // Serviço agora pode retornar DTO, mas o controller só precisa do sucesso
         return createSuccessResponse(HttpStatus.OK, "Senha alterada com sucesso.", null);
     }
 
@@ -86,18 +99,11 @@ public class AdministradorController {
             return createErrorResponse(HttpStatus.UNAUTHORIZED, "Nenhum administrador autenticado encontrado.");
         }
         logger.info("CONTROLLER /me: Administrador autenticado: {}", admin.getEmail());
-        Map<String, Object> adminData = new HashMap<>();
-        adminData.put("id", admin.getId().toString());
-        adminData.put("nome", admin.getNome());
-        adminData.put("email", admin.getEmail());
-        String role = admin.getAuthorities().stream()
-                .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", ""))
-                .findFirst()
-                .orElse("USER");
-        adminData.put("role", role);
+        AdministradorDadosDTO adminDataDTO = administradorMapper.toDadosDTO(admin); // Usar o mapper
+
         Map<String, Object> response = new HashMap<>();
         response.put("mensagem", "Dados do administrador recuperados com sucesso");
-        response.put("adminData", adminData);
+        response.put("adminData", adminDataDTO); // Retornar o DTO padronizado
         return ResponseEntity.ok(response);
     }
 
@@ -107,28 +113,28 @@ public class AdministradorController {
             @Valid @RequestBody VerifiedProfileUpdateRequestDTO dto) {
         logger.info("CONTROLLER: Recebida requisição PUT para /profile/verified-update para o usuário: {}", currentAdmin.getEmail());
 
-        AdministradorEntity updatedAdmin = administradorService.updateVerifiedProfileDetails(currentAdmin.getEmail(), dto);
-
-        Map<String, Object> adminData = new HashMap<>();
-        adminData.put("id", updatedAdmin.getId().toString());
-        adminData.put("nome", updatedAdmin.getNome());
-        adminData.put("email", updatedAdmin.getEmail());
-        adminData.put("role", updatedAdmin.getAuthorities().stream().findFirst().map(a -> a.getAuthority().replace("ROLE_", "")).orElse("USER"));
+        AdministradorDadosDTO updatedAdminDTO = administradorService.updateVerifiedProfileDetails(currentAdmin.getEmail(), dto);
 
         Map<String, Object> response = new HashMap<>();
         response.put("mensagem", "Dados atualizados com sucesso.");
-        response.put("adminData", adminData);
+        response.put("adminData", updatedAdminDTO);
         logger.info("CONTROLLER: Dados (nome/email/palavra-chave) atualizados com sucesso via verified-update para: {}", currentAdmin.getEmail());
         return ResponseEntity.ok(response);
     }
 
+    // Exception Handlers permanecem os mesmos
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage()));
         logger.warn("Erro de validação nos dados da requisição: {}", errors, ex);
-        return createResponse(HttpStatus.BAD_REQUEST, "Erro de validação", Map.of("erros", errors));
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensagem", "Erro de validação nos dados fornecidos");
+        body.put("codigo", HttpStatus.BAD_REQUEST.value());
+        body.put("erros", errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(AdminNotFoundException.class)

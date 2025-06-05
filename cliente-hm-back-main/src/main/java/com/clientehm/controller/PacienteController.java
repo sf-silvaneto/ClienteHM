@@ -4,7 +4,7 @@ import com.clientehm.exception.CpfAlreadyExistsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.model.PacienteCreateDTO;
-import com.clientehm.model.PacienteDTO;
+import com.clientehm.model.PacienteDTO; // Já espera DTO
 import com.clientehm.model.PacienteUpdateDTO;
 import com.clientehm.service.PacienteService;
 import jakarta.validation.Valid;
@@ -31,6 +31,8 @@ public class PacienteController {
     @Autowired
     private PacienteService pacienteService;
 
+    // PacienteMapper não precisa ser injetado aqui se o serviço já retorna DTOs
+
     private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -42,7 +44,9 @@ public class PacienteController {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
         body.put("codigo", status.value());
-        body.put("dados", data);
+        if (data != null) { // Adicionado para não incluir a chave "dados" se data for null
+            body.put("dados", data);
+        }
         return ResponseEntity.status(status).body(body);
     }
 
@@ -50,7 +54,7 @@ public class PacienteController {
     public ResponseEntity<?> criarPaciente(@Valid @RequestBody PacienteCreateDTO pacienteCreateDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /api/pacientes");
         try {
-            PacienteDTO pacienteCriado = pacienteService.criarPaciente(pacienteCreateDTO);
+            PacienteDTO pacienteCriado = pacienteService.criarPaciente(pacienteCreateDTO); // Serviço retorna DTO
             return createSuccessResponse(pacienteCriado, "Paciente criado com sucesso.", HttpStatus.CREATED);
         } catch (CpfAlreadyExistsException | EmailAlreadyExistsException e) {
             logger.warn("CONTROLLER: Erro ao criar paciente: {}", e.getMessage());
@@ -59,6 +63,7 @@ public class PacienteController {
             logger.warn("CONTROLLER: Erro de argumento ao criar paciente: {}", e.getMessage());
             return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+        // Não é necessário um catch genérico aqui se os handlers de exceção globais do controller cuidarem disso
     }
 
     @GetMapping
@@ -67,7 +72,6 @@ public class PacienteController {
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String cpf,
-            // Adicionar mais parâmetros de filtro conforme necessário
             @RequestParam(defaultValue = "nome,asc") String[] sort) {
 
         logger.info("CONTROLLER: GET /api/pacientes - pagina={}, tamanho={}, nome={}, cpf={}, sort={}",
@@ -80,7 +84,7 @@ public class PacienteController {
         Sort sortBy = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(pagina, tamanho, sortBy);
 
-        Page<PacienteDTO> pacientesPage = pacienteService.buscarTodosPacientes(pageable, nome, cpf);
+        Page<PacienteDTO> pacientesPage = pacienteService.buscarTodosPacientes(pageable, nome, cpf); // Serviço retorna Page<DTO>
         return ResponseEntity.ok(pacientesPage);
     }
 
@@ -88,7 +92,7 @@ public class PacienteController {
     public ResponseEntity<?> buscarPacientePorId(@PathVariable Long id) {
         logger.info("CONTROLLER: Recebida requisição GET para /api/pacientes/{}", id);
         try {
-            PacienteDTO pacienteDTO = pacienteService.buscarPacientePorId(id);
+            PacienteDTO pacienteDTO = pacienteService.buscarPacientePorId(id); // Serviço retorna DTO
             return createSuccessResponse(pacienteDTO, "Paciente encontrado.", HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
@@ -99,7 +103,7 @@ public class PacienteController {
     public ResponseEntity<?> atualizarPaciente(@PathVariable Long id, @Valid @RequestBody PacienteUpdateDTO pacienteUpdateDTO) {
         logger.info("CONTROLLER: Recebida requisição PUT para /api/pacientes/{}", id);
         try {
-            PacienteDTO pacienteAtualizado = pacienteService.atualizarPaciente(id, pacienteUpdateDTO);
+            PacienteDTO pacienteAtualizado = pacienteService.atualizarPaciente(id, pacienteUpdateDTO); // Serviço retorna DTO
             return createSuccessResponse(pacienteAtualizado, "Paciente atualizado com sucesso.", HttpStatus.OK);
         } catch (ResourceNotFoundException e) {
             return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
@@ -115,12 +119,14 @@ public class PacienteController {
         logger.info("CONTROLLER: Recebida requisição DELETE para /api/pacientes/{}", id);
         try {
             pacienteService.deletarPaciente(id);
+            // Para NO_CONTENT, geralmente não se envia corpo, mas sua createSuccessResponse pode lidar com data=null
             return createSuccessResponse(null, "Paciente deletado com sucesso.", HttpStatus.NO_CONTENT);
         } catch (ResourceNotFoundException e) {
             return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
         }
     }
 
+    // Exception Handlers permanecem os mesmos
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

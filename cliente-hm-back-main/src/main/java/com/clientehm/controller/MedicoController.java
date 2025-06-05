@@ -2,9 +2,9 @@ package com.clientehm.controller;
 
 import com.clientehm.entity.StatusMedico;
 import com.clientehm.exception.CrmAlreadyExistsException;
-import com.clientehm.exception.ResourceNotFoundException; // Certifique-se que está importado
+import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.model.MedicoCreateDTO;
-import com.clientehm.model.MedicoDTO;
+import com.clientehm.model.MedicoDTO; // Já espera MedicoDTO
 import com.clientehm.model.MedicoUpdateDTO;
 import com.clientehm.model.StatusUpdateDTO;
 import com.clientehm.service.MedicoService;
@@ -32,6 +32,8 @@ public class MedicoController {
     @Autowired
     private MedicoService medicoService;
 
+    // O MedicoMapper não precisa ser injetado aqui se o serviço já retorna DTOs.
+
     private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -42,7 +44,7 @@ public class MedicoController {
     @PostMapping
     public ResponseEntity<MedicoDTO> criarMedico(@Valid @RequestBody MedicoCreateDTO medicoCreateDTO) {
         logger.info("CONTROLLER: Recebida requisição POST para /api/medicos");
-        MedicoDTO medicoCriado = medicoService.criarMedico(medicoCreateDTO);
+        MedicoDTO medicoCriado = medicoService.criarMedico(medicoCreateDTO); // Serviço já retorna DTO
         return ResponseEntity.status(HttpStatus.CREATED).body(medicoCriado);
     }
 
@@ -66,11 +68,11 @@ public class MedicoController {
         Sort sortBy = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(pagina, tamanho, sortBy);
 
-        Page<MedicoDTO> medicosPage;
+        Page<MedicoDTO> medicosPage; // Serviço já retorna Page<MedicoDTO>
 
         if (nome != null && !nome.isEmpty()) {
             medicosPage = medicoService.buscarMedicosPorNome(nome, pageable);
-        } else if (crm != null && !crm.isEmpty()) { // CRM (número + UF)
+        } else if (crm != null && !crm.isEmpty()) {
             medicosPage = medicoService.buscarMedicosPorCrm(crm, pageable);
         } else if (especialidade != null && !especialidade.isEmpty()) {
             medicosPage = medicoService.buscarMedicosPorEspecialidade(especialidade, pageable);
@@ -80,10 +82,9 @@ public class MedicoController {
                 medicosPage = medicoService.buscarMedicosPorStatus(statusEnum, pageable);
             } catch (IllegalArgumentException e) {
                 logger.warn("CONTROLLER: Status inválido fornecido: {}", status);
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest().build(); // Ou um createErrorResponse mais elaborado
             }
-        }
-        else {
+        } else {
             medicosPage = medicoService.buscarTodosMedicos(pageable);
         }
         return ResponseEntity.ok(medicosPage);
@@ -92,21 +93,21 @@ public class MedicoController {
     @GetMapping("/{id}")
     public ResponseEntity<MedicoDTO> buscarMedicoPorId(@PathVariable Long id) {
         logger.info("CONTROLLER: Recebida requisição GET para /api/medicos/{}", id);
-        MedicoDTO medicoDTO = medicoService.buscarMedicoPorId(id);
+        MedicoDTO medicoDTO = medicoService.buscarMedicoPorId(id); // Serviço já retorna DTO
         return ResponseEntity.ok(medicoDTO);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<MedicoDTO> atualizarMedico(@PathVariable Long id, @Valid @RequestBody MedicoUpdateDTO medicoUpdateDTO) {
         logger.info("CONTROLLER: Recebida requisição PUT para /api/medicos/{}", id);
-        MedicoDTO medicoAtualizado = medicoService.atualizarMedico(id, medicoUpdateDTO);
+        MedicoDTO medicoAtualizado = medicoService.atualizarMedico(id, medicoUpdateDTO); // Serviço já retorna DTO
         return ResponseEntity.ok(medicoAtualizado);
     }
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<MedicoDTO> atualizarStatusMedico(@PathVariable Long id, @Valid @RequestBody StatusUpdateDTO statusUpdateDTO) {
         logger.info("CONTROLLER: Recebida requisição PATCH para /api/medicos/{}/status", id);
-        MedicoDTO medicoAtualizado = medicoService.atualizarStatusMedico(id, statusUpdateDTO.getStatus());
+        MedicoDTO medicoAtualizado = medicoService.atualizarStatusMedico(id, statusUpdateDTO.getStatus()); // Serviço já retorna DTO
         return ResponseEntity.ok(medicoAtualizado);
     }
 
@@ -117,6 +118,7 @@ public class MedicoController {
         return ResponseEntity.noContent().build();
     }
 
+    // Exception Handlers permanecem os mesmos
     @ExceptionHandler(CrmAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleCrmAlreadyExists(CrmAlreadyExistsException ex) {
         logger.warn("CrmAlreadyExistsException: {}", ex.getMessage());
@@ -136,7 +138,7 @@ public class MedicoController {
                 errors.put(error.getField(), error.getDefaultMessage()));
         logger.warn("Erro de validação nos dados da requisição: {}", errors);
         Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", "Erro de validação");
+        body.put("mensagem", "Erro de validação nos dados fornecidos"); // Mensagem mais genérica e amigável
         body.put("codigo", HttpStatus.BAD_REQUEST.value());
         body.put("erros", errors);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
