@@ -1,20 +1,20 @@
 package com.clientehm.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonInclude; // Para incluir campos não nulos
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.ArrayList; // Para inicializar as listas
+import java.util.ArrayList;
 
-@JsonInclude(JsonInclude.Include.NON_NULL) // Opcional: não serializa campos nulos no JSON
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProntuarioDTO {
 
     private Long id;
     private String numeroProntuario;
-    private PacienteDTO paciente; // DTO do paciente associado
-    private MedicoBasicDTO medicoResponsavel; // DTO básico do médico responsável pelo prontuário
-    private AdministradorBasicDTO administradorCriador; // DTO básico do admin que criou o prontuário
+    private PacienteDTO paciente;
+    private MedicoBasicDTO medicoResponsavel;
+    private AdministradorBasicDTO administradorCriador;
 
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime dataUltimaAtualizacao;
@@ -23,26 +23,19 @@ public class ProntuarioDTO {
     private LocalDateTime createdAt;
 
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime updatedAt; // Mapeado de dataUltimaAtualizacao da entidade ou do campo updatedAt se existir
+    private LocalDateTime updatedAt;
 
-    // Listas de DTOs para os registros associados
     private List<ConsultaDTO> consultas;
     private List<ExameRegistroDTO> examesRegistrados;
     private List<ProcedimentoRegistroDTO> procedimentosRegistrados;
     private List<EncaminhamentoRegistroDTO> encaminhamentosRegistrados;
-    // Se você tiver um HistóricoGeralDTO, adicione aqui:
-    // private List<HistoricoGeralDTO> historicoGeral;
 
-    // Construtor para inicializar as listas (boa prática para evitar NullPointerExceptions)
     public ProntuarioDTO() {
         this.consultas = new ArrayList<>();
         this.examesRegistrados = new ArrayList<>();
         this.procedimentosRegistrados = new ArrayList<>();
         this.encaminhamentosRegistrados = new ArrayList<>();
-        // if (this.historicoGeral != null) this.historicoGeral = new ArrayList<>();
     }
-
-    // Getters e Setters para todos os campos
 
     public Long getId() {
         return id;
@@ -140,15 +133,12 @@ public class ProntuarioDTO {
         this.encaminhamentosRegistrados = encaminhamentosRegistrados;
     }
 
-    // --- Classes internas estáticas para DTOs básicos ---
-
     public static class MedicoBasicDTO {
         private Long id;
         private String nomeCompleto;
         private String crm;
         private String especialidade;
 
-        // Getters e Setters
         public Long getId() { return id; }
         public void setId(Long id) { this.id = id; }
         public String getNomeCompleto() { return nomeCompleto; }
@@ -164,7 +154,6 @@ public class ProntuarioDTO {
         private String nome;
         private String email;
 
-        // Getters e Setters
         public Long getId() { return id; }
         public void setId(Long id) { this.id = id; }
         public String getNome() { return nome; }

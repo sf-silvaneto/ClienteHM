@@ -6,7 +6,6 @@ public class AdministradorDadosDTO {
     private String email;
     private String role;
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

@@ -29,10 +29,6 @@ public class PacienteEntity {
     @Column(nullable = false)
     private Genero genero;
 
-    // CAMPOS REMOVIDOS:
-    // private String telefone;
-    // private String email;
-
     private String nomeMae;
     private String nomePai;
 
@@ -64,7 +60,6 @@ public class PacienteEntity {
     @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
 
-    // NOVO CAMPO E RELACIONAMENTO
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "contato_id", referencedColumnName = "id", unique = true) // unique=true se um contato pertence a um único paciente
     private ContatoEntity contato;
@@ -95,7 +90,6 @@ public class PacienteEntity {
     public enum RacaCor { BRANCA, PRETA, PARDA, AMARELA, INDIGENA, NAO_DECLARADO }
     public enum TipoSanguineo { A_POSITIVO, A_NEGATIVO, B_POSITIVO, B_NEGATIVO, AB_POSITIVO, AB_NEGATIVO, O_POSITIVO, O_NEGATIVO, NAO_SABE, NAO_INFORMADO }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -126,11 +120,8 @@ public class PacienteEntity {
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
     public EnderecoEntity getEndereco() { return endereco; }
     public void setEndereco(EnderecoEntity endereco) { this.endereco = endereco; }
-
-    // Getter e Setter para ContatoEntity
     public ContatoEntity getContato() { return contato; }
     public void setContato(ContatoEntity contato) { this.contato = contato; }
-
     public List<ProntuarioEntity> getProntuarios() { return prontuarios; }
     public void setProntuarios(List<ProntuarioEntity> prontuarios) { this.prontuarios = prontuarios; }
     public LocalDateTime getCreatedAt() { return createdAt; }

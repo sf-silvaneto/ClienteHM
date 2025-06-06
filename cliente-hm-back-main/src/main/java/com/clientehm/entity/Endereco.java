@@ -12,7 +12,7 @@ public class Endereco {
     @Column(nullable = false)
     private String numero;
 
-    private String complemento; // Opcional
+    private String complemento;
 
     @Column(nullable = false)
     private String bairro;
@@ -26,7 +26,6 @@ public class Endereco {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    // Construtores
     public Endereco() {
     }
 

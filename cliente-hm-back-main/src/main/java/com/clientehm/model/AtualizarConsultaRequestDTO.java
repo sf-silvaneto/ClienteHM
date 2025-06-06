@@ -40,9 +40,7 @@ public class AtualizarConsultaRequestDTO {
     @Size(max = 5000, message = "Observações da consulta não podem exceder 5000 caracteres")
     private String observacoesConsulta;
 
-    private Long medicoExecutorId; // Para permitir alterar o médico da consulta
-
-    // Getters e Setters
+    private Long medicoExecutorId;
 
     public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
     public void setDataHoraConsulta(LocalDateTime dataHoraConsulta) { this.dataHoraConsulta = dataHoraConsulta; }

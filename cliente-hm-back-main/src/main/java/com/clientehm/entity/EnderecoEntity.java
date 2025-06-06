@@ -31,10 +31,6 @@ public class EnderecoEntity {
     @Column(nullable = false, length = 8)
     private String cep;
 
-    // Opcional: Se precisar navegar do Endereco de volta para o Paciente
-    // @OneToOne(mappedBy = "endereco", fetch = FetchType.LAZY)
-    // private PacienteEntity paciente;
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -51,11 +47,9 @@ public class EnderecoEntity {
         updatedAt = LocalDateTime.now();
     }
 
-    // Construtores
     public EnderecoEntity() {
     }
 
-    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getLogradouro() { return logradouro; }
@@ -77,7 +71,4 @@ public class EnderecoEntity {
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-    // Opcional: Getter e Setter para Paciente
-    // public PacienteEntity getPaciente() { return paciente; }
-    // public void setPaciente(PacienteEntity paciente) { this.paciente = paciente; }
 }

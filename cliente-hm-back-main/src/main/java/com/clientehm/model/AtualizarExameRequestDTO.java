@@ -16,9 +16,8 @@ public class AtualizarExameRequestDTO {
     @Size(max = 2000, message = "Observações não podem exceder 2000 caracteres")
     private String observacoes;
 
-    private Long medicoResponsavelExameId; // Para permitir alterar o médico responsável pelo exame
+    private Long medicoResponsavelExameId;
 
-    // Getters e Setters
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
 

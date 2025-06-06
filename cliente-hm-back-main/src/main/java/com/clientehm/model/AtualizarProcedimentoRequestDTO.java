@@ -13,9 +13,8 @@ public class AtualizarProcedimentoRequestDTO {
     @Size(max = 10000, message = "Relatório não pode exceder 10000 caracteres")
     private String relatorioProcedimento;
 
-    private Long medicoExecutorId; // ID do médico que executou/irá executar o procedimento
+    private Long medicoExecutorId;
 
-    // Getters e Setters
     public LocalDateTime getDataProcedimento() {
         return dataProcedimento;
     }

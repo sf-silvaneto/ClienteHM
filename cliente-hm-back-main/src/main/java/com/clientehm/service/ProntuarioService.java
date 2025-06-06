@@ -33,23 +33,16 @@ public class ProntuarioService {
     @Autowired private ProntuarioRepository prontuarioRepository;
     @Autowired private PacienteRepository pacienteRepository;
     @Autowired private MedicoRepository medicoRepository;
-    // AdministradorRepository pode não ser diretamente usado aqui se o adminLogado já vier do controller
-    // @Autowired private AdministradorRepository administradorRepository;
-
     @Autowired private EntradaMedicaRegistroRepository consultaRepository;
     @Autowired private ExameRegistroRepository exameRepository;
     @Autowired private ProcedimentoRegistroRepository procedimentoRepository;
     @Autowired private EncaminhamentoRegistroRepository encaminhamentoRepository;
-
-    // Injetar os Mappers
     @Autowired private ProntuarioMapper prontuarioMapper;
     @Autowired private ConsultaMapper consultaMapper;
     @Autowired private ExameMapper exameMapper;
     @Autowired private ProcedimentoMapper procedimentoMapper;
     @Autowired private EncaminhamentoMapper encaminhamentoMapper;
-    // PacienteMapper, MedicoMapper e AdministradorMapper são usados internamente pelo ProntuarioMapper
 
-    // Métodos de inicialização LAZY (para garantir que os dados estejam carregados antes de passar para o mapper)
     private void inicializarConsultaCompletamente(ConsultaRegistroEntity consulta) {
         if (consulta != null) {
             if (consulta.getProntuario() != null) consulta.getProntuario().getId(); // Força o carregamento
@@ -77,8 +70,8 @@ public class ProntuarioService {
     }
     private void inicializarPacienteCompleto(PacienteEntity paciente) {
         if (paciente != null) {
-            if (paciente.getEndereco() != null) paciente.getEndereco().getCep(); // Acessar para carregar
-            if (paciente.getContato() != null) paciente.getContato().getEmail(); // Acessar para carregar
+            if (paciente.getEndereco() != null) paciente.getEndereco().getCep();
+            if (paciente.getContato() != null) paciente.getContato().getEmail();
         }
     }
 
@@ -88,7 +81,6 @@ public class ProntuarioService {
         logger.info("SERVICE: Buscando prontuários. Termo: '{}', NumProntuario: '{}'", termo, numeroProntuarioFilter);
         Specification<ProntuarioEntity> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            // Fetch joins para otimizar a busca de dados relacionados
             root.fetch("paciente", JoinType.LEFT).fetch("contato", JoinType.LEFT);
             root.fetch("paciente").fetch("endereco", JoinType.LEFT);
             root.fetch("medicoResponsavel", JoinType.LEFT);
@@ -106,7 +98,7 @@ public class ProntuarioService {
             if (StringUtils.hasText(numeroProntuarioFilter)) {
                 predicates.add(cb.like(cb.lower(root.get("numeroProntuario")), "%" + numeroProntuarioFilter.toLowerCase() + "%"));
             }
-            query.distinct(true); // Importante com fetch joins
+            query.distinct(true);
             return cb.and(predicates.toArray(new Predicate[0]));
         };
         Pageable pageableParaConsulta = pageable;
@@ -122,12 +114,9 @@ public class ProntuarioService {
         ProntuarioEntity prontuario = prontuarioRepository.findByIdFetchingCollections(id) // Usar um método com fetch joins
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
 
-        // Os inicializadores podem não ser mais tão críticos se o findByIdFetchingCollections for eficiente
-        // Mas mantê-los por segurança para quaisquer campos LAZY ainda não cobertos.
         if(prontuario.getPaciente() != null) inicializarPacienteCompleto(prontuario.getPaciente());
         if(prontuario.getMedicoResponsavel() != null) prontuario.getMedicoResponsavel().getNomeCompleto();
         if(prontuario.getAdministradorCriador() != null) prontuario.getAdministradorCriador().getNome();
-        // As listas de registros são carregadas pelo findByIdFetchingCollections
 
         return prontuarioMapper.toDetailedDTO(prontuario); // Usa o mapper
     }
@@ -162,7 +151,7 @@ public class ProntuarioService {
         } else {
             ProntuarioEntity novoProntuario = new ProntuarioEntity();
             novoProntuario.setPaciente(paciente);
-            novoProntuario.setMedicoResponsavel(medicoRef); // Médico de referência é o responsável inicial
+            novoProntuario.setMedicoResponsavel(medicoRef);
             novoProntuario.setAdministradorCriador(adminLogado);
             return prontuarioRepository.save(novoProntuario);
         }
@@ -171,7 +160,7 @@ public class ProntuarioService {
     private void atualizarDataProntuario(ProntuarioEntity prontuario) {
         if (prontuario != null) {
             prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-            prontuarioRepository.saveAndFlush(prontuario); // Garante a atualização imediata
+            prontuarioRepository.saveAndFlush(prontuario);
         }
     }
 
@@ -187,7 +176,7 @@ public class ProntuarioService {
         ConsultaRegistroEntity novaConsulta = consultaMapper.toEntity(dto);
         novaConsulta.setProntuario(prontuario);
         novaConsulta.setResponsavelMedico(medicoExecutor);
-        novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto()); // Lógica de quem registrou
+        novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
         ConsultaRegistroEntity consultaSalva = consultaRepository.save(novaConsulta);
         atualizarDataProntuario(prontuario);
@@ -206,7 +195,7 @@ public class ProntuarioService {
         ExameRegistroEntity novoExame = exameMapper.toEntity(dto);
         novoExame.setProntuario(prontuario);
         novoExame.setMedicoResponsavelExame(medicoExame);
-        novoExame.setNomeResponsavelDisplay(medicoExame.getNomeCompleto()); // Lógica de quem registrou
+        novoExame.setNomeResponsavelDisplay(medicoExame.getNomeCompleto());
 
         ExameRegistroEntity exameSalvo = exameRepository.save(novoExame);
         atualizarDataProntuario(prontuario);
@@ -224,8 +213,8 @@ public class ProntuarioService {
 
         ProcedimentoRegistroEntity novoProcedimento = procedimentoMapper.toEntity(dto);
         novoProcedimento.setProntuario(prontuario);
-        novoProcedimento.setMedicoExecutor(medicoExecutor); // Associar o médico encontrado
-        novoProcedimento.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto()); // Lógica de quem registrou
+        novoProcedimento.setMedicoExecutor(medicoExecutor);
+        novoProcedimento.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
         ProcedimentoRegistroEntity procedimentoSalvo = procedimentoRepository.save(novoProcedimento);
         atualizarDataProntuario(prontuario);
@@ -243,8 +232,8 @@ public class ProntuarioService {
 
         EncaminhamentoRegistroEntity novoEncaminhamento = encaminhamentoMapper.toEntity(dto);
         novoEncaminhamento.setProntuario(prontuario);
-        novoEncaminhamento.setMedicoSolicitante(medicoSolicitante); // Associar o médico encontrado
-        novoEncaminhamento.setNomeResponsavelDisplay(medicoSolicitante.getNomeCompleto()); // Lógica de quem registrou
+        novoEncaminhamento.setMedicoSolicitante(medicoSolicitante);
+        novoEncaminhamento.setNomeResponsavelDisplay(medicoSolicitante.getNomeCompleto());
 
         EncaminhamentoRegistroEntity encaminhamentoSalvo = encaminhamentoRepository.save(novoEncaminhamento);
         atualizarDataProntuario(prontuario);
@@ -264,7 +253,6 @@ public class ProntuarioService {
                 throw new IllegalArgumentException("Médico executor (" + medicoExecutor.getNomeCompleto() + ") não está ativo.");
             }
         }
-        // Mapper atualiza a entidade. O nomeResponsavelDisplay será definido dentro do mapper.
         consultaMapper.updateEntityFromDTO(dto, consultaExistente, medicoExecutor, adminLogado);
 
         ConsultaRegistroEntity consultaAtualizada = consultaRepository.save(consultaExistente);
@@ -285,7 +273,6 @@ public class ProntuarioService {
                 throw new IllegalArgumentException("Médico responsável (" + medicoResponsavelExame.getNomeCompleto() + ") não está ativo.");
             }
         }
-        // Mapper atualiza a entidade. O nomeResponsavelDisplay será definido dentro do mapper.
         exameMapper.updateEntityFromDTO(dto, exameExistente, medicoResponsavelExame, adminLogado);
 
         ExameRegistroEntity exameAtualizado = exameRepository.save(exameExistente);
@@ -298,7 +285,7 @@ public class ProntuarioService {
         ProcedimentoRegistroEntity procedimentoExistente = procedimentoRepository.findById(procedimentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Procedimento não encontrado com ID: " + procedimentoId));
 
-        MedicoEntity medicoExecutor; // Médico executor é obrigatório para procedimento
+        MedicoEntity medicoExecutor;
         if (dto.getMedicoExecutorId() != null) {
             medicoExecutor = medicoRepository.findById(dto.getMedicoExecutorId())
                     .orElseThrow(() -> new ResourceNotFoundException("Médico executor não encontrado: ID " + dto.getMedicoExecutorId()));
@@ -309,7 +296,6 @@ public class ProntuarioService {
             throw new IllegalArgumentException("ID do médico executor é obrigatório para atualizar procedimentos.");
         }
 
-        // Mapper atualiza a entidade. O nomeResponsavelDisplay será definido dentro do mapper.
         procedimentoMapper.updateEntityFromDTO(dto, procedimentoExistente, medicoExecutor);
 
         ProcedimentoRegistroEntity procedimentoAtualizado = procedimentoRepository.save(procedimentoExistente);
@@ -322,7 +308,7 @@ public class ProntuarioService {
         EncaminhamentoRegistroEntity encaminhamentoExistente = encaminhamentoRepository.findById(encaminhamentoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Encaminhamento não encontrado com ID: " + encaminhamentoId));
 
-        MedicoEntity medicoSolicitante; // Médico solicitante é obrigatório para encaminhamento
+        MedicoEntity medicoSolicitante;
         if (dto.getMedicoSolicitanteId() != null) {
             medicoSolicitante = medicoRepository.findById(dto.getMedicoSolicitanteId())
                     .orElseThrow(() -> new ResourceNotFoundException("Médico solicitante não encontrado: ID " + dto.getMedicoSolicitanteId()));
@@ -333,7 +319,6 @@ public class ProntuarioService {
             throw new IllegalArgumentException("ID do médico solicitante é obrigatório para atualizar encaminhamentos.");
         }
 
-        // Mapper atualiza a entidade. O nomeResponsavelDisplay será definido dentro do mapper.
         encaminhamentoMapper.updateEntityFromDTO(dto, encaminhamentoExistente, medicoSolicitante);
 
         EncaminhamentoRegistroEntity encaminhamentoAtualizado = encaminhamentoRepository.save(encaminhamentoExistente);
@@ -364,10 +349,8 @@ public class ProntuarioService {
 
         if (modificado) {
             prontuario.setDataUltimaAtualizacao(LocalDateTime.now());
-            prontuarioRepository.save(prontuario); // Salva as alterações
+            prontuarioRepository.save(prontuario);
         }
-        // Buscar novamente para garantir que todas as associações LAZY estejam
-        // prontas para o mapper detalhado, especialmente após uma atualização.
         return buscarProntuarioPorIdDetalhado(prontuario.getId());
     }
 }

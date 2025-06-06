@@ -6,8 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors; // Certifique-se de que este import está presente
+import java.util.stream.Collectors;
 
 @Component
 public class ProntuarioMapper {
@@ -64,26 +63,25 @@ public class ProntuarioMapper {
 
         ProntuarioDTO dto = toBasicDTO(entity);
 
-        // Garanta que está usando Collectors.toList() aqui
         if (entity.getConsultas() != null) {
             dto.setConsultas(entity.getConsultas().stream()
                     .map(consultaMapper::toDTO)
-                    .collect(Collectors.toList())); // Deve ser toList()
+                    .collect(Collectors.toList()));
         }
         if (entity.getExamesRegistrados() != null) {
             dto.setExamesRegistrados(entity.getExamesRegistrados().stream()
                     .map(exameMapper::toDTO)
-                    .collect(Collectors.toList())); // Deve ser toList()
+                    .collect(Collectors.toList()));
         }
         if (entity.getProcedimentosRegistrados() != null) {
             dto.setProcedimentosRegistrados(entity.getProcedimentosRegistrados().stream()
                     .map(procedimentoMapper::toDTO)
-                    .collect(Collectors.toList())); // Deve ser toList()
+                    .collect(Collectors.toList()));
         }
         if (entity.getEncaminhamentosRegistrados() != null) {
             dto.setEncaminhamentosRegistrados(entity.getEncaminhamentosRegistrados().stream()
                     .map(encaminhamentoMapper::toDTO)
-                    .collect(Collectors.toList())); // Deve ser toList()
+                    .collect(Collectors.toList()));
         }
         return dto;
     }

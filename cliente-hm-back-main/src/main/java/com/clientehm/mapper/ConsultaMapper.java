@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-// import jakarta.annotation.PostConstruct; // REMOVER ESTE IMPORT SE AINDA EXISTIR
-
 @Component
 public class ConsultaMapper {
 
@@ -24,8 +22,6 @@ public class ConsultaMapper {
         this.modelMapper = modelMapper;
     }
 
-    // NENHUM MÉTODO @PostConstruct AQUI
-
     public ConsultaRegistroEntity toEntity(CriarConsultaRequestDTO dto) {
         if (dto == null) return null;
         return modelMapper.map(dto, ConsultaRegistroEntity.class);
@@ -34,12 +30,8 @@ public class ConsultaMapper {
     public ConsultaDTO toDTO(ConsultaRegistroEntity entity) {
         if (entity == null) return null;
 
-        // ModelMapper fará o mapeamento básico.
-        // A configuração de skip para os campos do responsável e o mapeamento de
-        // createdAt/updatedAt já foi feita no ModelMapperConfig.
         ConsultaDTO dto = modelMapper.map(entity, ConsultaDTO.class);
 
-        // Preenchimento manual/lógico dos campos do responsável permanece aqui.
         if (entity.getResponsavelMedico() != null) {
             dto.setTipoResponsavel("MEDICO");
             dto.setResponsavelId(entity.getResponsavelMedico().getId());
@@ -54,16 +46,10 @@ public class ConsultaMapper {
             dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
         }
 
-        // Os campos createdAt e updatedAt devem ter sido mapeados pela configuração no ModelMapperConfig.
-        // Se ainda não estiverem, a configuração no ModelMapperConfig precisa ser verificada.
-        // dto.setCreatedAt(entity.getCreatedAt()); // Pode não ser mais necessário aqui
-        // dto.setUpdatedAt(entity.getUpdatedAt()); // Pode não ser mais necessário aqui
-
         return dto;
     }
 
     public void updateEntityFromDTO(AtualizarConsultaRequestDTO dto, ConsultaRegistroEntity entity, MedicoEntity medicoExecutor, AdministradorEntity adminLogado) {
-        // ... (corpo do método permanece o mesmo de antes) ...
         if (dto == null || entity == null) return;
 
         if (dto.getDataHoraConsulta() != null) entity.setDataHoraConsulta(dto.getDataHoraConsulta());

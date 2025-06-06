@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 
 public class HistoricoMedicoDTO {
     private Long id;
-    private LocalDateTime data; // Alterado para LocalDateTime
+    private LocalDateTime data;
     private String descricao;
     private String responsavel;
-    private LocalDateTime createdAt; // Alterado para LocalDateTime
-    private LocalDateTime updatedAt; // Alterado para LocalDateTime
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public HistoricoMedicoDTO() {
     }

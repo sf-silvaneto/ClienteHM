@@ -18,7 +18,6 @@ public class AtualizarEncaminhamentoRequestDTO {
     @Size(max = 2000, message = "Observações não podem exceder 2000 caracteres")
     private String observacoes;
 
-    // Getters e Setters
     public LocalDateTime getDataEncaminhamento() { return dataEncaminhamento; }
     public void setDataEncaminhamento(LocalDateTime dataEncaminhamento) { this.dataEncaminhamento = dataEncaminhamento; }
 

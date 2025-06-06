@@ -39,7 +39,7 @@ public class MedicoEntity {
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
         if (this.status == null) {
-            this.status = StatusMedico.ATIVO; // Default status
+            this.status = StatusMedico.ATIVO;
         }
     }
 

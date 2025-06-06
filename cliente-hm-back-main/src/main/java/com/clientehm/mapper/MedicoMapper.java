@@ -4,7 +4,7 @@ import com.clientehm.entity.MedicoEntity;
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
-import com.clientehm.model.ProntuarioDTO; // Certifique-se de que ProntuarioDTO está acessível ou importe a classe interna estática
+import com.clientehm.model.ProntuarioDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -65,10 +65,6 @@ public class MedicoMapper {
         }
     }
 
-    /**
-     * Converte MedicoEntity para ProntuarioDTO.MedicoBasicDTO.
-     * Usado para representar informações básicas do médico dentro do ProntuarioDTO.
-     */
     public ProntuarioDTO.MedicoBasicDTO toMedicoBasicDTO(MedicoEntity medicoEntity) {
         if (medicoEntity == null) {
             return null;

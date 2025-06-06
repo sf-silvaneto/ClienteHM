@@ -5,21 +5,21 @@ import com.clientehm.exception.AdminNotFoundException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.exception.InvalidCredentialsException;
 import com.clientehm.exception.WeakPasswordException;
-import com.clientehm.mapper.AdministradorMapper; // Importar o Mapper
+import com.clientehm.mapper.AdministradorMapper;
 import com.clientehm.model.AdministradorLoginDTO;
 import com.clientehm.model.AdministradorRegistroDTO;
 import com.clientehm.model.RedefinirSenhaDTO;
 import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
 import com.clientehm.model.VerificarPalavraChaveDTO;
-import com.clientehm.model.dto.AdministradorDadosDTO; // Importar o DTO de resposta
+import com.clientehm.model.dto.AdministradorDadosDTO;
 import com.clientehm.repository.AdministradorRepository;
 import com.clientehm.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // Adicionado
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map; // Mantido para o método de login
+import java.util.Map;
 
 @Service
 public class AdministradorService {
@@ -34,7 +34,7 @@ public class AdministradorService {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private AdministradorMapper administradorMapper; // Injetar o Mapper
+    private AdministradorMapper administradorMapper;
 
     private boolean isStrongPassword(String password) {
         if (password == null) return false;
@@ -42,7 +42,7 @@ public class AdministradorService {
         return password.matches(regex);
     }
 
-    @Transactional(readOnly = true) // Adicionado para consistência, embora login não altere dados
+    @Transactional(readOnly = true)
     public Map<String, Object> login(AdministradorLoginDTO loginDTO) {
         AdministradorEntity admin = administradorRepository.findByEmail(loginDTO.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Credenciais inválidas"));
@@ -51,11 +51,11 @@ public class AdministradorService {
             throw new InvalidCredentialsException("Credenciais inválidas");
         }
         String token = jwtUtil.generateToken(admin.getEmail());
-        return administradorMapper.toLoginResponseMap(admin, token); // Usar o mapper
+        return administradorMapper.toLoginResponseMap(admin, token);
     }
 
     @Transactional
-    public AdministradorDadosDTO register(AdministradorRegistroDTO registroDTO) { // Alterado para retornar AdministradorDadosDTO
+    public AdministradorDadosDTO register(AdministradorRegistroDTO registroDTO) {
         if (administradorRepository.findByEmail(registroDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email já cadastrado");
         }
@@ -65,11 +65,9 @@ public class AdministradorService {
 
         AdministradorEntity novoAdministrador = administradorMapper.toEntity(registroDTO);
         novoAdministrador.setSenha(passwordEncoder.encode(registroDTO.getSenha()));
-        // A palavraChave já deve ter sido mapeada pelo toEntity se os nomes forem iguais
-        // ou você pode setá-la explicitamente: novoAdministrador.setPalavraChave(registroDTO.getPalavraChave().trim());
 
         AdministradorEntity adminSalvo = administradorRepository.save(novoAdministrador);
-        return administradorMapper.toDadosDTO(adminSalvo); // Usar o mapper para retornar DTO
+        return administradorMapper.toDadosDTO(adminSalvo);
     }
 
     @Transactional(readOnly = true)
@@ -80,7 +78,6 @@ public class AdministradorService {
         String palavraChaveArmazenada = admin.getPalavraChave() != null ? admin.getPalavraChave().trim() : "";
         String palavraChaveFornecida = verificarDTO.getPalavraChave() != null ? verificarDTO.getPalavraChave().trim() : "";
 
-        // Usar equalsIgnoreCase para a palavra-chave se fizer sentido para o seu caso de uso
         if (!palavraChaveFornecida.equalsIgnoreCase(palavraChaveArmazenada)) {
             throw new InvalidCredentialsException("Email ou palavra-chave incorretos");
         }
@@ -127,7 +124,6 @@ public class AdministradorService {
         if (dto.getEmail() != null && !dto.getEmail().trim().isEmpty()) {
             if (!dto.getEmail().trim().equalsIgnoreCase(admin.getEmail())) {
                 String newEmailTrimmed = dto.getEmail().trim();
-                // Verifica se o novo email já existe para OUTRO administrador
                 administradorRepository.findByEmail(newEmailTrimmed).ifPresent(otherAdmin -> {
                     if (!otherAdmin.getId().equals(admin.getId())) {
                         throw new EmailAlreadyExistsException("Este email já está em uso por outro administrador.");
@@ -145,13 +141,9 @@ public class AdministradorService {
             if (novaPalavraChaveRecebida.length() < 4) {
                 throw new WeakPasswordException("Nova palavra-chave deve ter no mínimo 4 caracteres.");
             }
-            // Considerar se a palavra-chave deve ser case-sensitive na comparação
             if (novaPalavraChaveRecebida.equalsIgnoreCase(palavraChaveArmazenada)) {
-                // Ou throw new IllegalArgumentException("A nova palavra-chave não pode ser igual à palavra-chave de recuperação atual.");
-                // Se for permitido ser igual (apenas para atualizar o case, por exemplo), remova este if ou ajuste a lógica.
-                // Se for para impedir ser igual, mantenha.
             }
-            admin.setPalavraChave(novaPalavraChaveRecebida); // Salvar a palavra-chave como foi digitada
+            admin.setPalavraChave(novaPalavraChaveRecebida);
             changed = true;
         }
 

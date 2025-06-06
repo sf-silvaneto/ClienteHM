@@ -10,7 +10,7 @@ public class ProcedimentoRegistroDTO {
     private String relatorioProcedimento;
     private Long medicoExecutorId;
     private String medicoExecutorNome;
-    private String nomeResponsavelDisplay; // Quem registrou no sistema
+    private String nomeResponsavelDisplay;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

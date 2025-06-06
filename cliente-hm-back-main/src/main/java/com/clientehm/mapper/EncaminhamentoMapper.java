@@ -17,7 +17,6 @@ public class EncaminhamentoMapper {
     private ModelMapper modelMapper;
 
     public EncaminhamentoRegistroEntity toEntity(CriarEncaminhamentoRequestDTO dto) {
-        // MedicoSolicitante e Prontuario são definidos no serviço
         return modelMapper.map(dto, EncaminhamentoRegistroEntity.class);
     }
 
@@ -32,7 +31,6 @@ public class EncaminhamentoMapper {
             dto.setMedicoSolicitanteNome(entity.getMedicoSolicitante().getNomeCompleto());
             dto.setMedicoSolicitanteCRM(entity.getMedicoSolicitante().getCrm());
         }
-        // O nomeResponsavelDisplay deve ser definido no serviço
         return dto;
     }
 
@@ -42,7 +40,6 @@ public class EncaminhamentoMapper {
         if (StringUtils.hasText(dto.getMotivoEncaminhamento())) entity.setMotivoEncaminhamento(dto.getMotivoEncaminhamento());
         if (dto.getObservacoes() != null) entity.setObservacoes(StringUtils.hasText(dto.getObservacoes()) ? dto.getObservacoes().trim() : null);
 
-        // MedicoSolicitante é obrigatório, então deve ser passado pelo serviço.
         if (medicoSolicitante != null) {
             entity.setMedicoSolicitante(medicoSolicitante);
             entity.setNomeResponsavelDisplay(medicoSolicitante.getNomeCompleto());

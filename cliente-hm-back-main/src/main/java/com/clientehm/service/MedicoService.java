@@ -4,14 +4,13 @@ import com.clientehm.entity.MedicoEntity;
 import com.clientehm.entity.StatusMedico;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.exception.CrmAlreadyExistsException;
-import com.clientehm.mapper.MedicoMapper; // Importar o Mapper
+import com.clientehm.mapper.MedicoMapper;
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
 import com.clientehm.repository.MedicoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// Removido BeanUtils pois ModelMapper será usado
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +27,7 @@ public class MedicoService {
     private MedicoRepository medicoRepository;
 
     @Autowired
-    private MedicoMapper medicoMapper; // Injetar o Mapper
-
-    // O método convertToDTO foi movido para MedicoMapper
+    private MedicoMapper medicoMapper;
 
     @Transactional
     public MedicoDTO criarMedico(MedicoCreateDTO medicoCreateDTO) {
@@ -40,7 +37,7 @@ public class MedicoService {
         }
 
         MedicoEntity medicoEntity = medicoMapper.toEntity(medicoCreateDTO);
-        medicoEntity.setStatus(StatusMedico.ATIVO); // Define o status padrão
+        medicoEntity.setStatus(StatusMedico.ATIVO);
 
         MedicoEntity medicoSalvo = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico criado com ID: {}", medicoSalvo.getId());
@@ -96,7 +93,6 @@ public class MedicoService {
         MedicoEntity medicoEntity = medicoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Médico não encontrado com ID: " + id));
 
-        // Validação de unicidade do CRM se estiver sendo alterado
         if (medicoUpdateDTO.getCrm() != null &&
                 !medicoUpdateDTO.getCrm().trim().isEmpty() &&
                 !medicoUpdateDTO.getCrm().equals(medicoEntity.getCrm())) {
@@ -106,7 +102,6 @@ public class MedicoService {
             }
         }
 
-        // Usar o mapper para aplicar as atualizações do DTO na entidade
         medicoMapper.updateEntityFromDTO(medicoUpdateDTO, medicoEntity);
 
         MedicoEntity medicoAtualizado = medicoRepository.save(medicoEntity);
@@ -132,9 +127,6 @@ public class MedicoService {
         if (!medicoRepository.existsById(id)) {
             throw new ResourceNotFoundException("Médico não encontrado com ID: " + id);
         }
-        // Adicionar lógica aqui para verificar se o médico está associado a prontuários
-        // Se estiver, você pode impedir a exclusão ou anonimizar o médico.
-        // Por enquanto, apenas deleta.
         medicoRepository.deleteById(id);
         logger.info("SERVICE: Médico deletado com ID: {}", id);
     }

@@ -19,10 +19,10 @@ public interface ProntuarioRepository extends JpaRepository<ProntuarioEntity, Lo
             "LEFT JOIN FETCH pac.contato " +
             "LEFT JOIN FETCH p.medicoResponsavel " +
             "LEFT JOIN FETCH p.administradorCriador " +
-            "LEFT JOIN FETCH p.consultas " + // Deve funcionar agora com Set
-            "LEFT JOIN FETCH p.examesRegistrados " + // Deve funcionar agora com Set
-            "LEFT JOIN FETCH p.procedimentosRegistrados " + // Deve funcionar agora com Set
-            "LEFT JOIN FETCH p.encaminhamentosRegistrados " + // Deve funcionar agora com Set
+            "LEFT JOIN FETCH p.consultas " +
+            "LEFT JOIN FETCH p.examesRegistrados " +
+            "LEFT JOIN FETCH p.procedimentosRegistrados " +
+            "LEFT JOIN FETCH p.encaminhamentosRegistrados " +
             "WHERE p.id = :id")
     Optional<ProntuarioEntity> findByIdFetchingCollections(@Param("id") Long id);
 }

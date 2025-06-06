@@ -6,17 +6,14 @@ import com.clientehm.entity.ContatoEntity;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.exception.CpfAlreadyExistsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
-import com.clientehm.mapper.PacienteMapper; // Importar o Mapper
+import com.clientehm.mapper.PacienteMapper;
 import com.clientehm.model.PacienteCreateDTO;
 import com.clientehm.model.PacienteDTO;
 import com.clientehm.model.PacienteUpdateDTO;
-// EnderecoDTOs não são mais convertidos diretamente aqui se o PacienteMapper cuidar disso
 import com.clientehm.repository.PacienteRepository;
 import com.clientehm.repository.ContatoRepository;
-// EnderecoRepository não é mais necessário aqui se o cascade cuidar da persistência
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-// BeanUtils não é mais necessário para a conversão principal
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,10 +35,7 @@ public class PacienteService {
     private ContatoRepository contatoRepository;
 
     @Autowired
-    private PacienteMapper pacienteMapper; // Injetar o Mapper
-
-    // O método convertToDTO foi movido para PacienteMapper
-    // Os métodos mapCreateDTOToEntity e mapUpdateDTOToEntity foram incorporados/substituídos pelo PacienteMapper
+    private PacienteMapper pacienteMapper;
 
     @Transactional
     public PacienteDTO criarPaciente(PacienteCreateDTO pacienteCreateDTO) {
@@ -61,9 +55,6 @@ public class PacienteService {
         if (pacienteEntity.getDataEntrada() == null) {
             pacienteEntity.setDataEntrada(LocalDate.now());
         }
-        // Se EnderecoEntity e ContatoEntity são criados e associados pelo mapper,
-        // e o cascade está configurado em PacienteEntity (@OneToOne(cascade = CascadeType.ALL)),
-        // eles serão salvos junto com o paciente.
 
         PacienteEntity pacienteSalvo = pacienteRepository.save(pacienteEntity);
         logger.info("SERVICE: Paciente criado com ID: {}", pacienteSalvo.getId());
@@ -89,10 +80,6 @@ public class PacienteService {
         logger.info("SERVICE: Buscando paciente com ID: {}", id);
         PacienteEntity pacienteEntity = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + id));
-        // Eager fetching (se necessário) ou deixar o Open Session In View lidar,
-        // mas idealmente o DTO não deveria causar carregamento LAZY.
-        // O mapper pode ser configurado para lidar com isso ou o ModelMapper pode precisar
-        // de TypeMaps específicos se houver coleções LAZY no DTO.
         return pacienteMapper.toDTO(pacienteEntity);
     }
 
@@ -102,7 +89,6 @@ public class PacienteService {
         PacienteEntity pacienteEntity = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + id));
 
-        // Verificar unicidade do email se estiver sendo alterado
         if (pacienteUpdateDTO.getEmail() != null &&
                 StringUtils.hasText(pacienteUpdateDTO.getEmail()) &&
                 (pacienteEntity.getContato() == null || !pacienteUpdateDTO.getEmail().trim().equalsIgnoreCase(pacienteEntity.getContato().getEmail()))) {
@@ -110,7 +96,6 @@ public class PacienteService {
             String novoEmail = pacienteUpdateDTO.getEmail().trim().toLowerCase();
             Optional<ContatoEntity> contatoComEmail = contatoRepository.findByEmail(novoEmail);
 
-            // Se o email já existe E pertence a um contato que NÃO é o contato atual do paciente
             if (contatoComEmail.isPresent() && (pacienteEntity.getContato() == null || !contatoComEmail.get().getId().equals(pacienteEntity.getContato().getId()))) {
                 throw new EmailAlreadyExistsException("Email " + novoEmail + " já cadastrado para outro contato.");
             }
@@ -128,7 +113,6 @@ public class PacienteService {
         logger.info("SERVICE: Deletando paciente com ID: {}", id);
         PacienteEntity paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Paciente não encontrado com ID: " + id));
-        // orphanRemoval=true em PacienteEntity para Endereco e Contato deve cuidar da remoção deles.
         pacienteRepository.delete(paciente);
         logger.info("SERVICE: Paciente deletado com ID: {}", id);
     }

@@ -3,12 +3,11 @@ package com.clientehm.mapper;
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.model.AdministradorRegistroDTO;
 import com.clientehm.model.dto.AdministradorDadosDTO;
-import com.clientehm.model.ProntuarioDTO; // Certifique-se que ProntuarioDTO está acessível
+import com.clientehm.model.ProntuarioDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,10 +54,6 @@ public class AdministradorMapper {
         return response;
     }
 
-    /**
-     * Converte AdministradorEntity para ProntuarioDTO.AdministradorBasicDTO.
-     * Usado para representar informações básicas do administrador dentro do ProntuarioDTO.
-     */
     public ProntuarioDTO.AdministradorBasicDTO toAdminBasicDTO(AdministradorEntity admin) {
         if (admin == null) {
             return null;
@@ -67,7 +62,6 @@ public class AdministradorMapper {
         dto.setId(admin.getId());
         dto.setNome(admin.getNome());
         dto.setEmail(admin.getEmail());
-        // Adicione outros campos que AdministradorBasicDTO possa ter e que venham de AdministradorEntity
         return dto;
     }
 }
