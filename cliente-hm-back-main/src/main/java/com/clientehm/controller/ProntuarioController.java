@@ -1,7 +1,6 @@
 package com.clientehm.controller;
 
 import com.clientehm.entity.AdministradorEntity;
-import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.model.*;
 import com.clientehm.service.ProntuarioService;
 import jakarta.validation.Valid;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +22,13 @@ public class ProntuarioController {
 
     @Autowired
     private ProntuarioService prontuarioService;
+
+    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("mensagem", message);
+        body.put("codigo", status.value());
+        return ResponseEntity.status(status).body(body);
+    }
 
     @GetMapping
     public ResponseEntity<Page<ProntuarioDTO>> buscarProntuariosPaginado(
@@ -56,12 +61,8 @@ public class ProntuarioController {
             @Valid @RequestBody CriarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ConsultaDTO consultaSalvaDTO = prontuarioService.adicionarConsultaERetornarDTO(pacienteId, consultaDTO, adminLogado, medicoExecutorId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(consultaSalvaDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar consulta."); }
+        ConsultaDTO consultaSalvaDTO = prontuarioService.adicionarConsultaERetornarDTO(pacienteId, consultaDTO, adminLogado, medicoExecutorId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(consultaSalvaDTO);
     }
 
     @PostMapping("/exames")
@@ -71,12 +72,8 @@ public class ProntuarioController {
             @Valid @RequestBody CriarExameRequestDTO exameDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ExameRegistroDTO exameSalvoDTO = prontuarioService.adicionarExameERetornarDTO(pacienteId, exameDTO, adminLogado, medicoResponsavelExameId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(exameSalvoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar exame.");}
+        ExameRegistroDTO exameSalvoDTO = prontuarioService.adicionarExameERetornarDTO(pacienteId, exameDTO, adminLogado, medicoResponsavelExameId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(exameSalvoDTO);
     }
 
     @PostMapping("/procedimentos")
@@ -85,12 +82,8 @@ public class ProntuarioController {
             @Valid @RequestBody CriarProcedimentoRequestDTO procedimentoDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ProcedimentoRegistroDTO procedimentoSalvoDTO = prontuarioService.adicionarProcedimentoERetornarDTO(pacienteId, procedimentoDTO, adminLogado);
-            return ResponseEntity.status(HttpStatus.CREATED).body(procedimentoSalvoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar procedimento.");}
+        ProcedimentoRegistroDTO procedimentoSalvoDTO = prontuarioService.adicionarProcedimentoERetornarDTO(pacienteId, procedimentoDTO, adminLogado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(procedimentoSalvoDTO);
     }
 
     @PostMapping("/encaminhamentos")
@@ -99,12 +92,8 @@ public class ProntuarioController {
             @Valid @RequestBody CriarEncaminhamentoRequestDTO encaminhamentoDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            EncaminhamentoRegistroDTO encaminhamentoSalvoDTO = prontuarioService.adicionarEncaminhamentoERetornarDTO(pacienteId, encaminhamentoDTO, adminLogado);
-            return ResponseEntity.status(HttpStatus.CREATED).body(encaminhamentoSalvoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao adicionar encaminhamento.");}
+        EncaminhamentoRegistroDTO encaminhamentoSalvoDTO = prontuarioService.adicionarEncaminhamentoERetornarDTO(pacienteId, encaminhamentoDTO, adminLogado);
+        return ResponseEntity.status(HttpStatus.CREATED).body(encaminhamentoSalvoDTO);
     }
 
     @PutMapping("/consultas/{consultaId}")
@@ -113,12 +102,8 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ConsultaDTO consultaAtualizadaDTO = prontuarioService.atualizarConsultaERetornarDTO(consultaId, consultaDTO, adminLogado);
-            return ResponseEntity.ok(consultaAtualizadaDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao atualizar consulta.");}
+        ConsultaDTO consultaAtualizadaDTO = prontuarioService.atualizarConsultaERetornarDTO(consultaId, consultaDTO, adminLogado);
+        return ResponseEntity.ok(consultaAtualizadaDTO);
     }
 
     @PutMapping("/exames/{exameId}")
@@ -127,12 +112,8 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarExameRequestDTO exameDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ExameRegistroDTO exameAtualizadoDTO = prontuarioService.atualizarExameERetornarDTO(exameId, exameDTO, adminLogado);
-            return ResponseEntity.ok(exameAtualizadoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao atualizar exame.");}
+        ExameRegistroDTO exameAtualizadoDTO = prontuarioService.atualizarExameERetornarDTO(exameId, exameDTO, adminLogado);
+        return ResponseEntity.ok(exameAtualizadoDTO);
     }
 
     @PutMapping("/procedimentos/{procedimentoId}")
@@ -141,12 +122,8 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarProcedimentoRequestDTO procedimentoDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ProcedimentoRegistroDTO procedimentoAtualizadoDTO = prontuarioService.atualizarProcedimentoERetornarDTO(procedimentoId, procedimentoDTO, adminLogado);
-            return ResponseEntity.ok(procedimentoAtualizadoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao atualizar procedimento.");}
+        ProcedimentoRegistroDTO procedimentoAtualizadoDTO = prontuarioService.atualizarProcedimentoERetornarDTO(procedimentoId, procedimentoDTO, adminLogado);
+        return ResponseEntity.ok(procedimentoAtualizadoDTO);
     }
 
     @PutMapping("/encaminhamentos/{encaminhamentoId}")
@@ -155,12 +132,8 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarEncaminhamentoRequestDTO encaminhamentoDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            EncaminhamentoRegistroDTO encaminhamentoAtualizadoDTO = prontuarioService.atualizarEncaminhamentoERetornarDTO(encaminhamentoId, encaminhamentoDTO, adminLogado);
-            return ResponseEntity.ok(encaminhamentoAtualizadoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao atualizar encaminhamento.");}
+        EncaminhamentoRegistroDTO encaminhamentoAtualizadoDTO = prontuarioService.atualizarEncaminhamentoERetornarDTO(encaminhamentoId, encaminhamentoDTO, adminLogado);
+        return ResponseEntity.ok(encaminhamentoAtualizadoDTO);
     }
 
     @PutMapping("/{id}/dados-basicos")
@@ -169,45 +142,7 @@ public class ProntuarioController {
             @Valid @RequestBody ProntuarioUpdateDadosBasicosDTO updateDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        try {
-            ProntuarioDTO prontuarioAtualizadoDTO = prontuarioService.atualizarDadosBasicosProntuarioERetornarDTO(id, updateDTO.getMedicoResponsavelId());
-            return ResponseEntity.ok(prontuarioAtualizadoDTO);
-        } catch (ResourceNotFoundException e) { return createErrorResponse(HttpStatus.NOT_FOUND, e.getMessage());
-        } catch (IllegalArgumentException e) { return createErrorResponse(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (Exception e) { return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno ao atualizar dados básicos do prontuário.");}
-    }
-
-    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", message);
-        body.put("codigo", status.value());
-        return ResponseEntity.status(status).body(body);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", "Erro de validação nos dados fornecidos");
-        body.put("codigo", HttpStatus.BAD_REQUEST.value());
-        body.put("erros", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado no servidor.");
+        ProntuarioDTO prontuarioAtualizadoDTO = prontuarioService.atualizarDadosBasicosProntuarioERetornarDTO(id, updateDTO.getMedicoResponsavelId());
+        return ResponseEntity.ok(prontuarioAtualizadoDTO);
     }
 }

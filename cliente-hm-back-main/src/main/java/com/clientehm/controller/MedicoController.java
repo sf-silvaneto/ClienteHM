@@ -1,8 +1,6 @@
 package com.clientehm.controller;
 
 import com.clientehm.entity.StatusMedico;
-import com.clientehm.exception.CrmAlreadyExistsException;
-import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
@@ -17,9 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/medicos")
@@ -27,13 +22,6 @@ public class MedicoController {
 
     @Autowired
     private MedicoService medicoService;
-
-    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", message);
-        body.put("codigo", status.value());
-        return ResponseEntity.status(status).body(body);
-    }
 
     @PostMapping
     public ResponseEntity<MedicoDTO> criarMedico(@Valid @RequestBody MedicoCreateDTO medicoCreateDTO) {
@@ -71,7 +59,7 @@ public class MedicoController {
                 StatusMedico statusEnum = StatusMedico.valueOf(status.toUpperCase());
                 medicosPage = medicoService.buscarMedicosPorStatus(statusEnum, pageable);
             } catch (IllegalArgumentException e) {
-                return ResponseEntity.badRequest().build();
+                throw e;
             }
         } else {
             medicosPage = medicoService.buscarTodosMedicos(pageable);
@@ -101,37 +89,5 @@ public class MedicoController {
     public ResponseEntity<Void> deletarMedico(@PathVariable Long id) {
         medicoService.deletarMedico(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @ExceptionHandler(CrmAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleCrmAlreadyExists(CrmAlreadyExistsException ex) {
-        return createErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", "Erro de validação nos dados fornecidos");
-        body.put("codigo", HttpStatus.BAD_REQUEST.value());
-        body.put("erros", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado no servidor.");
     }
 }

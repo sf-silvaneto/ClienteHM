@@ -8,10 +8,6 @@ import com.clientehm.model.VerifiedProfileUpdateRequestDTO;
 import com.clientehm.model.dto.AdministradorDadosDTO;
 import com.clientehm.service.AdministradorService;
 import com.clientehm.mapper.AdministradorMapper;
-import com.clientehm.exception.AdminNotFoundException;
-import com.clientehm.exception.InvalidCredentialsException;
-import com.clientehm.exception.EmailAlreadyExistsException;
-import com.clientehm.exception.WeakPasswordException;
 import com.clientehm.entity.AdministradorEntity;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,16 +29,6 @@ public class AdministradorController {
     @Autowired
     private AdministradorMapper administradorMapper;
 
-    private ResponseEntity<Map<String, Object>> createResponse(HttpStatus status, String message, Map<String, Object> additionalData) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", message);
-        body.put("codigo", status.value());
-        if (additionalData != null) {
-            body.putAll(additionalData);
-        }
-        return ResponseEntity.status(status).body(body);
-    }
-
     private ResponseEntity<Map<String, Object>> createSuccessResponse(HttpStatus status, String message, Object data) {
         Map<String, Object> body = new HashMap<>();
         body.put("mensagem", message);
@@ -52,10 +37,6 @@ public class AdministradorController {
             body.put("dados", data);
         }
         return ResponseEntity.status(status).body(body);
-    }
-
-    private ResponseEntity<Map<String, Object>> createErrorResponse(HttpStatus status, String message) {
-        return createResponse(status, message, null);
     }
 
     @PostMapping("/login")
@@ -85,7 +66,10 @@ public class AdministradorController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentAdmin(@AuthenticationPrincipal AdministradorEntity admin) {
         if (admin == null) {
-            return createErrorResponse(HttpStatus.UNAUTHORIZED, "Nenhum administrador autenticado encontrado.");
+            Map<String, Object> body = new HashMap<>();
+            body.put("mensagem", "Nenhum administrador autenticado encontrado.");
+            body.put("codigo", HttpStatus.UNAUTHORIZED.value());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
         }
         AdministradorDadosDTO adminDataDTO = administradorMapper.toDadosDTO(admin);
 
@@ -105,48 +89,5 @@ public class AdministradorController {
         response.put("mensagem", "Dados atualizados com sucesso.");
         response.put("adminData", updatedAdminDTO);
         return ResponseEntity.ok(response);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("mensagem", "Erro de validação nos dados fornecidos");
-        body.put("codigo", HttpStatus.BAD_REQUEST.value());
-        body.put("erros", errors);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
-    }
-
-    @ExceptionHandler(AdminNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAdminNotFound(AdminNotFoundException ex) {
-        return createErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(WeakPasswordException.class)
-    public ResponseEntity<Map<String, Object>> handleWeakPassword(WeakPasswordException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleEmailExists(EmailAlreadyExistsException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return createErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        return createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Ocorreu um erro inesperado no servidor.");
     }
 }
