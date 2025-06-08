@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List; // Importar List
 
 public class PacienteUpdateDTO {
 
@@ -42,9 +43,15 @@ public class PacienteUpdateDTO {
     private String nacionalidade;
     private String ocupacao;
 
-    private String alergiasDeclaradas;
-    private String comorbidadesDeclaradas;
-    private String medicamentosContinuos;
+    // Adicione as listas de DTOs para atualização
+    @Valid
+    private List<AlergiaDTO> alergias;
+
+    @Valid
+    private List<ComorbidadeDTO> comorbidades;
+
+    @Valid
+    private List<MedicamentoContinuoDTO> medicamentosContinuos;
 
     @Valid
     private EnderecoUpdateDTO endereco;
@@ -80,10 +87,28 @@ public class PacienteUpdateDTO {
     public EnderecoUpdateDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoUpdateDTO endereco) { this.endereco = endereco; }
 
-    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
-    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
-    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
-    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
-    public String getMedicamentosContinuos() { return medicamentosContinuos; }
-    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+    // Novos getters e setters para as listas
+    public List<AlergiaDTO> getAlergias() {
+        return alergias;
+    }
+
+    public void setAlergias(List<AlergiaDTO> alergias) {
+        this.alergias = alergias;
+    }
+
+    public List<ComorbidadeDTO> getComorbidades() {
+        return comorbidades;
+    }
+
+    public void setComorbidades(List<ComorbidadeDTO> comorbidades) {
+        this.comorbidades = comorbidades;
+    }
+
+    public List<MedicamentoContinuoDTO> getMedicamentosContinuos() {
+        return medicamentosContinuos;
+    }
+
+    public void setMedicamentosContinuos(List<MedicamentoContinuoDTO> medicamentosContinuos) {
+        this.medicamentosContinuos = medicamentosContinuos;
+    }
 }

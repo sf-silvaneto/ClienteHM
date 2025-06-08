@@ -2,6 +2,7 @@ package com.clientehm.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class PacienteDTO {
     private Long id;
@@ -20,9 +21,11 @@ public class PacienteDTO {
     private String tipoSanguineo;
     private String nacionalidade;
     private String ocupacao;
-    private String alergiasDeclaradas;
-    private String comorbidadesDeclaradas;
-    private String medicamentosContinuos;
+
+    private List<AlergiaDTO> alergias;
+    private List<ComorbidadeDTO> comorbidades;
+    private List<MedicamentoContinuoDTO> medicamentosContinuos;
+
     private EnderecoDTO endereco;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -60,13 +63,29 @@ public class PacienteDTO {
     public String getOcupacao() { return ocupacao; }
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
 
-    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
-    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
-    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
-    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
-    public String getMedicamentosContinuos() { return medicamentosContinuos; }
-    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+    public List<AlergiaDTO> getAlergias() {
+        return alergias;
+    }
 
+    public void setAlergias(List<AlergiaDTO> alergias) {
+        this.alergias = alergias;
+    }
+
+    public List<ComorbidadeDTO> getComorbidades() {
+        return comorbidades;
+    }
+
+    public void setComorbidades(List<ComorbidadeDTO> comorbidades) {
+        this.comorbidades = comorbidades;
+    }
+
+    public List<MedicamentoContinuoDTO> getMedicamentosContinuos() {
+        return medicamentosContinuos;
+    }
+
+    public void setMedicamentosContinuos(List<MedicamentoContinuoDTO> medicamentosContinuos) {
+        this.medicamentosContinuos = medicamentosContinuos;
+    }
 
     public EnderecoDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoDTO endereco) { this.endereco = endereco; }

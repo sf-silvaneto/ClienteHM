@@ -1,6 +1,6 @@
 package com.clientehm.model;
 
-import com.clientehm.entity.StatusMedico;
+// import com.clientehm.entity.StatusMedico; // Remova esta importação
 import java.time.LocalDateTime;
 
 public class MedicoDTO {
@@ -10,21 +10,22 @@ public class MedicoDTO {
     private String especialidade;
     private String resumoEspecialidade;
     private String rqe;
-    private StatusMedico status;
+    // private StatusMedico status; // Removido
+    private LocalDateTime excludedAt; // Novo campo
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public MedicoDTO() {
     }
 
-    public MedicoDTO(Long id, String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, StatusMedico status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public MedicoDTO(Long id, String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime excludedAt, LocalDateTime createdAt, LocalDateTime updatedAt) { // Modificado construtor
         this.id = id;
         this.nomeCompleto = nomeCompleto;
         this.crm = crm;
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.status = status;
+        this.excludedAt = excludedAt; // Usar o novo campo
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -77,12 +78,21 @@ public class MedicoDTO {
         this.rqe = rqe;
     }
 
-    public StatusMedico getStatus() {
-        return status;
+    // Remover getter e setter de status
+    // public StatusMedico getStatus() {
+    //     return status;
+    // }
+    // public void setStatus(StatusMedico status) {
+    //     this.status = status;
+    // }
+
+    // NOVO: Getter e Setter para excludedAt
+    public LocalDateTime getExcludedAt() {
+        return excludedAt;
     }
 
-    public void setStatus(StatusMedico status) {
-        this.status = status;
+    public void setExcludedAt(LocalDateTime excludedAt) {
+        this.excludedAt = excludedAt;
     }
 
     public LocalDateTime getCreatedAt() {

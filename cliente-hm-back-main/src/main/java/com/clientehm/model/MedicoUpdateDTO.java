@@ -1,7 +1,8 @@
 package com.clientehm.model;
 
-import com.clientehm.entity.StatusMedico;
+// import com.clientehm.entity.StatusMedico; // Remova esta importação
 import jakarta.validation.constraints.Size;
+import java.time.LocalDateTime; // Nova importação
 
 public class MedicoUpdateDTO {
 
@@ -18,7 +19,8 @@ public class MedicoUpdateDTO {
 
     private String rqe;
 
-    private StatusMedico status;
+    // private StatusMedico status; // Removido
+    private LocalDateTime excludedAt; // Novo campo
 
     public String getNomeCompleto() {
         return nomeCompleto;
@@ -60,11 +62,20 @@ public class MedicoUpdateDTO {
         this.rqe = rqe;
     }
 
-    public StatusMedico getStatus() {
-        return status;
+    // Remover getter e setter de status
+    // public StatusMedico getStatus() {
+    //     return status;
+    // }
+    // public void setStatus(StatusMedico status) {
+    //     this.status = status;
+    // }
+
+    // NOVO: Getter e Setter para excludedAt
+    public LocalDateTime getExcludedAt() {
+        return excludedAt;
     }
 
-    public void setStatus(StatusMedico status) {
-        this.status = status;
+    public void setExcludedAt(LocalDateTime excludedAt) {
+        this.excludedAt = excludedAt;
     }
 }

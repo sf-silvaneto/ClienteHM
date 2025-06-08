@@ -1,17 +1,25 @@
 package com.clientehm.service;
 
+import com.clientehm.entity.AlergiaEntity;
+import com.clientehm.entity.ComorbidadeEntity;
 import com.clientehm.entity.PacienteEntity;
-import com.clientehm.entity.EnderecoEntity;
+import com.clientehm.entity.MedicamentoContinuoEntity;
 import com.clientehm.entity.ContatoEntity;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.exception.CpfAlreadyExistsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.mapper.PacienteMapper;
+import com.clientehm.model.AlergiaDTO;
+import com.clientehm.model.ComorbidadeDTO;
+import com.clientehm.model.MedicamentoContinuoDTO;
 import com.clientehm.model.PacienteCreateDTO;
 import com.clientehm.model.PacienteDTO;
 import com.clientehm.model.PacienteUpdateDTO;
 import com.clientehm.repository.PacienteRepository;
 import com.clientehm.repository.ContatoRepository;
+import com.clientehm.repository.AlergiaRepository;
+import com.clientehm.repository.ComorbidadeRepository;
+import com.clientehm.repository.MedicamentoContinuoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +29,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PacienteService {
@@ -33,6 +44,13 @@ public class PacienteService {
 
     @Autowired
     private ContatoRepository contatoRepository;
+
+    @Autowired
+    private AlergiaRepository alergiaRepository;
+    @Autowired
+    private ComorbidadeRepository comorbidadeRepository;
+    @Autowired
+    private MedicamentoContinuoRepository medicamentoContinuoRepository;
 
     @Autowired
     private PacienteMapper pacienteMapper;
@@ -54,6 +72,16 @@ public class PacienteService {
 
         if (pacienteEntity.getDataEntrada() == null) {
             pacienteEntity.setDataEntrada(LocalDate.now());
+        }
+
+        if (pacienteEntity.getAlergias() != null) {
+            pacienteEntity.getAlergias().forEach(alergia -> alergia.setPaciente(pacienteEntity));
+        }
+        if (pacienteEntity.getComorbidades() != null) {
+            pacienteEntity.getComorbidades().forEach(comorbidade -> comorbidade.setPaciente(pacienteEntity));
+        }
+        if (pacienteEntity.getMedicamentosContinuos() != null) {
+            pacienteEntity.getMedicamentosContinuos().forEach(medicamento -> medicamento.setPaciente(pacienteEntity));
         }
 
         PacienteEntity pacienteSalvo = pacienteRepository.save(pacienteEntity);

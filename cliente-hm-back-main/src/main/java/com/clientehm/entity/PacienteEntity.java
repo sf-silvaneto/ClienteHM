@@ -3,9 +3,10 @@ package com.clientehm.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import com.clientehm.entity.EnderecoEntity;
-import com.clientehm.entity.ContatoEntity; // Importar a nova entidade
+import com.clientehm.entity.ContatoEntity;
 
 @Entity
 @Table(name = "pacientes")
@@ -39,7 +40,7 @@ public class PacienteEntity {
     private String cartaoSus;
 
     @Enumerated(EnumType.STRING)
-    private RacaCor racaCor;
+    private RacaCor racaCor; // Linha 47
 
     @Enumerated(EnumType.STRING)
     private TipoSanguineo tipoSanguineo;
@@ -47,25 +48,25 @@ public class PacienteEntity {
     private String nacionalidade;
     private String ocupacao;
 
-    @Column(columnDefinition = "TEXT")
-    private String alergiasDeclaradas;
-
-    @Column(columnDefinition = "TEXT")
-    private String comorbidadesDeclaradas;
-
-    @Column(columnDefinition = "TEXT")
-    private String medicamentosContinuos;
-
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "endereco_id", referencedColumnName = "id")
     private EnderecoEntity endereco;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "contato_id", referencedColumnName = "id", unique = true) // unique=true se um contato pertence a um único paciente
+    @JoinColumn(name = "contato_id", referencedColumnName = "id", unique = true)
     private ContatoEntity contato;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProntuarioEntity> prontuarios;
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<AlergiaEntity> alergias = new ArrayList<>();
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<ComorbidadeEntity> comorbidades = new ArrayList<>();
+
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<MedicamentoContinuoEntity> medicamentosContinuos = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -110,7 +111,7 @@ public class PacienteEntity {
     public void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
-    public RacaCor getRacaCor() { return racaCor; }
+    public RacaCor getRacaCor() { return racaCor; } // Linha 114
     public void setRacaCor(RacaCor racaCor) { this.racaCor = racaCor; }
     public TipoSanguineo getTipoSanguineo() { return tipoSanguineo; }
     public void setTipoSanguineo(TipoSanguineo tipoSanguineo) { this.tipoSanguineo = tipoSanguineo; }
@@ -128,10 +129,28 @@ public class PacienteEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
-    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
-    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
-    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
-    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
-    public String getMedicamentosContinuos() { return medicamentosContinuos; }
-    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+
+    public List<AlergiaEntity> getAlergias() {
+        return alergias;
+    }
+
+    public void setAlergias(List<AlergiaEntity> alergias) {
+        this.alergias = alergias;
+    }
+
+    public List<ComorbidadeEntity> getComorbidades() {
+        return comorbidades;
+    }
+
+    public void setComorbidades(List<ComorbidadeEntity> comorbidades) {
+        this.comorbidades = comorbidades;
+    }
+
+    public List<MedicamentoContinuoEntity> getMedicamentosContinuos() {
+        return medicamentosContinuos;
+    }
+
+    public void setMedicamentosContinuos(List<MedicamentoContinuoEntity> medicamentosContinuos) {
+        this.medicamentosContinuos = medicamentosContinuos;
+    }
 }

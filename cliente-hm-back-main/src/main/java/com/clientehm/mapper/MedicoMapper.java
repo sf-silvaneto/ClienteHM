@@ -1,6 +1,7 @@
 package com.clientehm.mapper;
 
 import com.clientehm.entity.MedicoEntity;
+// import com.clientehm.entity.StatusMedico; // Remova esta importação
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
@@ -20,9 +21,14 @@ public class MedicoMapper {
     private ModelMapper modelMapper;
 
     public MedicoEntity toEntity(MedicoCreateDTO createDTO) {
-        return modelMapper.map(createDTO, MedicoEntity.class);
+        // ModelMapper cuida da maior parte, mas podemos definir o excludedAt inicial
+        MedicoEntity entity = modelMapper.map(createDTO, MedicoEntity.class);
+        entity.setExcludedAt(null); // Médicos recém-criados são ativos
+        return entity;
     }
 
+    // Este método toEntity(MedicoUpdateDTO) não é usado na camada de serviço para atualização.
+    // A atualização é feita no updateEntityFromDTO.
     public MedicoEntity toEntity(MedicoUpdateDTO updateDTO) {
         return modelMapper.map(updateDTO, MedicoEntity.class);
     }
@@ -31,6 +37,7 @@ public class MedicoMapper {
         if (medicoEntity == null) {
             return null;
         }
+        // ModelMapper mapeia automaticamente 'excludedAt' agora
         return modelMapper.map(medicoEntity, MedicoDTO.class);
     }
 
@@ -60,9 +67,17 @@ public class MedicoMapper {
         if (updateDTO.getRqe() != null) {
             medicoEntity.setRqe(updateDTO.getRqe());
         }
-        if (updateDTO.getStatus() != null) {
-            medicoEntity.setStatus(updateDTO.getStatus());
+        // Antigo: if (updateDTO.getStatus() != null) { medicoEntity.setStatus(updateDTO.getStatus()); }
+        // NOVO: Atualizar 'excludedAt'
+        if (updateDTO.getExcludedAt() != null) {
+            medicoEntity.setExcludedAt(updateDTO.getExcludedAt());
+        } else if (updateDTO.getExcludedAt() == null && medicoEntity.getExcludedAt() != null && updateDTO.getCrm() != null) {
+            // Se o DTO envia explicitamente null para excludedAt E a entidade jÁ estava inativa,
+            // significa que o médico está sendo reativado. A verificação do CRM != null é só para garantir que é uma chamada de atualização válida.
+            medicoEntity.setExcludedAt(null);
         }
+        // Nota: a lógica de setar excludedAt para null se o médico for reativado pode ser mais robusta
+        // na camada de serviço, para evitar dependências de outros campos do DTO.
     }
 
     public ProntuarioDTO.MedicoBasicDTO toMedicoBasicDTO(MedicoEntity medicoEntity) {

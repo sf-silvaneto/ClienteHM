@@ -25,9 +25,14 @@ public class MedicoEntity {
 
     private String rqe;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private StatusMedico status;
+    // Removendo o campo 'status'
+    // @Enumerated(EnumType.STRING)
+    // @Column(nullable = false)
+    // private StatusMedico status;
+
+    // NOVO CAMPO: data de inativação/exclusão lógica
+    @Column(name = "excluded_at")
+    private LocalDateTime excludedAt;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -38,9 +43,9 @@ public class MedicoEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.status == null) {
-            this.status = StatusMedico.ATIVO;
-        }
+        // Um médico recém-criado é sempre ativo por padrão
+        // this.status = StatusMedico.ATIVO; // Removido
+        this.excludedAt = null; // Um médico recém-criado não tem data de exclusão
     }
 
     @PreUpdate
@@ -51,13 +56,13 @@ public class MedicoEntity {
     public MedicoEntity() {
     }
 
-    public MedicoEntity(String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, StatusMedico status) {
+    public MedicoEntity(String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime excludedAt) {
         this.nomeCompleto = nomeCompleto;
         this.crm = crm;
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.status = status;
+        this.excludedAt = excludedAt; // Usar o novo campo
     }
 
     public Long getId() {
@@ -108,12 +113,21 @@ public class MedicoEntity {
         this.rqe = rqe;
     }
 
-    public StatusMedico getStatus() {
-        return status;
+    // Remover getter e setter de status
+    // public StatusMedico getStatus() {
+    //     return status;
+    // }
+    // public void setStatus(StatusMedico status) {
+    //     this.status = status;
+    // }
+
+    // NOVO: Getter e Setter para excludedAt
+    public LocalDateTime getExcludedAt() {
+        return excludedAt;
     }
 
-    public void setStatus(StatusMedico status) {
-        this.status = status;
+    public void setExcludedAt(LocalDateTime excludedAt) {
+        this.excludedAt = excludedAt;
     }
 
     public LocalDateTime getCreatedAt() {

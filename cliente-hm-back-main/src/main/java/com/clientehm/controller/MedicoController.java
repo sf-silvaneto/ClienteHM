@@ -1,10 +1,10 @@
 package com.clientehm.controller;
 
-import com.clientehm.entity.StatusMedico;
+// import com.clientehm.entity.StatusMedico; // Remova esta importação
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
-import com.clientehm.model.StatusUpdateDTO;
+// import com.clientehm.model.StatusUpdateDTO; // Remova esta importação
 import com.clientehm.service.MedicoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class MedicoController {
             @RequestParam(required = false) String nome,
             @RequestParam(required = false) String crm,
             @RequestParam(required = false) String especialidade,
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String status, // Mantido como String para parsing no serviço
             @RequestParam(defaultValue = "nomeCompleto,asc") String[] sort) {
 
         String sortField = sort.length > 0 ? sort[0] : "nomeCompleto";
@@ -55,12 +55,8 @@ public class MedicoController {
         } else if (especialidade != null && !especialidade.isEmpty()) {
             medicosPage = medicoService.buscarMedicosPorEspecialidade(especialidade, pageable);
         } else if (status != null && !status.isEmpty()) {
-            try {
-                StatusMedico statusEnum = StatusMedico.valueOf(status.toUpperCase());
-                medicosPage = medicoService.buscarMedicosPorStatus(statusEnum, pageable);
-            } catch (IllegalArgumentException e) {
-                throw e;
-            }
+            // Delega o parsing e a lógica de status ao serviço
+            medicosPage = medicoService.buscarMedicosPorStatus(status, pageable);
         } else {
             medicosPage = medicoService.buscarTodosMedicos(pageable);
         }
@@ -79,9 +75,17 @@ public class MedicoController {
         return ResponseEntity.ok(medicoAtualizado);
     }
 
-    @PatchMapping("/{id}/status")
-    public ResponseEntity<MedicoDTO> atualizarStatusMedico(@PathVariable Long id, @Valid @RequestBody StatusUpdateDTO statusUpdateDTO) {
-        MedicoDTO medicoAtualizado = medicoService.atualizarStatusMedico(id, statusUpdateDTO.getStatus());
+    // Antigo: @PatchMapping("/{id}/status") public ResponseEntity<MedicoDTO> atualizarStatusMedico(@PathVariable Long id, @Valid @RequestBody StatusUpdateDTO statusUpdateDTO)
+    // NOVO: Endpoint para ativar/inativar
+    @PatchMapping("/{id}/ativar")
+    public ResponseEntity<MedicoDTO> ativarMedico(@PathVariable Long id) {
+        MedicoDTO medicoAtualizado = medicoService.atualizarStatusMedico(id, true); // true para ativar
+        return ResponseEntity.ok(medicoAtualizado);
+    }
+
+    @PatchMapping("/{id}/inativar")
+    public ResponseEntity<MedicoDTO> inativarMedico(@PathVariable Long id) {
+        MedicoDTO medicoAtualizado = medicoService.atualizarStatusMedico(id, false); // false para inativar
         return ResponseEntity.ok(medicoAtualizado);
     }
 

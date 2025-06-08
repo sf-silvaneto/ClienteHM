@@ -2,6 +2,7 @@ package com.clientehm.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+// import com.clientehm.entity.StatusMedico; // Remova esta importação se existir
 
 public class MedicoCreateDTO {
 

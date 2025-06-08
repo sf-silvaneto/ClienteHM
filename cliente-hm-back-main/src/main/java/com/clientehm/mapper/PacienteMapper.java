@@ -1,11 +1,17 @@
 package com.clientehm.mapper;
 
+import com.clientehm.entity.AlergiaEntity;
+import com.clientehm.entity.ComorbidadeEntity;
 import com.clientehm.entity.ContatoEntity;
 import com.clientehm.entity.EnderecoEntity;
+import com.clientehm.entity.MedicamentoContinuoEntity;
 import com.clientehm.entity.PacienteEntity;
+import com.clientehm.model.AlergiaDTO;
+import com.clientehm.model.ComorbidadeDTO;
 import com.clientehm.model.EnderecoCreateDTO;
 import com.clientehm.model.EnderecoDTO;
 import com.clientehm.model.EnderecoUpdateDTO;
+import com.clientehm.model.MedicamentoContinuoDTO;
 import com.clientehm.model.PacienteCreateDTO;
 import com.clientehm.model.PacienteDTO;
 import com.clientehm.model.PacienteUpdateDTO;
@@ -15,6 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class PacienteMapper {
@@ -32,6 +42,10 @@ public class PacienteMapper {
                 map().setEmail(source.getContato().getEmail());
             }
         });
+
+        this.modelMapper.createTypeMap(AlergiaEntity.class, AlergiaDTO.class);
+        this.modelMapper.createTypeMap(ComorbidadeEntity.class, ComorbidadeDTO.class);
+        this.modelMapper.createTypeMap(MedicamentoContinuoEntity.class, MedicamentoContinuoDTO.class);
     }
 
     public PacienteDTO toDTO(PacienteEntity pacienteEntity) {
@@ -59,6 +73,30 @@ public class PacienteMapper {
             pacienteDTO.setEmail(null);
         }
 
+        if (pacienteEntity.getAlergias() != null) {
+            pacienteDTO.setAlergias(pacienteEntity.getAlergias().stream()
+                    .map(alergiaEntity -> modelMapper.map(alergiaEntity, AlergiaDTO.class))
+                    .collect(Collectors.toList()));
+        } else {
+            pacienteDTO.setAlergias(Collections.emptyList());
+        }
+
+        if (pacienteEntity.getComorbidades() != null) {
+            pacienteDTO.setComorbidades(pacienteEntity.getComorbidades().stream()
+                    .map(comorbidadeEntity -> modelMapper.map(comorbidadeEntity, ComorbidadeDTO.class))
+                    .collect(Collectors.toList()));
+        } else {
+            pacienteDTO.setComorbidades(Collections.emptyList());
+        }
+
+        if (pacienteEntity.getMedicamentosContinuos() != null) {
+            pacienteDTO.setMedicamentosContinuos(pacienteEntity.getMedicamentosContinuos().stream()
+                    .map(medicamentoEntity -> modelMapper.map(medicamentoEntity, MedicamentoContinuoDTO.class))
+                    .collect(Collectors.toList()));
+        } else {
+            pacienteDTO.setMedicamentosContinuos(Collections.emptyList());
+        }
+
         return pacienteDTO;
     }
 
@@ -80,6 +118,33 @@ public class PacienteMapper {
             contatoEntity.setTelefone(StringUtils.hasText(createDTO.getTelefone()) ? createDTO.getTelefone() : null);
             contatoEntity.setEmail(StringUtils.hasText(createDTO.getEmail()) ? createDTO.getEmail().trim().toLowerCase() : null);
             pacienteEntity.setContato(contatoEntity);
+        }
+
+        if (createDTO.getAlergias() != null) {
+            pacienteEntity.setAlergias(createDTO.getAlergias().stream()
+                    .map(alergiaDTO -> {
+                        AlergiaEntity alergiaEntity = modelMapper.map(alergiaDTO, AlergiaEntity.class);
+                        alergiaEntity.setPaciente(pacienteEntity);
+                        return alergiaEntity;
+                    }).collect(Collectors.toList()));
+        }
+
+        if (createDTO.getComorbidades() != null) {
+            pacienteEntity.setComorbidades(createDTO.getComorbidades().stream()
+                    .map(comorbidadeDTO -> {
+                        ComorbidadeEntity comorbidadeEntity = modelMapper.map(comorbidadeDTO, ComorbidadeEntity.class);
+                        comorbidadeEntity.setPaciente(pacienteEntity);
+                        return comorbidadeEntity;
+                    }).collect(Collectors.toList()));
+        }
+
+        if (createDTO.getMedicamentosContinuos() != null) {
+            pacienteEntity.setMedicamentosContinuos(createDTO.getMedicamentosContinuos().stream()
+                    .map(medicamentoDTO -> {
+                        MedicamentoContinuoEntity medicamentoEntity = modelMapper.map(medicamentoDTO, MedicamentoContinuoEntity.class);
+                        medicamentoEntity.setPaciente(pacienteEntity);
+                        return medicamentoEntity;
+                    }).collect(Collectors.toList()));
         }
 
         return pacienteEntity;
@@ -154,10 +219,67 @@ public class PacienteMapper {
                 contatoEntity.setEmail(StringUtils.hasText(updateDTO.getEmail()) ? updateDTO.getEmail().trim().toLowerCase() : null);
             }
         }
-        if (updateDTO.getAlergiasDeclaradas() != null) pacienteEntity.setAlergiasDeclaradas(updateDTO.getAlergiasDeclaradas());
-        if (updateDTO.getComorbidadesDeclaradas() != null) pacienteEntity.setComorbidadesDeclaradas(updateDTO.getComorbidadesDeclaradas());
-        if (updateDTO.getMedicamentosContinuos() != null) pacienteEntity.setMedicamentosContinuos(updateDTO.getMedicamentosContinuos());
+
+        updateCollection(updateDTO.getAlergias(), pacienteEntity.getAlergias(), pacienteEntity, AlergiaEntity.class);
+        updateCollection(updateDTO.getComorbidades(), pacienteEntity.getComorbidades(), pacienteEntity, ComorbidadeEntity.class);
+        updateCollection(updateDTO.getMedicamentosContinuos(), pacienteEntity.getMedicamentosContinuos(), pacienteEntity, MedicamentoContinuoEntity.class);
     }
+
+    private <D, E> void updateCollection(List<D> dtoList, List<E> entityList, PacienteEntity pacienteEntity, Class<E> entityClass) {
+        if (dtoList == null) {
+            entityList.clear();
+            return;
+        }
+
+        entityList.removeIf(entity -> {
+            Long entityId = (Long) getEntityId(entity);
+            if (entityId == null) return false;
+            return dtoList.stream().noneMatch(dto -> {
+                Long dtoId = (Long) getDtoId(dto);
+                return dtoId != null && dtoId.equals(entityId);
+            });
+        });
+
+        for (D dto : dtoList) {
+            Long dtoId = (Long) getDtoId(dto);
+            E existingEntity = null;
+            if (dtoId != null) {
+                existingEntity = entityList.stream()
+                        .filter(entity -> dtoId.equals(getEntityId(entity)))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (existingEntity != null) {
+                modelMapper.map(dto, existingEntity);
+            } else {
+                E newEntity = modelMapper.map(dto, entityClass);
+                setPatientToEntity(newEntity, pacienteEntity);
+                entityList.add(newEntity);
+            }
+        }
+    }
+
+    private Object getEntityId(Object entity) {
+        if (entity instanceof AlergiaEntity) return ((AlergiaEntity) entity).getId();
+        if (entity instanceof ComorbidadeEntity) return ((ComorbidadeEntity) entity).getId();
+        if (entity instanceof MedicamentoContinuoEntity) return ((MedicamentoContinuoEntity) entity).getId();
+        return null;
+    }
+
+    private Object getDtoId(Object dto) {
+        if (dto instanceof AlergiaDTO) return ((AlergiaDTO) dto).getId();
+        if (dto instanceof ComorbidadeDTO) return ((ComorbidadeDTO) dto).getId();
+        if (dto instanceof MedicamentoContinuoDTO) return ((MedicamentoContinuoDTO) dto).getId();
+        return null;
+    }
+
+    private void setPatientToEntity(Object entity, PacienteEntity paciente) {
+        if (entity instanceof AlergiaEntity) ((AlergiaEntity) entity).setPaciente(paciente);
+        if (entity instanceof ComorbidadeEntity) ((ComorbidadeEntity) entity).setPaciente(paciente);
+        if (entity instanceof MedicamentoContinuoEntity) ((MedicamentoContinuoEntity) entity).setPaciente(paciente);
+    }
+
 
     private void setEnumValuesFromDTO(PacienteCreateDTO dto, PacienteEntity entity) {
         try {

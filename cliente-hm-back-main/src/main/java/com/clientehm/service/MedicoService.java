@@ -1,14 +1,13 @@
 package com.clientehm.service;
 
 import com.clientehm.entity.MedicoEntity;
-import com.clientehm.entity.StatusMedico;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.exception.CrmAlreadyExistsException;
 import com.clientehm.mapper.MedicoMapper;
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
-import com.clientehm.repository.MedicoRepository;
+import com.clientehm.repository.MedicoRepository; // <-- ESTA LINHA É CRUCIAL
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -37,7 +37,7 @@ public class MedicoService {
         }
 
         MedicoEntity medicoEntity = medicoMapper.toEntity(medicoCreateDTO);
-        medicoEntity.setStatus(StatusMedico.ATIVO);
+        medicoEntity.setExcludedAt(null); // Médicos recém-criados são sempre ativos
 
         MedicoEntity medicoSalvo = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico criado com ID: {}", medicoSalvo.getId());
@@ -59,10 +59,15 @@ public class MedicoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<MedicoDTO> buscarMedicosPorStatus(StatusMedico status, Pageable pageable) {
+    public Page<MedicoDTO> buscarMedicosPorStatus(String status, Pageable pageable) {
         logger.info("SERVICE: Buscando médicos por status: {}", status);
-        Page<MedicoEntity> medicosPage = medicoRepository.findByStatus(status, pageable);
-        return medicoMapper.toDTOPage(medicosPage);
+        if ("ATIVO".equalsIgnoreCase(status)) {
+            return medicoMapper.toDTOPage(medicoRepository.findByExcludedAtIsNull(pageable));
+        } else if ("INATIVO".equalsIgnoreCase(status)) {
+            return medicoMapper.toDTOPage(medicoRepository.findByExcludedAtIsNotNull(pageable));
+        } else {
+            return medicoMapper.toDTOPage(medicoRepository.findAll(pageable));
+        }
     }
 
     @Transactional(readOnly = true)
@@ -110,16 +115,21 @@ public class MedicoService {
     }
 
     @Transactional
-    public MedicoDTO atualizarStatusMedico(Long id, StatusMedico status) {
-        logger.info("SERVICE: Atualizando status do médico com ID: {} para {}", id, status);
+    public MedicoDTO atualizarStatusMedico(Long id, boolean ativar) {
+        logger.info("SERVICE: Tentando {} médico com ID: {}", ativar ? "ativar" : "inativar", id);
         MedicoEntity medicoEntity = medicoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Médico não encontrado com ID: " + id));
 
-        medicoEntity.setStatus(status);
+        if (ativar) {
+            medicoEntity.setExcludedAt(null);
+        } else {
+            medicoEntity.setExcludedAt(LocalDateTime.now());
+        }
         MedicoEntity medicoAtualizado = medicoRepository.save(medicoEntity);
-        logger.info("SERVICE: Status do médico atualizado com ID: {}", medicoAtualizado.getId());
+        logger.info("SERVICE: Médico com ID: {} {} com sucesso.", medicoAtualizado.getId(), ativar ? "ativado" : "inativado");
         return medicoMapper.toDTO(medicoAtualizado);
     }
+
 
     @Transactional
     public void deletarMedico(Long id) {

@@ -8,6 +8,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.List;
 
 public class PacienteCreateDTO {
 
@@ -54,9 +55,14 @@ public class PacienteCreateDTO {
     private String nacionalidade;
     private String ocupacao;
 
-    private String alergiasDeclaradas;
-    private String comorbidadesDeclaradas;
-    private String medicamentosContinuos;
+    @Valid
+    private List<AlergiaDTO> alergias;
+
+    @Valid
+    private List<ComorbidadeDTO> comorbidades;
+
+    @Valid
+    private List<MedicamentoContinuoDTO> medicamentosContinuos;
 
     @NotNull(message = "Endereço é obrigatório")
     @Valid
@@ -94,10 +100,28 @@ public class PacienteCreateDTO {
     public void setOcupacao(String ocupacao) { this.ocupacao = ocupacao; }
     public EnderecoCreateDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoCreateDTO endereco) { this.endereco = endereco; }
-    public String getAlergiasDeclaradas() { return alergiasDeclaradas; }
-    public void setAlergiasDeclaradas(String alergiasDeclaradas) { this.alergiasDeclaradas = alergiasDeclaradas; }
-    public String getComorbidadesDeclaradas() { return comorbidadesDeclaradas; }
-    public void setComorbidadesDeclaradas(String comorbidadesDeclaradas) { this.comorbidadesDeclaradas = comorbidadesDeclaradas; }
-    public String getMedicamentosContinuos() { return medicamentosContinuos; }
-    public void setMedicamentosContinuos(String medicamentosContinuos) { this.medicamentosContinuos = medicamentosContinuos; }
+
+    public List<AlergiaDTO> getAlergias() {
+        return alergias;
+    }
+
+    public void setAlergias(List<AlergiaDTO> alergias) {
+        this.alergias = alergias;
+    }
+
+    public List<ComorbidadeDTO> getComorbidades() {
+        return comorbidades;
+    }
+
+    public void setComorbidades(List<ComorbidadeDTO> comorbidades) {
+        this.comorbidades = comorbidades;
+    }
+
+    public List<MedicamentoContinuoDTO> getMedicamentosContinuos() {
+        return medicamentosContinuos;
+    }
+
+    public void setMedicamentosContinuos(List<MedicamentoContinuoDTO> medicamentosContinuos) {
+        this.medicamentosContinuos = medicamentosContinuos;
+    }
 }
