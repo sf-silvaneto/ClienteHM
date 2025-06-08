@@ -1,5 +1,6 @@
 package com.clientehm.model;
 
+import jakarta.validation.Valid; // Importar Valid
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -13,17 +14,8 @@ public class AtualizarConsultaRequestDTO {
     @Size(min = 5, max = 2000, message = "Queixas principais devem ter entre 5 e 2000 caracteres")
     private String queixasPrincipais;
 
-    @Size(max = 20, message = "Pressão arterial não pode exceder 20 caracteres")
-    private String pressaoArterial;
-
-    @Size(max = 10, message = "Temperatura não pode exceder 10 caracteres")
-    private String temperatura;
-
-    @Size(max = 10, message = "Frequência cardíaca não pode exceder 10 caracteres")
-    private String frequenciaCardiaca;
-
-    @Size(max = 10, message = "Saturação não pode exceder 10 caracteres")
-    private String saturacao;
+    @Valid // Adicione esta anotação
+    private SinaisVitaisDTO sinaisVitais; // Novo campo
 
     @Size(max = 5000, message = "Exame físico não pode exceder 5000 caracteres")
     private String exameFisico;
@@ -48,14 +40,15 @@ public class AtualizarConsultaRequestDTO {
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
-    public String getPressaoArterial() { return pressaoArterial; }
-    public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
-    public String getTemperatura() { return temperatura; }
-    public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
-    public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
-    public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
-    public String getSaturacao() { return saturacao; }
-    public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
+
+    public SinaisVitaisDTO getSinaisVitais() { // Novo Getter
+        return sinaisVitais;
+    }
+
+    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) { // Novo Setter
+        this.sinaisVitais = sinaisVitais;
+    }
+
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }

@@ -24,10 +24,11 @@ public class ConsultaRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String queixasPrincipais;
 
-    private String pressaoArterial;
-    private String temperatura;
-    private String frequenciaCardiaca;
-    private String saturacao;
+    // Campos de sinais vitais removidos daqui e movidos para SinaisVitaisEntity
+    // private String pressaoArterial;
+    // private String temperatura;
+    // private String frequenciaCardiaca;
+    // private String saturacao;
 
     @Column(columnDefinition = "TEXT")
     private String exameFisico;
@@ -54,6 +55,11 @@ public class ConsultaRegistroEntity {
 
     @Column(nullable = false)
     private String nomeResponsavelDisplay;
+
+    // Novo relacionamento OneToOne com SinaisVitaisEntity
+    @OneToOne(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @PrimaryKeyJoinColumn // Indica que a primary key é também uma foreign key para ConsultaRegistroEntity
+    private SinaisVitaisEntity sinaisVitais;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -82,14 +88,17 @@ public class ConsultaRegistroEntity {
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
-    public String getPressaoArterial() { return pressaoArterial; }
-    public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
-    public String getTemperatura() { return temperatura; }
-    public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
-    public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
-    public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
-    public String getSaturacao() { return saturacao; }
-    public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
+
+    // Getters e Setters de sinais vitais removidos
+    // public String getPressaoArterial() { return pressaoArterial; }
+    // public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
+    // public String getTemperatura() { return temperatura; }
+    // public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
+    // public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
+    // public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
+    // public String getSaturacao() { return saturacao; }
+    // public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
+
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }
@@ -106,6 +115,20 @@ public class ConsultaRegistroEntity {
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
     public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+
+    // Novo Getter e Setter para SinaisVitaisEntity
+    public SinaisVitaisEntity getSinaisVitais() {
+        return sinaisVitais;
+    }
+
+    public void setSinaisVitais(SinaisVitaisEntity sinaisVitais) {
+        // Garante a bidirecionalidade do relacionamento
+        if (sinaisVitais != null) {
+            sinaisVitais.setConsulta(this);
+        }
+        this.sinaisVitais = sinaisVitais;
+    }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

@@ -37,6 +37,7 @@ public class ProntuarioService {
     @Autowired private ExameRegistroRepository exameRepository;
     @Autowired private ProcedimentoRegistroRepository procedimentoRepository;
     @Autowired private EncaminhamentoRegistroRepository encaminhamentoRepository;
+    @Autowired private SinaisVitaisRepository sinaisVitaisRepository; // Novo repositório
     @Autowired private ProntuarioMapper prontuarioMapper;
     @Autowired private ConsultaMapper consultaMapper;
     @Autowired private ExameMapper exameMapper;
@@ -48,6 +49,7 @@ public class ProntuarioService {
             if (consulta.getProntuario() != null) consulta.getProntuario().getId();
             if (consulta.getResponsavelMedico() != null) consulta.getResponsavelMedico().getId();
             if (consulta.getResponsavelAdmin() != null) consulta.getResponsavelAdmin().getId();
+            if (consulta.getSinaisVitais() != null) consulta.getSinaisVitais().getId(); // Novo: inicializar sinais vitais
         }
     }
     private void inicializarExameCompletamente(ExameRegistroEntity exame) {
@@ -72,6 +74,10 @@ public class ProntuarioService {
         if (paciente != null) {
             if (paciente.getEndereco() != null) paciente.getEndereco().getCep();
             if (paciente.getContato() != null) paciente.getContato().getEmail();
+            // Adicione a inicialização de coleções do paciente se necessário
+            if (paciente.getAlergias() != null) paciente.getAlergias().size();
+            if (paciente.getComorbidades() != null) paciente.getComorbidades().size();
+            if (paciente.getMedicamentosContinuos() != null) paciente.getMedicamentosContinuos().size();
         }
     }
 
@@ -114,6 +120,12 @@ public class ProntuarioService {
         ProntuarioEntity prontuario = prontuarioRepository.findByIdFetchingCollections(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prontuário não encontrado com ID: " + id));
 
+        // Força a inicialização das coleções para evitar LazyInitializationException
+        if (prontuario.getConsultas() != null) prontuario.getConsultas().forEach(this::inicializarConsultaCompletamente);
+        if (prontuario.getExamesRegistrados() != null) prontuario.getExamesRegistrados().forEach(this::inicializarExameCompletamente);
+        if (prontuario.getProcedimentosRegistrados() != null) prontuario.getProcedimentosRegistrados().forEach(this::inicializarProcedimentoCompletamente);
+        if (prontuario.getEncaminhamentosRegistrados() != null) prontuario.getEncaminhamentosRegistrados().forEach(this::inicializarEncaminhamentoCompletamente);
+
         if(prontuario.getPaciente() != null) inicializarPacienteCompleto(prontuario.getPaciente());
         if(prontuario.getMedicoResponsavel() != null) prontuario.getMedicoResponsavel().getNomeCompleto();
         if(prontuario.getAdministradorCriador() != null) prontuario.getAdministradorCriador().getNome();
@@ -137,7 +149,8 @@ public class ProntuarioService {
         if (prontuarioExistenteOpt.isPresent()) {
             ProntuarioEntity prontuarioExistente = prontuarioExistenteOpt.get();
             boolean modificado = false;
-            if (prontuarioExistente.getMedicoResponsavel() == null) {
+            // Se o médico responsável estiver nulo no prontuário existente ou for diferente
+            if (prontuarioExistente.getMedicoResponsavel() == null || !prontuarioExistente.getMedicoResponsavel().getId().equals(medicoRef.getId())) {
                 prontuarioExistente.setMedicoResponsavel(medicoRef);
                 modificado = true;
             }
@@ -180,7 +193,28 @@ public class ProntuarioService {
         novaConsulta.setResponsavelMedico(medicoExecutor);
         novaConsulta.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
 
+        // Se houver dados de sinais vitais no DTO, criar a entidade SinaisVitais
+        if (dto.getSinaisVitais() != null) {
+            SinaisVitaisEntity sinaisVitais = new SinaisVitaisEntity();
+            // O ID será automaticamente mapeado por @MapsId quando a consulta for salva
+            // sinaisVitais.setId(novaConsulta.getId()); // Não precisa setar o ID aqui, @MapsId faz isso
+            sinaisVitais.setPressaoArterial(dto.getSinaisVitais().getPressaoArterial());
+            sinaisVitais.setTemperatura(dto.getSinaisVitais().getTemperatura());
+            sinaisVitais.setFrequenciaCardiaca(dto.getSinaisVitais().getFrequenciaCardiaca());
+            sinaisVitais.setSaturacao(dto.getSinaisVitais().getSaturacao());
+            sinaisVitais.setHgt(dto.getSinaisVitais().getHgt()); // Adicionado HGT
+            novaConsulta.setSinaisVitais(sinaisVitais);
+        }
+
         ConsultaRegistroEntity consultaSalva = consultaRepository.save(novaConsulta);
+
+        // Se SinaisVitais foi criado e associado, ele será salvo em cascata.
+        // Precisamos garantir que a associação bidirecional está correta para que @MapsId funcione.
+        if (consultaSalva.getSinaisVitais() != null) {
+            consultaSalva.getSinaisVitais().setConsulta(consultaSalva); // Garante a referência de volta
+        }
+
+
         atualizarDataProntuario(prontuario);
         return consultaMapper.toDTO(consultaSalva);
     }
@@ -260,6 +294,32 @@ public class ProntuarioService {
             }
         }
         consultaMapper.updateEntityFromDTO(dto, consultaExistente, medicoExecutor, adminLogado);
+
+        // Se sinais vitais foram enviados no DTO, salve-os.
+        if (dto.getSinaisVitais() != null) {
+            SinaisVitaisEntity sinaisVitais = consultaExistente.getSinaisVitais();
+            if (sinaisVitais == null) {
+                sinaisVitais = new SinaisVitaisEntity();
+                sinaisVitais.setId(consultaExistente.getId()); // Define o ID para corresponder ao da consulta
+                sinaisVitais.setConsulta(consultaExistente); // Define a referência bidirecional
+            }
+            sinaisVitais.setPressaoArterial(dto.getSinaisVitais().getPressaoArterial());
+            sinaisVitais.setTemperatura(dto.getSinaisVitais().getTemperatura());
+            sinaisVitais.setFrequenciaCardiaca(dto.getSinaisVitais().getFrequenciaCardiaca());
+            sinaisVitais.setSaturacao(dto.getSinaisVitais().getSaturacao());
+            sinaisVitais.setHgt(dto.getSinaisVitais().getHgt()); // Adicionado HGT
+            sinaisVitaisRepository.save(sinaisVitais);
+            consultaExistente.setSinaisVitais(sinaisVitais); // Garante que a entidade de consulta tenha a referência atualizada
+        } else if (consultaExistente.getSinaisVitais() != null) {
+            // Se o DTO não forneceu sinais vitais, mas a entidade possui, e o usuário quer remover,
+            // poderíamos remover a entidade de sinais vitais. No entanto, se o DTO não vem com null
+            // e apenas não tem o objeto, a estratégia é manter o existente, se não quiser, apague.
+            // Para remover sinais vitais se o DTO enviar explicitamente null para o objeto 'sinaisVitais':
+            // if (dto.getSinaisVitais() == null && consultaExistente.getSinaisVitais() != null) {
+            //     sinaisVitaisRepository.delete(consultaExistente.getSinaisVitais());
+            //     consultaExistente.setSinaisVitais(null);
+            // }
+        }
 
         ConsultaRegistroEntity consultaAtualizada = consultaRepository.save(consultaExistente);
         atualizarDataProntuario(consultaAtualizada.getProntuario());

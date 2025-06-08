@@ -7,10 +7,15 @@ public class ConsultaDTO {
     private LocalDateTime dataHoraConsulta;
     private String motivoConsulta;
     private String queixasPrincipais;
-    private String pressaoArterial;
-    private String temperatura;
-    private String frequenciaCardiaca;
-    private String saturacao;
+
+    // Campos de sinais vitais removidos
+    // private String pressaoArterial;
+    // private String temperatura;
+    // private String frequenciaCardiaca;
+    // private String saturacao;
+
+    private SinaisVitaisDTO sinaisVitais; // Novo campo para os sinais vitais
+
     private String exameFisico;
     private String hipoteseDiagnostica;
     private String condutaPlanoTerapeutico;
@@ -32,14 +37,25 @@ public class ConsultaDTO {
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
-    public String getPressaoArterial() { return pressaoArterial; }
-    public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
-    public String getTemperatura() { return temperatura; }
-    public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
-    public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
-    public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
-    public String getSaturacao() { return saturacao; }
-    public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
+
+    // Getters e Setters de sinais vitais removidos
+    // public String getPressaoArterial() { return pressaoArterial; }
+    // public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
+    // public String getTemperatura() { return temperatura; }
+    // public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
+    // public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
+    // public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
+    // public String getSaturacao() { return saturacao; }
+    // public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
+
+    public SinaisVitaisDTO getSinaisVitais() { // Novo Getter
+        return sinaisVitais;
+    }
+
+    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) { // Novo Setter
+        this.sinaisVitais = sinaisVitais;
+    }
+
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }

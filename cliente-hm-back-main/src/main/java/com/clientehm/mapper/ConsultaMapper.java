@@ -3,11 +3,11 @@ package com.clientehm.mapper;
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.entity.ConsultaRegistroEntity;
 import com.clientehm.entity.MedicoEntity;
+import com.clientehm.entity.SinaisVitaisEntity; // Importar SinaisVitaisEntity
 import com.clientehm.model.ConsultaDTO;
 import com.clientehm.model.CriarConsultaRequestDTO;
 import com.clientehm.model.AtualizarConsultaRequestDTO;
 import org.modelmapper.ModelMapper;
-// TypeMap e @PostConstruct não são mais necessários aqui se a configuração for central
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -16,21 +16,35 @@ import org.springframework.util.StringUtils;
 public class ConsultaMapper {
 
     private final ModelMapper modelMapper; // Injetar o ModelMapper já configurado
+    private final SinaisVitaisMapper sinaisVitaisMapper; // Injetar o novo mapper
 
     @Autowired
-    public ConsultaMapper(ModelMapper modelMapper) {
+    public ConsultaMapper(ModelMapper modelMapper, SinaisVitaisMapper sinaisVitaisMapper) {
         this.modelMapper = modelMapper;
+        this.sinaisVitaisMapper = sinaisVitaisMapper; // Injeção do novo mapper
     }
 
     public ConsultaRegistroEntity toEntity(CriarConsultaRequestDTO dto) {
         if (dto == null) return null;
-        return modelMapper.map(dto, ConsultaRegistroEntity.class);
+        ConsultaRegistroEntity entity = modelMapper.map(dto, ConsultaRegistroEntity.class);
+
+        // Mapear e associar SinaisVitaisEntity se houver dados no DTO
+        if (dto.getSinaisVitais() != null) {
+            SinaisVitaisEntity sinaisVitaisEntity = sinaisVitaisMapper.toEntity(dto.getSinaisVitais());
+            entity.setSinaisVitais(sinaisVitaisEntity);
+        }
+        return entity;
     }
 
     public ConsultaDTO toDTO(ConsultaRegistroEntity entity) {
         if (entity == null) return null;
 
         ConsultaDTO dto = modelMapper.map(entity, ConsultaDTO.class);
+
+        // Mapear SinaisVitaisEntity para SinaisVitaisDTO
+        if (entity.getSinaisVitais() != null) {
+            dto.setSinaisVitais(sinaisVitaisMapper.toDTO(entity.getSinaisVitais()));
+        }
 
         if (entity.getResponsavelMedico() != null) {
             dto.setTipoResponsavel("MEDICO");
@@ -55,10 +69,22 @@ public class ConsultaMapper {
         if (dto.getDataHoraConsulta() != null) entity.setDataHoraConsulta(dto.getDataHoraConsulta());
         if (StringUtils.hasText(dto.getMotivoConsulta())) entity.setMotivoConsulta(dto.getMotivoConsulta());
         if (StringUtils.hasText(dto.getQueixasPrincipais())) entity.setQueixasPrincipais(dto.getQueixasPrincipais());
-        if (dto.getPressaoArterial() != null) entity.setPressaoArterial(StringUtils.hasText(dto.getPressaoArterial()) ? dto.getPressaoArterial().trim() : null);
-        if (dto.getTemperatura() != null) entity.setTemperatura(StringUtils.hasText(dto.getTemperatura()) ? dto.getTemperatura().trim() : null);
-        if (dto.getFrequenciaCardiaca() != null) entity.setFrequenciaCardiaca(StringUtils.hasText(dto.getFrequenciaCardiaca()) ? dto.getFrequenciaCardiaca().trim() : null);
-        if (dto.getSaturacao() != null) entity.setSaturacao(StringUtils.hasText(dto.getSaturacao()) ? dto.getSaturacao().trim() : null);
+
+        // Lidar com a atualização de SinaisVitais
+        if (dto.getSinaisVitais() != null) {
+            SinaisVitaisEntity sinaisVitaisEntity = entity.getSinaisVitais();
+            if (sinaisVitaisEntity == null) {
+                sinaisVitaisEntity = new SinaisVitaisEntity();
+                entity.setSinaisVitais(sinaisVitaisEntity);
+            }
+            sinaisVitaisMapper.updateEntityFromDTO(dto.getSinaisVitais(), sinaisVitaisEntity);
+        } else if (entity.getSinaisVitais() != null) {
+            // Se o DTO não fornecer sinais vitais, mas a entidade tiver, podemos optar por limpá-los ou mantê-los
+            // Neste caso, vamos manter os dados existentes se o DTO não fornecer, mas se precisar limpar, descomente a linha abaixo.
+            // entity.setSinaisVitais(null);
+        }
+
+
         if (dto.getExameFisico() != null) entity.setExameFisico(StringUtils.hasText(dto.getExameFisico()) ? dto.getExameFisico().trim() : null);
         if (dto.getHipoteseDiagnostica() != null) entity.setHipoteseDiagnostica(StringUtils.hasText(dto.getHipoteseDiagnostica()) ? dto.getHipoteseDiagnostica().trim() : null);
         if (dto.getCondutaPlanoTerapeutico() != null) entity.setCondutaPlanoTerapeutico(StringUtils.hasText(dto.getCondutaPlanoTerapeutico()) ? dto.getCondutaPlanoTerapeutico().trim() : null);
