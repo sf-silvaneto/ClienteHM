@@ -25,8 +25,8 @@ public class MedicoEntity {
 
     private String rqe;
 
-    @Column(name = "excluded_at")
-    private LocalDateTime excludedAt;
+    @Column(name = "deleted_at") // Renomeado de excluded_at
+    private LocalDateTime deletedAt;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -37,7 +37,7 @@ public class MedicoEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        this.excludedAt = null;
+        this.deletedAt = null; // Atualizado para deletedAt
     }
 
     @PreUpdate
@@ -48,13 +48,13 @@ public class MedicoEntity {
     public MedicoEntity() {
     }
 
-    public MedicoEntity(String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime excludedAt) {
+    public MedicoEntity(String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime deletedAt) { // Construtor atualizado
         this.nomeCompleto = nomeCompleto;
         this.crm = crm;
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.excludedAt = excludedAt;
+        this.deletedAt = deletedAt; // Atualizado para deletedAt
     }
 
     public Long getId() {
@@ -105,12 +105,12 @@ public class MedicoEntity {
         this.rqe = rqe;
     }
 
-    public LocalDateTime getExcludedAt() {
-        return excludedAt;
+    public LocalDateTime getDeletedAt() { // Atualizado para getDeletedAt
+        return deletedAt;
     }
 
-    public void setExcludedAt(LocalDateTime excludedAt) {
-        this.excludedAt = excludedAt;
+    public void setDeletedAt(LocalDateTime deletedAt) { // Atualizado para setDeletedAt
+        this.deletedAt = deletedAt;
     }
 
     public LocalDateTime getCreatedAt() {

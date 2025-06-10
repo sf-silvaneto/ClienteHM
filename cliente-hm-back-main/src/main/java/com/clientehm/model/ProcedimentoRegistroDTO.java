@@ -9,7 +9,7 @@ public class ProcedimentoRegistroDTO {
     private String relatorioProcedimento;
     private Long medicoExecutorId;
     private String medicoExecutorNome;
-    private String nomeResponsavelDisplay;
+    // private String nomeResponsavelDisplay; // Removido
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -25,8 +25,8 @@ public class ProcedimentoRegistroDTO {
     public void setMedicoExecutorId(Long medicoExecutorId) { this.medicoExecutorId = medicoExecutorId; }
     public String getMedicoExecutorNome() { return medicoExecutorNome; }
     public void setMedicoExecutorNome(String medicoExecutorNome) { this.medicoExecutorNome = medicoExecutorNome; }
-    public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
-    public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+    // public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; } // Removido
+    // public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; } // Removido
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

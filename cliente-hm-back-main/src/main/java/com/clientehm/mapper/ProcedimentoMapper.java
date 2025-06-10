@@ -39,6 +39,7 @@ public class ProcedimentoMapper {
             dto.setMedicoExecutorId(entity.getMedicoExecutor().getId());
             dto.setMedicoExecutorNome(entity.getMedicoExecutor().getNomeCompleto());
         }
+        // dto.setNomeResponsavelDisplay(entity.getNomeResponsavelDisplay()); // Removido
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
@@ -58,8 +59,9 @@ public class ProcedimentoMapper {
 
         if (medicoExecutor != null) {
             entity.setMedicoExecutor(medicoExecutor);
-            entity.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
+            // entity.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto()); // Removido
         } else {
+            // Lógica para lidar se medicoExecutor for nulo
         }
     }
 }

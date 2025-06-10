@@ -37,7 +37,7 @@ public class MedicoService {
         }
 
         MedicoEntity medicoEntity = medicoMapper.toEntity(medicoCreateDTO);
-        medicoEntity.setExcludedAt(null);
+        medicoEntity.setDeletedAt(null); // Atualizado de setExcludedAt
 
         MedicoEntity medicoSalvo = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico criado com ID: {}", medicoSalvo.getId());
@@ -62,9 +62,9 @@ public class MedicoService {
     public Page<MedicoDTO> buscarMedicosPorStatus(String status, Pageable pageable) {
         logger.info("SERVICE: Buscando médicos por status: {}", status);
         if ("ATIVO".equalsIgnoreCase(status)) {
-            return medicoMapper.toDTOPage(medicoRepository.findByExcludedAtIsNull(pageable));
+            return medicoMapper.toDTOPage(medicoRepository.findByDeletedAtIsNull(pageable)); // Atualizado para findByDeletedAtIsNull
         } else if ("INATIVO".equalsIgnoreCase(status)) {
-            return medicoMapper.toDTOPage(medicoRepository.findByExcludedAtIsNotNull(pageable));
+            return medicoMapper.toDTOPage(medicoRepository.findByDeletedAtIsNotNull(pageable)); // Atualizado para findByDeletedAtIsNotNull
         } else {
             return medicoMapper.toDTOPage(medicoRepository.findAll(pageable));
         }
@@ -121,9 +121,9 @@ public class MedicoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Médico não encontrado com ID: " + id));
 
         if (ativar) {
-            medicoEntity.setExcludedAt(null);
+            medicoEntity.setDeletedAt(null); // Atualizado para setDeletedAt
         } else {
-            medicoEntity.setExcludedAt(LocalDateTime.now());
+            medicoEntity.setDeletedAt(LocalDateTime.now()); // Atualizado para setDeletedAt
         }
         MedicoEntity medicoAtualizado = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico com ID: {} {} com sucesso.", medicoAtualizado.getId(), ativar ? "ativado" : "inativado");

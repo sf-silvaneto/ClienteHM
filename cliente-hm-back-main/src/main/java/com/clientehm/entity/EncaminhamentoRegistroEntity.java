@@ -28,14 +28,17 @@ public class EncaminhamentoRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
-    @Column(nullable = false)
-    private String nomeResponsavelDisplay;
+    // @Column(nullable = false) // Removido
+    // private String nomeResponsavelDisplay; // Removido
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -59,10 +62,12 @@ public class EncaminhamentoRegistroEntity {
     public void setMedicoSolicitante(MedicoEntity medicoSolicitante) { this.medicoSolicitante = medicoSolicitante; }
     public String getObservacoes() { return observacoes; }
     public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
-    public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
-    public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+    // public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; } // Removido
+    // public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; } // Removido
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

@@ -1,7 +1,7 @@
 package com.clientehm.mapper;
 
 import com.clientehm.entity.MedicoEntity;
-// import com.clientehm.entity.StatusMedico; // Remova esta importação
+// import com.clientehm.entity.StatusMedico; // Removida esta importação
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
@@ -22,7 +22,7 @@ public class MedicoMapper {
 
     public MedicoEntity toEntity(MedicoCreateDTO createDTO) {
         MedicoEntity entity = modelMapper.map(createDTO, MedicoEntity.class);
-        entity.setExcludedAt(null);
+        entity.setDeletedAt(null); // Atualizado de setExcludedAt
         return entity;
     }
 
@@ -34,6 +34,7 @@ public class MedicoMapper {
         if (medicoEntity == null) {
             return null;
         }
+        // Mapeia todas as propriedades, incluindo deletedAt
         return modelMapper.map(medicoEntity, MedicoDTO.class);
     }
 
@@ -63,10 +64,12 @@ public class MedicoMapper {
         if (updateDTO.getRqe() != null) {
             medicoEntity.setRqe(updateDTO.getRqe());
         }
-        if (updateDTO.getExcludedAt() != null) {
-            medicoEntity.setExcludedAt(updateDTO.getExcludedAt());
-        } else if (updateDTO.getExcludedAt() == null && medicoEntity.getExcludedAt() != null && updateDTO.getCrm() != null) {
-            medicoEntity.setExcludedAt(null);
+        // Atualizado de getExcludedAt para getDeletedAt
+        if (updateDTO.getDeletedAt() != null) {
+            medicoEntity.setDeletedAt(updateDTO.getDeletedAt());
+        } else if (updateDTO.getDeletedAt() == null && medicoEntity.getDeletedAt() != null && updateDTO.getCrm() != null) {
+            // Se deletedAt no DTO é nulo e na entidade não é nulo, e CRM foi fornecido (indica uma atualização para reativar), define como nulo
+            medicoEntity.setDeletedAt(null);
         }
     }
 

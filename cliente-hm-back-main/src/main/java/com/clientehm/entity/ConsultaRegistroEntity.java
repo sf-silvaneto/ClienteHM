@@ -44,8 +44,8 @@ public class ConsultaRegistroEntity {
     @JoinColumn(name = "responsavel_medico_id")
     private MedicoEntity responsavelMedico;
 
-    @Column(nullable = false)
-    private String nomeResponsavelDisplay;
+    // @Column(nullable = false) // Removido
+    // private String nomeResponsavelDisplay; // Removido
 
     @OneToOne(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
@@ -56,6 +56,9 @@ public class ConsultaRegistroEntity {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -89,8 +92,8 @@ public class ConsultaRegistroEntity {
     public void setResponsavelAdmin(AdministradorEntity responsavelAdmin) { this.responsavelAdmin = responsavelAdmin; }
     public MedicoEntity getResponsavelMedico() { return responsavelMedico; }
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
-    public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
-    public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
+    // public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; } // Removido
+    // public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; } // Removido
     public SinaisVitaisEntity getSinaisVitais() {
         return sinaisVitais;
     }
@@ -106,4 +109,6 @@ public class ConsultaRegistroEntity {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public LocalDateTime getDeletedAt() { return deletedAt; }
+    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
 }

@@ -36,7 +36,7 @@ public class ExameMapper {
             dto.setMedicoResponsavelExameId(entity.getMedicoResponsavelExame().getId());
             dto.setMedicoResponsavelExameNome(entity.getMedicoResponsavelExame().getNomeCompleto());
         }
-        dto.setNomeResponsavelDisplay(entity.getNomeResponsavelDisplay());
+        // dto.setNomeResponsavelDisplay(entity.getNomeResponsavelDisplay()); // Removido
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
@@ -52,13 +52,13 @@ public class ExameMapper {
 
         if (medicoResponsavel != null) {
             entity.setMedicoResponsavelExame(medicoResponsavel);
-            entity.setNomeResponsavelDisplay(medicoResponsavel.getNomeCompleto());
+            // entity.setNomeResponsavelDisplay(medicoResponsavel.getNomeCompleto()); // Removido
         } else if (adminLogado != null) {
             entity.setMedicoResponsavelExame(null);
-            entity.setNomeResponsavelDisplay(adminLogado.getNome());
+            // entity.setNomeResponsavelDisplay(adminLogado.getNome()); // Removido
         } else {
             entity.setMedicoResponsavelExame(null);
-            entity.setNomeResponsavelDisplay(adminLogado != null ? adminLogado.getNome() : "Sistema");
+            // entity.setNomeResponsavelDisplay(adminLogado != null ? adminLogado.getNome() : "Sistema"); // Removido
         }
     }
 }

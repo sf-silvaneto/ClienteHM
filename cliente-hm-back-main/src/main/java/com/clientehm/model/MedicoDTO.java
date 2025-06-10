@@ -9,21 +9,21 @@ public class MedicoDTO {
     private String especialidade;
     private String resumoEspecialidade;
     private String rqe;
-    private LocalDateTime excludedAt;
+    private LocalDateTime deletedAt; // Renomeado de excludedAt
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public MedicoDTO() {
     }
 
-    public MedicoDTO(Long id, String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime excludedAt, LocalDateTime createdAt, LocalDateTime updatedAt) { // Modificado construtor
+    public MedicoDTO(Long id, String nomeCompleto, String crm, String especialidade, String resumoEspecialidade, String rqe, LocalDateTime deletedAt, LocalDateTime createdAt, LocalDateTime updatedAt) { // Construtor atualizado
         this.id = id;
         this.nomeCompleto = nomeCompleto;
         this.crm = crm;
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.excludedAt = excludedAt;
+        this.deletedAt = deletedAt; // Atualizado
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -76,12 +76,12 @@ public class MedicoDTO {
         this.rqe = rqe;
     }
 
-    public LocalDateTime getExcludedAt() {
-        return excludedAt;
+    public LocalDateTime getDeletedAt() { // Atualizado
+        return deletedAt;
     }
 
-    public void setExcludedAt(LocalDateTime excludedAt) {
-        this.excludedAt = excludedAt;
+    public void setDeletedAt(LocalDateTime deletedAt) { // Atualizado
+        this.deletedAt = deletedAt;
     }
 
     public LocalDateTime getCreatedAt() {

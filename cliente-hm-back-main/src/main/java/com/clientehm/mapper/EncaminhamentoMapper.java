@@ -35,7 +35,9 @@ public class EncaminhamentoMapper {
             dto.setMedicoSolicitanteId(entity.getMedicoSolicitante().getId());
             dto.setMedicoSolicitanteNome(entity.getMedicoSolicitante().getNomeCompleto());
             dto.setMedicoSolicitanteCRM(entity.getMedicoSolicitante().getCrm());
+            dto.setMedicoSolicitanteEspecialidade(entity.getMedicoSolicitante().getEspecialidade());
         }
+        // dto.setNomeResponsavelDisplay(entity.getNomeResponsavelDisplay()); // Removido
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
@@ -48,7 +50,7 @@ public class EncaminhamentoMapper {
 
         if (medicoSolicitante != null) {
             entity.setMedicoSolicitante(medicoSolicitante);
-            entity.setNomeResponsavelDisplay(medicoSolicitante.getNomeCompleto());
+            // entity.setNomeResponsavelDisplay(medicoSolicitante.getNomeCompleto()); // Removido
         }
     }
 }

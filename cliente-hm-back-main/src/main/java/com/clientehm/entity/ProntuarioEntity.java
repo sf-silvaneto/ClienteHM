@@ -47,6 +47,8 @@ public class ProntuarioEntity {
             columnDefinition = "DATETIME(6) DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)")
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "prontuario", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<ConsultaRegistroEntity> consultas = new HashSet<>();
@@ -88,6 +90,14 @@ public class ProntuarioEntity {
     public void setProcedimentosRegistrados(Set<ProcedimentoRegistroEntity> procedimentosRegistrados) { this.procedimentosRegistrados = procedimentosRegistrados; }
     public Set<EncaminhamentoRegistroEntity> getEncaminhamentosRegistrados() { return encaminhamentosRegistrados; }
     public void setEncaminhamentosRegistrados(Set<EncaminhamentoRegistroEntity> encaminhamentosRegistrados) { this.encaminhamentosRegistrados = encaminhamentosRegistrados; }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
+    }
 
     @PrePersist
     protected void onCreate() {

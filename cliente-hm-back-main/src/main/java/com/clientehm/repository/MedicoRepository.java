@@ -11,8 +11,8 @@ public interface MedicoRepository extends JpaRepository<MedicoEntity, Long>, Jpa
     Optional<MedicoEntity> findByCrm(String crm);
     Page<MedicoEntity> findByNomeCompletoContainingIgnoreCase(String nome, Pageable pageable);
 
-    Page<MedicoEntity> findByExcludedAtIsNull(Pageable pageable);
-    Page<MedicoEntity> findByExcludedAtIsNotNull(Pageable pageable);
+    Page<MedicoEntity> findByDeletedAtIsNull(Pageable pageable); // Atualizado de findByExcludedAtIsNull
+    Page<MedicoEntity> findByDeletedAtIsNotNull(Pageable pageable); // Atualizado de findByExcludedAtIsNotNull
 
     Page<MedicoEntity> findByEspecialidadeIgnoreCase(String especialidade, Pageable pageable);
     Page<MedicoEntity> findByCrmIgnoreCase(String crm, Pageable pageable);

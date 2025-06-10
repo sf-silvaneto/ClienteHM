@@ -63,7 +63,9 @@ public class ConsultaMapper {
             dto.setResponsavelId(entity.getResponsavelAdmin().getId());
             dto.setResponsavelNomeCompleto(entity.getResponsavelAdmin().getNome());
         } else {
-            dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay());
+            // Se nenhum responsável for encontrado, pode-se decidir como lidar com isso.
+            // Por exemplo, atribuir um valor padrão ou deixar nulo.
+            // dto.setResponsavelNomeCompleto(entity.getNomeResponsavelDisplay()); // Removido
         }
 
         return dto;
@@ -83,7 +85,8 @@ public class ConsultaMapper {
             }
             sinaisVitaisMapper.updateEntityFromDTO(dto.getSinaisVitais(), sinaisVitaisEntity);
         } else if (entity.getSinaisVitais() != null) {
-                 }
+            // Lógica para lidar com a remoção de sinais vitais se o DTO for nulo e a entidade tiver
+        }
 
 
         if (dto.getExameFisico() != null) entity.setExameFisico(StringUtils.hasText(dto.getExameFisico()) ? dto.getExameFisico().trim() : null);
@@ -95,11 +98,11 @@ public class ConsultaMapper {
         if (medicoExecutor != null) {
             entity.setResponsavelMedico(medicoExecutor);
             entity.setResponsavelAdmin(null);
-            entity.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto());
+            // entity.setNomeResponsavelDisplay(medicoExecutor.getNomeCompleto()); // Removido
         } else if (adminLogado != null) {
             entity.setResponsavelMedico(null);
             entity.setResponsavelAdmin(adminLogado);
-            entity.setNomeResponsavelDisplay(adminLogado.getNome());
+            // entity.setNomeResponsavelDisplay(adminLogado.getNome()); // Removido
         }
     }
 }

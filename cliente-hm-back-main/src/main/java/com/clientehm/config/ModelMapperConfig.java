@@ -31,11 +31,11 @@ public class ModelMapperConfig {
         TypeMap<ConsultaRegistroEntity, ConsultaDTO> consultaEntityTypeMap =
                 modelMapper.createTypeMap(ConsultaRegistroEntity.class, ConsultaDTO.class);
         consultaEntityTypeMap.addMappings(mapper -> {
-            mapper.skip(ConsultaDTO::setResponsavelId);
-            mapper.skip(ConsultaDTO::setTipoResponsavel);
-            mapper.skip(ConsultaDTO::setResponsavelNomeCompleto);
-            mapper.skip(ConsultaDTO::setResponsavelEspecialidade);
-            mapper.skip(ConsultaDTO::setResponsavelCRM);
+            // mapper.skip(ConsultaDTO::setResponsavelId); // Removido
+            // mapper.skip(ConsultaDTO::setTipoResponsavel); // Removido
+            // mapper.skip(ConsultaDTO::setResponsavelNomeCompleto); // Removido
+            // mapper.skip(ConsultaDTO::setResponsavelEspecialidade); // Removido
+            // mapper.skip(ConsultaDTO::setResponsavelCRM); // Removido
             mapper.map(ConsultaRegistroEntity::getUpdatedAt, ConsultaDTO::setUpdatedAt);
             mapper.map(ConsultaRegistroEntity::getCreatedAt, ConsultaDTO::setCreatedAt);
         });
@@ -65,7 +65,7 @@ public class ModelMapperConfig {
         TypeMap<EncaminhamentoRegistroEntity, com.clientehm.model.EncaminhamentoRegistroDTO> encaminhamentoEntityTypeMap =
                 modelMapper.createTypeMap(EncaminhamentoRegistroEntity.class, com.clientehm.model.EncaminhamentoRegistroDTO.class);
         encaminhamentoEntityTypeMap.addMappings(mapper -> {
-            });
+        });
 
         return modelMapper;
     }

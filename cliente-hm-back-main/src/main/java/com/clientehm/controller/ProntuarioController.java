@@ -133,7 +133,7 @@ public class ProntuarioController {
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         EncaminhamentoRegistroDTO encaminhamentoAtualizadoDTO = prontuarioService.atualizarEncaminhamentoERetornarDTO(encaminhamentoId, encaminhamentoDTO, adminLogado);
-        return ResponseEntity.ok(encaminhamentoAtualizadoDTO);
+        return ResponseEntity.ok(encaminhamentoAtualizadoDTO); // <-- CORREÇÃO: Usar o nome correto da variável
     }
 
     @PutMapping("/{id}/dados-basicos")

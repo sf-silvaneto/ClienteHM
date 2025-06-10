@@ -18,7 +18,7 @@ public class MedicoUpdateDTO {
 
     private String rqe;
 
-    private LocalDateTime excludedAt;
+    private LocalDateTime deletedAt; // Renomeado de excludedAt
 
     public String getNomeCompleto() {
         return nomeCompleto;
@@ -60,11 +60,11 @@ public class MedicoUpdateDTO {
         this.rqe = rqe;
     }
 
-    public LocalDateTime getExcludedAt() {
-        return excludedAt;
+    public LocalDateTime getDeletedAt() { // Renomeado de getExcludedAt
+        return deletedAt;
     }
 
-    public void setExcludedAt(LocalDateTime excludedAt) {
-        this.excludedAt = excludedAt;
+    public void setDeletedAt(LocalDateTime deletedAt) { // Renomeado de setExcludedAt
+        this.deletedAt = deletedAt;
     }
 }

@@ -69,6 +69,9 @@ public class PacienteEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
@@ -142,5 +145,13 @@ public class PacienteEntity {
 
     public void setMedicamentosContinuos(List<MedicamentoContinuoEntity> medicamentosContinuos) {
         this.medicamentosContinuos = medicamentosContinuos;
+    }
+
+    public LocalDateTime getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(LocalDateTime deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }
