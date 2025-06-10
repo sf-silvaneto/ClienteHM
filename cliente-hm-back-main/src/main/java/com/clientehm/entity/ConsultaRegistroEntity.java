@@ -15,20 +15,11 @@ public class ConsultaRegistroEntity {
     @JoinColumn(name = "prontuario_id", nullable = false)
     private ProntuarioEntity prontuario;
 
-    @Column(nullable = false)
-    private LocalDateTime dataHoraConsulta;
-
     @Column(columnDefinition = "TEXT")
     private String motivoConsulta;
 
     @Column(columnDefinition = "TEXT")
     private String queixasPrincipais;
-
-    // Campos de sinais vitais removidos daqui e movidos para SinaisVitaisEntity
-    // private String pressaoArterial;
-    // private String temperatura;
-    // private String frequenciaCardiaca;
-    // private String saturacao;
 
     @Column(columnDefinition = "TEXT")
     private String exameFisico;
@@ -56,9 +47,8 @@ public class ConsultaRegistroEntity {
     @Column(nullable = false)
     private String nomeResponsavelDisplay;
 
-    // Novo relacionamento OneToOne com SinaisVitaisEntity
     @OneToOne(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @PrimaryKeyJoinColumn // Indica que a primary key é também uma foreign key para ConsultaRegistroEntity
+    @PrimaryKeyJoinColumn
     private SinaisVitaisEntity sinaisVitais;
 
     @Column(nullable = false, updatable = false)
@@ -70,7 +60,6 @@ public class ConsultaRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataHoraConsulta == null) this.dataHoraConsulta = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -82,23 +71,10 @@ public class ConsultaRegistroEntity {
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
     public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
-    public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
-    public void setDataHoraConsulta(LocalDateTime dataHoraConsulta) { this.dataHoraConsulta = dataHoraConsulta; }
     public String getMotivoConsulta() { return motivoConsulta; }
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
-
-    // Getters e Setters de sinais vitais removidos
-    // public String getPressaoArterial() { return pressaoArterial; }
-    // public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
-    // public String getTemperatura() { return temperatura; }
-    // public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
-    // public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
-    // public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
-    // public String getSaturacao() { return saturacao; }
-    // public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
-
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }
@@ -115,14 +91,11 @@ public class ConsultaRegistroEntity {
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public String getNomeResponsavelDisplay() { return nomeResponsavelDisplay; }
     public void setNomeResponsavelDisplay(String nomeResponsavelDisplay) { this.nomeResponsavelDisplay = nomeResponsavelDisplay; }
-
-    // Novo Getter e Setter para SinaisVitaisEntity
     public SinaisVitaisEntity getSinaisVitais() {
         return sinaisVitais;
     }
 
     public void setSinaisVitais(SinaisVitaisEntity sinaisVitais) {
-        // Garante a bidirecionalidade do relacionamento
         if (sinaisVitais != null) {
             sinaisVitais.setConsulta(this);
         }

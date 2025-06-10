@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 public class SinaisVitaisEntity {
 
     @Id
-    private Long id; // O mesmo ID da ConsultaRegistroEntity
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @MapsId // Isso mapeia o ID da entidade pai (ConsultaRegistroEntity) para esta entidade
+    @MapsId
     @JoinColumn(name = "consulta_id", nullable = false)
     private ConsultaRegistroEntity consulta;
 
@@ -27,7 +27,7 @@ public class SinaisVitaisEntity {
     @Column(length = 10)
     private String saturacao;
 
-    @Column(length = 10) // Novo campo para Hemoglicoteste
+    @Column(length = 10)
     private String hgt;
 
     @Column(nullable = false, updatable = false)
@@ -49,7 +49,6 @@ public class SinaisVitaisEntity {
     public SinaisVitaisEntity() {
     }
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

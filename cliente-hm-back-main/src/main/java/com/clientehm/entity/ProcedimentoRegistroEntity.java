@@ -15,9 +15,6 @@ public class ProcedimentoRegistroEntity {
     @JoinColumn(name = "prontuario_id", nullable = false)
     private ProntuarioEntity prontuario;
 
-    @Column(nullable = false)
-    private LocalDateTime dataProcedimento;
-
     @Column(columnDefinition = "TEXT", nullable = false)
     private String descricaoProcedimento;
 
@@ -40,7 +37,6 @@ public class ProcedimentoRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataProcedimento == null) this.dataProcedimento = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -52,8 +48,6 @@ public class ProcedimentoRegistroEntity {
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
     public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
-    public LocalDateTime getDataProcedimento() { return dataProcedimento; }
-    public void setDataProcedimento(LocalDateTime dataProcedimento) { this.dataProcedimento = dataProcedimento; }
     public String getDescricaoProcedimento() { return descricaoProcedimento; }
     public void setDescricaoProcedimento(String descricaoProcedimento) { this.descricaoProcedimento = descricaoProcedimento; }
     public String getRelatorioProcedimento() { return relatorioProcedimento; }

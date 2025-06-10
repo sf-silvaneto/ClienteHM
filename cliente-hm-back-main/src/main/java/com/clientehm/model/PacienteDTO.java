@@ -15,7 +15,6 @@ public class PacienteDTO {
     private String email;
     private String nomeMae;
     private String nomePai;
-    private LocalDate dataEntrada;
     private String cartaoSus;
     private String racaCor;
     private String tipoSanguineo;
@@ -50,8 +49,7 @@ public class PacienteDTO {
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
     public void setNomePai(String nomePai) { this.nomePai = nomePai; }
-    public LocalDate getDataEntrada() { return dataEntrada; }
-    public void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
+    // Getter e Setter para dataEntrada removidos
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
     public String getRacaCor() { return racaCor; }

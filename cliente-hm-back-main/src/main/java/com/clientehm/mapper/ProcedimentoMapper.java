@@ -21,7 +21,6 @@ public class ProcedimentoMapper {
             return null;
         }
         ProcedimentoRegistroEntity entity = new ProcedimentoRegistroEntity();
-        entity.setDataProcedimento(createDTO.getDataProcedimento());
         entity.setDescricaoProcedimento(createDTO.getDescricaoProcedimento());
         entity.setRelatorioProcedimento(createDTO.getRelatorioProcedimento());
         return entity;
@@ -40,6 +39,8 @@ public class ProcedimentoMapper {
             dto.setMedicoExecutorId(entity.getMedicoExecutor().getId());
             dto.setMedicoExecutorNome(entity.getMedicoExecutor().getNomeCompleto());
         }
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
 
@@ -48,9 +49,6 @@ public class ProcedimentoMapper {
             return;
         }
 
-        if (updateDTO.getDataProcedimento() != null) {
-            entity.setDataProcedimento(updateDTO.getDataProcedimento());
-        }
         if (StringUtils.hasText(updateDTO.getDescricaoProcedimento())) {
             entity.setDescricaoProcedimento(updateDTO.getDescricaoProcedimento());
         }

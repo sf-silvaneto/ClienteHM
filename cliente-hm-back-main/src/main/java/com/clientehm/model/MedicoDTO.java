@@ -1,6 +1,5 @@
 package com.clientehm.model;
 
-// import com.clientehm.entity.StatusMedico; // Remova esta importação
 import java.time.LocalDateTime;
 
 public class MedicoDTO {
@@ -10,8 +9,7 @@ public class MedicoDTO {
     private String especialidade;
     private String resumoEspecialidade;
     private String rqe;
-    // private StatusMedico status; // Removido
-    private LocalDateTime excludedAt; // Novo campo
+    private LocalDateTime excludedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -25,7 +23,7 @@ public class MedicoDTO {
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.excludedAt = excludedAt; // Usar o novo campo
+        this.excludedAt = excludedAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -78,15 +76,6 @@ public class MedicoDTO {
         this.rqe = rqe;
     }
 
-    // Remover getter e setter de status
-    // public StatusMedico getStatus() {
-    //     return status;
-    // }
-    // public void setStatus(StatusMedico status) {
-    //     this.status = status;
-    // }
-
-    // NOVO: Getter e Setter para excludedAt
     public LocalDateTime getExcludedAt() {
         return excludedAt;
     }

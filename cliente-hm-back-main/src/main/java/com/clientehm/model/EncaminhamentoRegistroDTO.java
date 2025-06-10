@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 public class EncaminhamentoRegistroDTO {
     private Long id;
     private Long prontuarioId;
-    private LocalDateTime dataEncaminhamento;
     private String especialidadeDestino;
     private String motivoEncaminhamento;
     private Long medicoSolicitanteId;
@@ -20,8 +19,6 @@ public class EncaminhamentoRegistroDTO {
     public void setId(Long id) { this.id = id; }
     public Long getProntuarioId() { return prontuarioId; }
     public void setProntuarioId(Long prontuarioId) { this.prontuarioId = prontuarioId; }
-    public LocalDateTime getDataEncaminhamento() { return dataEncaminhamento; }
-    public void setDataEncaminhamento(LocalDateTime dataEncaminhamento) { this.dataEncaminhamento = dataEncaminhamento; }
     public String getEspecialidadeDestino() { return especialidadeDestino; }
     public void setEspecialidadeDestino(String especialidadeDestino) { this.especialidadeDestino = especialidadeDestino; }
     public String getMotivoEncaminhamento() { return motivoEncaminhamento; }

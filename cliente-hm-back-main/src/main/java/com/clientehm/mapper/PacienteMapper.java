@@ -8,8 +8,6 @@ import com.clientehm.entity.MedicamentoContinuoEntity;
 import com.clientehm.entity.PacienteEntity;
 import com.clientehm.model.AlergiaDTO;
 import com.clientehm.model.ComorbidadeDTO;
-import com.clientehm.model.EnderecoCreateDTO;
-import com.clientehm.model.EnderecoDTO;
 import com.clientehm.model.EnderecoUpdateDTO;
 import com.clientehm.model.MedicamentoContinuoDTO;
 import com.clientehm.model.PacienteCreateDTO;
@@ -21,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

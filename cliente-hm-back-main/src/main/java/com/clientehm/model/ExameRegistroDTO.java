@@ -6,7 +6,6 @@ public class ExameRegistroDTO {
     private Long id;
     private Long prontuarioId;
     private String nome;
-    private LocalDateTime dataExame; // Corresponde a 'data' no frontend
     private String resultado;
     private String observacoes;
     private Long medicoResponsavelExameId;
@@ -21,8 +20,6 @@ public class ExameRegistroDTO {
     public void setProntuarioId(Long prontuarioId) { this.prontuarioId = prontuarioId; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
-    public LocalDateTime getDataExame() { return dataExame; }
-    public void setDataExame(LocalDateTime dataExame) { this.dataExame = dataExame; }
     public String getResultado() { return resultado; }
     public void setResultado(String resultado) { this.resultado = resultado; }
     public String getObservacoes() { return observacoes; }

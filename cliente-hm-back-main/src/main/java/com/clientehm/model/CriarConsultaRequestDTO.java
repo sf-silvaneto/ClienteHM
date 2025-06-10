@@ -2,14 +2,10 @@ package com.clientehm.model;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 public class CriarConsultaRequestDTO {
 
-    @NotNull(message = "Data e hora da consulta são obrigatórias")
-    private LocalDateTime dataHoraConsulta;
 
     @NotBlank(message = "Motivo da consulta é obrigatório")
     @Size(min = 3, max = 500, message = "Motivo da consulta deve ter entre 3 e 500 caracteres")
@@ -19,8 +15,8 @@ public class CriarConsultaRequestDTO {
     @Size(min = 5, max = 2000, message = "Queixas principais devem ter entre 5 e 2000 caracteres")
     private String queixasPrincipais;
 
-    @Valid // Adicione esta anotação para validar o objeto aninhado
-    private SinaisVitaisDTO sinaisVitais; // Novo campo para os sinais vitais
+    @Valid
+    private SinaisVitaisDTO sinaisVitais;
 
     @Size(max = 5000, message = "Exame físico não pode exceder 5000 caracteres")
     private String exameFisico;
@@ -37,28 +33,16 @@ public class CriarConsultaRequestDTO {
     @Size(max = 5000, message = "Observações da consulta não podem exceder 5000 caracteres")
     private String observacoesConsulta;
 
-    public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
-    public void setDataHoraConsulta(LocalDateTime dataHoraConsulta) { this.dataHoraConsulta = dataHoraConsulta; }
     public String getMotivoConsulta() { return motivoConsulta; }
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
 
-    // Getters e Setters de sinais vitais removidos
-    // public String getPressaoArterial() { return pressaoAr46ial; }
-    // public void setPressaoArterial(String pressaoArterial) { this.pressaoArterial = pressaoArterial; }
-    // public String getTemperatura() { return temperatura; }
-    // public void setTemperatura(String temperatura) { this.temperatura = temperatura; }
-    // public String getFrequenciaCardiaca() { return frequenciaCardiaca; }
-    // public void setFrequenciaCardiaca(String frequenciaCardiaca) { this.frequenciaCardiaca = frequenciaCardiaca; }
-    // public String getSaturacao() { return saturacao; }
-    // public void setSaturacao(String saturacao) { this.saturacao = saturacao; }
-
-    public SinaisVitaisDTO getSinaisVitais() { // Novo Getter
+    public SinaisVitaisDTO getSinaisVitais() {
         return sinaisVitais;
     }
 
-    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) { // Novo Setter
+    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) {
         this.sinaisVitais = sinaisVitais;
     }
 

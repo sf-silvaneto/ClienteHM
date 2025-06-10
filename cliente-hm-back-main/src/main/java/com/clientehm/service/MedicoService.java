@@ -7,7 +7,7 @@ import com.clientehm.mapper.MedicoMapper;
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;
-import com.clientehm.repository.MedicoRepository; // <-- ESTA LINHA É CRUCIAL
+import com.clientehm.repository.MedicoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class MedicoService {
         }
 
         MedicoEntity medicoEntity = medicoMapper.toEntity(medicoCreateDTO);
-        medicoEntity.setExcludedAt(null); // Médicos recém-criados são sempre ativos
+        medicoEntity.setExcludedAt(null);
 
         MedicoEntity medicoSalvo = medicoRepository.save(medicoEntity);
         logger.info("SERVICE: Médico criado com ID: {}", medicoSalvo.getId());

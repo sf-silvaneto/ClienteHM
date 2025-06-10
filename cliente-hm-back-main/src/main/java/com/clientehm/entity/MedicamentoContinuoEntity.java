@@ -44,7 +44,6 @@ public class MedicamentoContinuoEntity {
         this.descricao = descricao;
     }
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

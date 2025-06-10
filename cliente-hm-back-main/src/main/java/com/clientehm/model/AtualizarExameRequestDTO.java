@@ -1,14 +1,11 @@
 package com.clientehm.model;
 
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 public class AtualizarExameRequestDTO {
 
     @Size(min = 3, max = 200, message = "Nome do exame deve ter entre 3 e 200 caracteres")
     private String nome;
-
-    private LocalDateTime data; // No backend, a entidade ExameRegistroEntity usa 'dataExame'
 
     @Size(min = 5, max = 5000, message = "Resultado deve ter entre 5 e 5000 caracteres")
     private String resultado;
@@ -20,9 +17,6 @@ public class AtualizarExameRequestDTO {
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
-
-    public LocalDateTime getData() { return data; }
-    public void setData(LocalDateTime data) { this.data = data; }
 
     public String getResultado() { return resultado; }
     public void setResultado(String resultado) { this.resultado = resultado; }

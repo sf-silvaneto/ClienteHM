@@ -25,12 +25,6 @@ public class MedicoEntity {
 
     private String rqe;
 
-    // Removendo o campo 'status'
-    // @Enumerated(EnumType.STRING)
-    // @Column(nullable = false)
-    // private StatusMedico status;
-
-    // NOVO CAMPO: data de inativação/exclusão lógica
     @Column(name = "excluded_at")
     private LocalDateTime excludedAt;
 
@@ -43,9 +37,7 @@ public class MedicoEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        // Um médico recém-criado é sempre ativo por padrão
-        // this.status = StatusMedico.ATIVO; // Removido
-        this.excludedAt = null; // Um médico recém-criado não tem data de exclusão
+        this.excludedAt = null;
     }
 
     @PreUpdate
@@ -62,7 +54,7 @@ public class MedicoEntity {
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.excludedAt = excludedAt; // Usar o novo campo
+        this.excludedAt = excludedAt;
     }
 
     public Long getId() {
@@ -113,15 +105,6 @@ public class MedicoEntity {
         this.rqe = rqe;
     }
 
-    // Remover getter e setter de status
-    // public StatusMedico getStatus() {
-    //     return status;
-    // }
-    // public void setStatus(StatusMedico status) {
-    //     this.status = status;
-    // }
-
-    // NOVO: Getter e Setter para excludedAt
     public LocalDateTime getExcludedAt() {
         return excludedAt;
     }

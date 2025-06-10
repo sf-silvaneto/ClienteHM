@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
-import java.util.Collections; // Para Collections.singletonList
+import java.util.Collections;
 
 @Entity
 @Table(name = "administradores")
-public class AdministradorEntity implements UserDetails { // Implementar UserDetails
+public class AdministradorEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

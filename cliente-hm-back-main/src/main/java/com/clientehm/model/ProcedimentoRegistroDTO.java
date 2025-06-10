@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 public class ProcedimentoRegistroDTO {
     private Long id;
     private Long prontuarioId;
-    private LocalDateTime dataProcedimento;
     private String descricaoProcedimento;
     private String relatorioProcedimento;
     private Long medicoExecutorId;
@@ -18,8 +17,6 @@ public class ProcedimentoRegistroDTO {
     public void setId(Long id) { this.id = id; }
     public Long getProntuarioId() { return prontuarioId; }
     public void setProntuarioId(Long prontuarioId) { this.prontuarioId = prontuarioId; }
-    public LocalDateTime getDataProcedimento() { return dataProcedimento; }
-    public void setDataProcedimento(LocalDateTime dataProcedimento) { this.dataProcedimento = dataProcedimento; }
     public String getDescricaoProcedimento() { return descricaoProcedimento; }
     public void setDescricaoProcedimento(String descricaoProcedimento) { this.descricaoProcedimento = descricaoProcedimento; }
     public String getRelatorioProcedimento() { return relatorioProcedimento; }

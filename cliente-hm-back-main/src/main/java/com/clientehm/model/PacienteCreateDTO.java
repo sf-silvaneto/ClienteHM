@@ -45,7 +45,7 @@ public class PacienteCreateDTO {
     @Size(min = 3, message = "Nome do pai deve ter no mínimo 3 caracteres (se informado)")
     private String nomePai;
 
-    private LocalDate dataEntrada;
+    // Campo dataEntrada removido
 
     @Pattern(regexp = "^\\d{15}$", message = "Cartão SUS deve conter 15 dígitos (se informado)")
     private String cartaoSus;
@@ -86,8 +86,6 @@ public class PacienteCreateDTO {
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
     public void setNomePai(String nomePai) { this.nomePai = nomePai; }
-    public LocalDate getDataEntrada() { return dataEntrada; }
-    public void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
     public String getRacaCor() { return racaCor; }

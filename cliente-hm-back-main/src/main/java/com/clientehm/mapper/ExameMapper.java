@@ -20,7 +20,6 @@ public class ExameMapper {
     public ExameRegistroEntity toEntity(CriarExameRequestDTO dto) {
         ExameRegistroEntity entity = new ExameRegistroEntity();
         entity.setNome(dto.getNome());
-        entity.setDataExame(dto.getData());
         entity.setResultado(dto.getResultado());
         entity.setObservacoes(dto.getObservacoes());
         return entity;
@@ -29,6 +28,7 @@ public class ExameMapper {
     public ExameRegistroDTO toDTO(ExameRegistroEntity entity) {
         if (entity == null) return null;
         ExameRegistroDTO dto = modelMapper.map(entity, ExameRegistroDTO.class);
+
         if (entity.getProntuario() != null) {
             dto.setProntuarioId(entity.getProntuario().getId());
         }
@@ -37,13 +37,14 @@ public class ExameMapper {
             dto.setMedicoResponsavelExameNome(entity.getMedicoResponsavelExame().getNomeCompleto());
         }
         dto.setNomeResponsavelDisplay(entity.getNomeResponsavelDisplay());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
 
     public void updateEntityFromDTO(AtualizarExameRequestDTO dto, ExameRegistroEntity entity,
                                     MedicoEntity medicoResponsavel, AdministradorEntity adminLogado) {
         if (StringUtils.hasText(dto.getNome())) entity.setNome(dto.getNome());
-        if (dto.getData() != null) entity.setDataExame(dto.getData());
         if (StringUtils.hasText(dto.getResultado())) entity.setResultado(dto.getResultado());
         if (dto.getObservacoes() != null) {
             entity.setObservacoes(StringUtils.hasText(dto.getObservacoes()) ? dto.getObservacoes().trim() : null);

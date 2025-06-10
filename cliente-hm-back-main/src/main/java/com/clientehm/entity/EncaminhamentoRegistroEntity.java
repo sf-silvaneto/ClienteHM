@@ -16,9 +16,6 @@ public class EncaminhamentoRegistroEntity {
     private ProntuarioEntity prontuario;
 
     @Column(nullable = false)
-    private LocalDateTime dataEncaminhamento;
-
-    @Column(nullable = false)
     private String especialidadeDestino;
 
     @Column(columnDefinition = "TEXT", nullable = false)
@@ -43,7 +40,6 @@ public class EncaminhamentoRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataEncaminhamento == null) this.dataEncaminhamento = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -55,8 +51,6 @@ public class EncaminhamentoRegistroEntity {
     public void setId(Long id) { this.id = id; }
     public ProntuarioEntity getProntuario() { return prontuario; }
     public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
-    public LocalDateTime getDataEncaminhamento() { return dataEncaminhamento; }
-    public void setDataEncaminhamento(LocalDateTime dataEncaminhamento) { this.dataEncaminhamento = dataEncaminhamento; }
     public String getEspecialidadeDestino() { return especialidadeDestino; }
     public void setEspecialidadeDestino(String especialidadeDestino) { this.especialidadeDestino = especialidadeDestino; }
     public String getMotivoEncaminhamento() { return motivoEncaminhamento; }

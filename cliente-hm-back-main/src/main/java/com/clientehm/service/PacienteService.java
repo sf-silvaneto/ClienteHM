@@ -70,10 +70,6 @@ public class PacienteService {
 
         PacienteEntity pacienteEntity = pacienteMapper.toEntity(pacienteCreateDTO);
 
-        if (pacienteEntity.getDataEntrada() == null) {
-            pacienteEntity.setDataEntrada(LocalDate.now());
-        }
-
         if (pacienteEntity.getAlergias() != null) {
             pacienteEntity.getAlergias().forEach(alergia -> alergia.setPaciente(pacienteEntity));
         }

@@ -26,7 +26,6 @@ public class SinaisVitaisMapper {
     public void updateEntityFromDTO(SinaisVitaisDTO dto, SinaisVitaisEntity entity) {
         if (dto == null || entity == null) return;
 
-        // Atualiza apenas se o DTO contiver valor não nulo/vazio para o campo
         if (dto.getPressaoArterial() != null) {
             entity.setPressaoArterial(StringUtils.hasText(dto.getPressaoArterial()) ? dto.getPressaoArterial().trim() : null);
         }

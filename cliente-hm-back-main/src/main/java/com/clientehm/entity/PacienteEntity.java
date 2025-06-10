@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import com.clientehm.entity.EnderecoEntity;
-import com.clientehm.entity.ContatoEntity;
 
 @Entity
 @Table(name = "pacientes")
@@ -33,14 +31,11 @@ public class PacienteEntity {
     private String nomeMae;
     private String nomePai;
 
-    @Column(nullable = false)
-    private LocalDate dataEntrada;
-
     @Column(unique = true)
     private String cartaoSus;
 
     @Enumerated(EnumType.STRING)
-    private RacaCor racaCor; // Linha 47
+    private RacaCor racaCor;
 
     @Enumerated(EnumType.STRING)
     private TipoSanguineo tipoSanguineo;
@@ -77,9 +72,6 @@ public class PacienteEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataEntrada == null) {
-            this.dataEntrada = LocalDate.now();
-        }
     }
 
     @PreUpdate
@@ -107,11 +99,9 @@ public class PacienteEntity {
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
     public void setNomePai(String nomePai) { this.nomePai = nomePai; }
-    public LocalDate getDataEntrada() { return dataEntrada; }
-    public void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
-    public RacaCor getRacaCor() { return racaCor; } // Linha 114
+    public RacaCor getRacaCor() { return racaCor; }
     public void setRacaCor(RacaCor racaCor) { this.racaCor = racaCor; }
     public TipoSanguineo getTipoSanguineo() { return tipoSanguineo; }
     public void setTipoSanguineo(TipoSanguineo tipoSanguineo) { this.tipoSanguineo = tipoSanguineo; }

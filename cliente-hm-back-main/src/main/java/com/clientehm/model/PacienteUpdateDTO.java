@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.List; // Importar List
+import java.util.List;
 
 public class PacienteUpdateDTO {
 
@@ -33,8 +33,6 @@ public class PacienteUpdateDTO {
     @Size(min = 3, message = "Nome do pai deve ter no mínimo 3 caracteres (se informado)")
     private String nomePai;
 
-    private LocalDate dataEntrada;
-
     @Pattern(regexp = "^\\d{15}$", message = "Cartão SUS deve conter 15 dígitos (se informado)")
     private String cartaoSus;
 
@@ -43,7 +41,6 @@ public class PacienteUpdateDTO {
     private String nacionalidade;
     private String ocupacao;
 
-    // Adicione as listas de DTOs para atualização
     @Valid
     private List<AlergiaDTO> alergias;
 
@@ -72,8 +69,6 @@ public class PacienteUpdateDTO {
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
     public void setNomePai(String nomePai) { this.nomePai = nomePai; }
-    public LocalDate getDataEntrada() { return dataEntrada; }
-    public void setDataEntrada(LocalDate dataEntrada) { this.dataEntrada = dataEntrada; }
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
     public String getRacaCor() { return racaCor; }
@@ -87,7 +82,6 @@ public class PacienteUpdateDTO {
     public EnderecoUpdateDTO getEndereco() { return endereco; }
     public void setEndereco(EnderecoUpdateDTO endereco) { this.endereco = endereco; }
 
-    // Novos getters e setters para as listas
     public List<AlergiaDTO> getAlergias() {
         return alergias;
     }

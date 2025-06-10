@@ -17,12 +17,17 @@ public class EncaminhamentoMapper {
     private ModelMapper modelMapper;
 
     public EncaminhamentoRegistroEntity toEntity(CriarEncaminhamentoRequestDTO dto) {
-        return modelMapper.map(dto, EncaminhamentoRegistroEntity.class);
+        EncaminhamentoRegistroEntity entity = new EncaminhamentoRegistroEntity();
+        entity.setEspecialidadeDestino(dto.getEspecialidadeDestino());
+        entity.setMotivoEncaminhamento(dto.getMotivoEncaminhamento());
+        entity.setObservacoes(dto.getObservacoes());
+        return entity;
     }
 
     public EncaminhamentoRegistroDTO toDTO(EncaminhamentoRegistroEntity entity) {
         if (entity == null) return null;
         EncaminhamentoRegistroDTO dto = modelMapper.map(entity, EncaminhamentoRegistroDTO.class);
+
         if (entity.getProntuario() != null) {
             dto.setProntuarioId(entity.getProntuario().getId());
         }
@@ -31,11 +36,12 @@ public class EncaminhamentoMapper {
             dto.setMedicoSolicitanteNome(entity.getMedicoSolicitante().getNomeCompleto());
             dto.setMedicoSolicitanteCRM(entity.getMedicoSolicitante().getCrm());
         }
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
 
     public void updateEntityFromDTO(AtualizarEncaminhamentoRequestDTO dto, EncaminhamentoRegistroEntity entity, MedicoEntity medicoSolicitante) {
-        if (dto.getDataEncaminhamento() != null) entity.setDataEncaminhamento(dto.getDataEncaminhamento());
         if (StringUtils.hasText(dto.getEspecialidadeDestino())) entity.setEspecialidadeDestino(dto.getEspecialidadeDestino());
         if (StringUtils.hasText(dto.getMotivoEncaminhamento())) entity.setMotivoEncaminhamento(dto.getMotivoEncaminhamento());
         if (dto.getObservacoes() != null) entity.setObservacoes(StringUtils.hasText(dto.getObservacoes()) ? dto.getObservacoes().trim() : null);

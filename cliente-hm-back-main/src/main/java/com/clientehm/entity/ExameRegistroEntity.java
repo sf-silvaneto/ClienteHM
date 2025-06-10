@@ -18,9 +18,6 @@ public class ExameRegistroEntity {
     @Column(nullable = false)
     private String nome;
 
-    @Column(nullable = false)
-    private LocalDateTime dataExame;
-
     @Column(columnDefinition = "TEXT", nullable = false)
     private String resultado;
 
@@ -43,7 +40,6 @@ public class ExameRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (this.dataExame == null) this.dataExame = LocalDateTime.now();
     }
 
     @PreUpdate
@@ -57,8 +53,6 @@ public class ExameRegistroEntity {
     public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
-    public LocalDateTime getDataExame() { return dataExame; }
-    public void setDataExame(LocalDateTime dataExame) { this.dataExame = dataExame; }
     public String getResultado() { return resultado; }
     public void setResultado(String resultado) { this.resultado = resultado; }
     public String getObservacoes() { return observacoes; }

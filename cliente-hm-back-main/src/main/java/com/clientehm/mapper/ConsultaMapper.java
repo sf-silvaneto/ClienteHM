@@ -3,7 +3,7 @@ package com.clientehm.mapper;
 import com.clientehm.entity.AdministradorEntity;
 import com.clientehm.entity.ConsultaRegistroEntity;
 import com.clientehm.entity.MedicoEntity;
-import com.clientehm.entity.SinaisVitaisEntity; // Importar SinaisVitaisEntity
+import com.clientehm.entity.SinaisVitaisEntity;
 import com.clientehm.model.ConsultaDTO;
 import com.clientehm.model.CriarConsultaRequestDTO;
 import com.clientehm.model.AtualizarConsultaRequestDTO;
@@ -15,20 +15,26 @@ import org.springframework.util.StringUtils;
 @Component
 public class ConsultaMapper {
 
-    private final ModelMapper modelMapper; // Injetar o ModelMapper já configurado
-    private final SinaisVitaisMapper sinaisVitaisMapper; // Injetar o novo mapper
+    private final ModelMapper modelMapper;
+    private final SinaisVitaisMapper sinaisVitaisMapper;
 
     @Autowired
     public ConsultaMapper(ModelMapper modelMapper, SinaisVitaisMapper sinaisVitaisMapper) {
         this.modelMapper = modelMapper;
-        this.sinaisVitaisMapper = sinaisVitaisMapper; // Injeção do novo mapper
+        this.sinaisVitaisMapper = sinaisVitaisMapper;
     }
 
     public ConsultaRegistroEntity toEntity(CriarConsultaRequestDTO dto) {
         if (dto == null) return null;
-        ConsultaRegistroEntity entity = modelMapper.map(dto, ConsultaRegistroEntity.class);
+        ConsultaRegistroEntity entity = new ConsultaRegistroEntity();
+        entity.setMotivoConsulta(dto.getMotivoConsulta());
+        entity.setQueixasPrincipais(dto.getQueixasPrincipais());
+        entity.setExameFisico(dto.getExameFisico());
+        entity.setHipoteseDiagnostica(dto.getHipoteseDiagnostica());
+        entity.setCondutaPlanoTerapeutico(dto.getCondutaPlanoTerapeutico());
+        entity.setDetalhesConsulta(dto.getDetalhesConsulta());
+        entity.setObservacoesConsulta(dto.getObservacoesConsulta());
 
-        // Mapear e associar SinaisVitaisEntity se houver dados no DTO
         if (dto.getSinaisVitais() != null) {
             SinaisVitaisEntity sinaisVitaisEntity = sinaisVitaisMapper.toEntity(dto.getSinaisVitais());
             entity.setSinaisVitais(sinaisVitaisEntity);
@@ -40,8 +46,8 @@ public class ConsultaMapper {
         if (entity == null) return null;
 
         ConsultaDTO dto = modelMapper.map(entity, ConsultaDTO.class);
+        dto.setCreatedAt(entity.getCreatedAt());
 
-        // Mapear SinaisVitaisEntity para SinaisVitaisDTO
         if (entity.getSinaisVitais() != null) {
             dto.setSinaisVitais(sinaisVitaisMapper.toDTO(entity.getSinaisVitais()));
         }
@@ -66,11 +72,9 @@ public class ConsultaMapper {
     public void updateEntityFromDTO(AtualizarConsultaRequestDTO dto, ConsultaRegistroEntity entity, MedicoEntity medicoExecutor, AdministradorEntity adminLogado) {
         if (dto == null || entity == null) return;
 
-        if (dto.getDataHoraConsulta() != null) entity.setDataHoraConsulta(dto.getDataHoraConsulta());
         if (StringUtils.hasText(dto.getMotivoConsulta())) entity.setMotivoConsulta(dto.getMotivoConsulta());
         if (StringUtils.hasText(dto.getQueixasPrincipais())) entity.setQueixasPrincipais(dto.getQueixasPrincipais());
 
-        // Lidar com a atualização de SinaisVitais
         if (dto.getSinaisVitais() != null) {
             SinaisVitaisEntity sinaisVitaisEntity = entity.getSinaisVitais();
             if (sinaisVitaisEntity == null) {
@@ -79,10 +83,7 @@ public class ConsultaMapper {
             }
             sinaisVitaisMapper.updateEntityFromDTO(dto.getSinaisVitais(), sinaisVitaisEntity);
         } else if (entity.getSinaisVitais() != null) {
-            // Se o DTO não fornecer sinais vitais, mas a entidade tiver, podemos optar por limpá-los ou mantê-los
-            // Neste caso, vamos manter os dados existentes se o DTO não fornecer, mas se precisar limpar, descomente a linha abaixo.
-            // entity.setSinaisVitais(null);
-        }
+                 }
 
 
         if (dto.getExameFisico() != null) entity.setExameFisico(StringUtils.hasText(dto.getExameFisico()) ? dto.getExameFisico().trim() : null);

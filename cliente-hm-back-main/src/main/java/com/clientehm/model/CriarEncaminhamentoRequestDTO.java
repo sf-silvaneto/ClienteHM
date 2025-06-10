@@ -3,12 +3,8 @@ package com.clientehm.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 public class CriarEncaminhamentoRequestDTO {
-
-    @NotNull(message = "Data do encaminhamento é obrigatória")
-    private LocalDateTime dataEncaminhamento;
 
     @NotBlank(message = "Especialidade de destino é obrigatória")
     @Size(min = 3, max = 200, message = "Especialidade deve ter entre 3 e 200 caracteres")
@@ -24,8 +20,6 @@ public class CriarEncaminhamentoRequestDTO {
     @Size(max = 2000, message = "Observações não podem exceder 2000 caracteres")
     private String observacoes;
 
-    public LocalDateTime getDataEncaminhamento() { return dataEncaminhamento; }
-    public void setDataEncaminhamento(LocalDateTime dataEncaminhamento) { this.dataEncaminhamento = dataEncaminhamento; }
     public String getEspecialidadeDestino() { return especialidadeDestino; }
     public void setEspecialidadeDestino(String especialidadeDestino) { this.especialidadeDestino = especialidadeDestino; }
     public String getMotivoEncaminhamento() { return motivoEncaminhamento; }

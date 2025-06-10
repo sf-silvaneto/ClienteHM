@@ -1,12 +1,9 @@
 package com.clientehm.model;
 
-import jakarta.validation.Valid; // Importar Valid
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 public class AtualizarConsultaRequestDTO {
-
-    private LocalDateTime dataHoraConsulta;
 
     @Size(min = 3, max = 500, message = "Motivo da consulta deve ter entre 3 e 500 caracteres")
     private String motivoConsulta;
@@ -14,7 +11,7 @@ public class AtualizarConsultaRequestDTO {
     @Size(min = 5, max = 2000, message = "Queixas principais devem ter entre 5 e 2000 caracteres")
     private String queixasPrincipais;
 
-    @Valid // Adicione esta anotação
+    @Valid
     private SinaisVitaisDTO sinaisVitais; // Novo campo
 
     @Size(max = 5000, message = "Exame físico não pode exceder 5000 caracteres")
@@ -34,18 +31,16 @@ public class AtualizarConsultaRequestDTO {
 
     private Long medicoExecutorId;
 
-    public LocalDateTime getDataHoraConsulta() { return dataHoraConsulta; }
-    public void setDataHoraConsulta(LocalDateTime dataHoraConsulta) { this.dataHoraConsulta = dataHoraConsulta; }
     public String getMotivoConsulta() { return motivoConsulta; }
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
 
-    public SinaisVitaisDTO getSinaisVitais() { // Novo Getter
+    public SinaisVitaisDTO getSinaisVitais() {
         return sinaisVitais;
     }
 
-    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) { // Novo Setter
+    public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) {
         this.sinaisVitais = sinaisVitais;
     }
 

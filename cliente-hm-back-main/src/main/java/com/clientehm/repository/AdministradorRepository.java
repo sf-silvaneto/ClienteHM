@@ -1,6 +1,6 @@
 package com.clientehm.repository;
 
-import com.clientehm.entity.AdministradorEntity; // Import da entidade no pacote correto
+import com.clientehm.entity.AdministradorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
