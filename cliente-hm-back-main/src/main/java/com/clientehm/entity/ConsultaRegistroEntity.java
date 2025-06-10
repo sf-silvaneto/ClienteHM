@@ -36,19 +36,18 @@ public class ConsultaRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String observacoesConsulta;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsavel_admin_id")
-    private AdministradorEntity responsavelAdmin;
+    // REMOVIDO: @ManyToOne(fetch = FetchType.LAZY)
+    // REMOVIDO: @JoinColumn(name = "responsavel_admin_id")
+    // REMOVIDO: private AdministradorEntity responsavelAdmin;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "responsavel_medico_id")
+    @JoinColumn(name = "responsavel_medico_id") // Torna-se o único responsável
     private MedicoEntity responsavelMedico;
 
     @OneToOne(mappedBy = "consulta", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
     private SinaisVitaisEntity sinaisVitais;
 
-    // Novo campo para a data/hora da consulta
     @Column(nullable = false, name = "data_consulta")
     private LocalDateTime dataConsulta;
 
@@ -64,7 +63,7 @@ public class ConsultaRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (dataConsulta == null) { // Define dataConsulta se não for explicitamente definida
+        if (dataConsulta == null) {
             dataConsulta = LocalDateTime.now();
         }
     }
@@ -92,8 +91,8 @@ public class ConsultaRegistroEntity {
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
-    public AdministradorEntity getResponsavelAdmin() { return responsavelAdmin; }
-    public void setResponsavelAdmin(AdministradorEntity responsavelAdmin) { this.responsavelAdmin = responsavelAdmin; }
+    // REMOVIDO: public AdministradorEntity getResponsavelAdmin() { return responsavelAdmin; }
+    // REMOVIDO: public void setResponsavelAdmin(AdministradorEntity responsavelAdmin) { this.responsavelAdmin = responsavelAdmin; }
     public MedicoEntity getResponsavelMedico() { return responsavelMedico; }
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public SinaisVitaisEntity getSinaisVitais() {

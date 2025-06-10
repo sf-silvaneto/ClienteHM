@@ -16,8 +16,8 @@ public class ProntuarioDTO {
     private MedicoBasicDTO medicoResponsavel;
     private AdministradorBasicDTO administradorCriador;
 
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dataUltimaAtualizacao;
+    // Removido: @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
+    // Removido: private LocalDateTime dataUltimaAtualizacao;
 
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -77,13 +77,8 @@ public class ProntuarioDTO {
         this.administradorCriador = administradorCriador;
     }
 
-    public LocalDateTime getDataUltimaAtualizacao() {
-        return dataUltimaAtualizacao;
-    }
-
-    public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) {
-        this.dataUltimaAtualizacao = dataUltimaAtualizacao;
-    }
+    // Removido: public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
+    // Removido: public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

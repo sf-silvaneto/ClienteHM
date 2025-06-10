@@ -36,7 +36,7 @@ public class ProntuarioController {
             @RequestParam(defaultValue = "10") int tamanho,
             @RequestParam(required = false) String termo,
             @RequestParam(required = false) String numeroProntuario,
-            @RequestParam(defaultValue = "dataUltimaAtualizacao,desc") String[] sort) {
+            @RequestParam(defaultValue = "updatedAt,desc") String[] sort) {
 
         String sortField = sort[0];
         String sortDirection = sort.length > 1 ? sort[1] : "desc";
@@ -57,7 +57,7 @@ public class ProntuarioController {
     @PostMapping("/consultas")
     public ResponseEntity<?> adicionarConsulta(
             @RequestParam Long pacienteId,
-            @RequestParam Long medicoExecutorId,
+            @RequestParam Long medicoExecutorId, // Agora sempre obrigatório
             @Valid @RequestBody CriarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
@@ -102,6 +102,7 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
+        // O medicoExecutorId agora é um campo obrigatório no AtualizarConsultaRequestDTO.
         ConsultaDTO consultaAtualizadaDTO = prontuarioService.atualizarConsultaERetornarDTO(consultaId, consultaDTO, adminLogado);
         return ResponseEntity.ok(consultaAtualizadaDTO);
     }
@@ -133,7 +134,7 @@ public class ProntuarioController {
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
         EncaminhamentoRegistroDTO encaminhamentoAtualizadoDTO = prontuarioService.atualizarEncaminhamentoERetornarDTO(encaminhamentoId, encaminhamentoDTO, adminLogado);
-        return ResponseEntity.ok(encaminhamentoAtualizadoDTO); // <-- CORREÇÃO: Usar o nome correto da variável
+        return ResponseEntity.ok(encaminhamentoAtualizadoDTO);
     }
 
     @PutMapping("/{id}/dados-basicos")

@@ -34,8 +34,8 @@ public class ProntuarioEntity {
     @JoinColumn(name = "administrador_criador_id", nullable = false)
     private AdministradorEntity administradorCriador;
 
-    @Column(name = "data_ultima_atualizacao")
-    private LocalDateTime dataUltimaAtualizacao;
+    // Removido: @Column(name = "data_ultima_atualizacao")
+    // Removido: private LocalDateTime dataUltimaAtualizacao;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false,
@@ -76,8 +76,8 @@ public class ProntuarioEntity {
     public void setMedicoResponsavel(MedicoEntity medicoResponsavel) { this.medicoResponsavel = medicoResponsavel; }
     public AdministradorEntity getAdministradorCriador() { return administradorCriador; }
     public void setAdministradorCriador(AdministradorEntity administradorCriador) { this.administradorCriador = administradorCriador; }
-    public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
-    public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
+    // Removido: public LocalDateTime getDataUltimaAtualizacao() { return dataUltimaAtualizacao; }
+    // Removido: public void setDataUltimaAtualizacao(LocalDateTime dataUltimaAtualizacao) { this.dataUltimaAtualizacao = dataUltimaAtualizacao; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
@@ -102,14 +102,14 @@ public class ProntuarioEntity {
     @PrePersist
     protected void onCreate() {
         this.numeroProntuario = UUID.randomUUID().toString();
-        if (this.dataUltimaAtualizacao == null) {
-            this.dataUltimaAtualizacao = LocalDateTime.now();
-        }
+        // Removido: if (this.dataUltimaAtualizacao == null) {
+        // Removido: this.dataUltimaAtualizacao = LocalDateTime.now();
+        // Removido: }
     }
 
     @PreUpdate
     protected void onUpdate() {
-        this.dataUltimaAtualizacao = LocalDateTime.now();
+        // Removido: this.dataUltimaAtualizacao = LocalDateTime.now();
     }
 
     @Override

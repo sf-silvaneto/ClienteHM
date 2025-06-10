@@ -14,13 +14,12 @@ public class ConsultaDTO {
     private String condutaPlanoTerapeutico;
     private String detalhesConsulta;
     private String observacoesConsulta;
-    private String tipoResponsavel;
-    private Long responsavelId;
-    private String responsavelNomeCompleto;
-    private String responsavelEspecialidade;
-    private String responsavelCRM;
+    // REMOVIDO: private String tipoResponsavel; // Não será mais necessário
+    private Long responsavelId; // Será sempre o ID do médico
+    private String responsavelNomeCompleto; // Será sempre o nome do médico
+    private String responsavelEspecialidade; // Será sempre a especialidade do médico
+    private String responsavelCRM; // Será sempre o CRM do médico
 
-    // Novo campo
     private LocalDateTime dataConsulta;
 
     private LocalDateTime createdAt;
@@ -51,8 +50,8 @@ public class ConsultaDTO {
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
-    public String getTipoResponsavel() { return tipoResponsavel; }
-    public void setTipoResponsavel(String tipoResponsavel) { this.tipoResponsavel = tipoResponsavel; }
+    // REMOVIDO: public String getTipoResponsavel() { return tipoResponsavel; }
+    // REMOVIDO: public void setTipoResponsavel(String tipoResponsavel) { this.tipoResponsavel = tipoResponsavel; }
     public Long getResponsavelId() { return responsavelId; }
     public void setResponsavelId(Long responsavelId) { this.responsavelId = responsavelId; }
     public String getResponsavelNomeCompleto() { return responsavelNomeCompleto; }

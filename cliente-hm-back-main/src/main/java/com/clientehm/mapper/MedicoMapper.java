@@ -1,7 +1,6 @@
 package com.clientehm.mapper;
 
 import com.clientehm.entity.MedicoEntity;
-// import com.clientehm.entity.StatusMedico; // Removida esta importação
 import com.clientehm.model.MedicoCreateDTO;
 import com.clientehm.model.MedicoDTO;
 import com.clientehm.model.MedicoUpdateDTO;

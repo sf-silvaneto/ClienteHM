@@ -2,12 +2,12 @@ package com.clientehm.model;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull; // Adicionado
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime; // Importação adicionada
+import java.time.LocalDateTime;
 
 public class CriarConsultaRequestDTO {
 
-    // Novo campo
     private LocalDateTime dataConsulta;
 
     @NotBlank(message = "Motivo da consulta é obrigatório")
@@ -36,6 +36,9 @@ public class CriarConsultaRequestDTO {
     @Size(max = 5000, message = "Observações da consulta não podem exceder 5000 caracteres")
     private String observacoesConsulta;
 
+    @NotNull(message = "ID do médico executor é obrigatório") // TORNADO OBRIGATÓRIO
+    private Long medicoExecutorId; // Mover para o DTO principal se for sempre obrigatório
+
     public LocalDateTime getDataConsulta() { return dataConsulta; }
     public void setDataConsulta(LocalDateTime dataConsulta) { this.dataConsulta = dataConsulta; }
 
@@ -62,4 +65,6 @@ public class CriarConsultaRequestDTO {
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
+    public Long getMedicoExecutorId() { return medicoExecutorId; } // Getter para o campo agora obrigatório
+    public void setMedicoExecutorId(Long medicoExecutorId) { this.medicoExecutorId = medicoExecutorId; } // Setter para o campo agora obrigatório
 }

@@ -1,6 +1,6 @@
 package com.clientehm.mapper;
 
-import com.clientehm.entity.AdministradorEntity;
+import com.clientehm.entity.AdministradorEntity; // Manter a importação se o adminLogado for usado em outros contextos do Mapper, mas não mais para a responsabilidade da consulta.
 import com.clientehm.entity.ConsultaRegistroEntity;
 import com.clientehm.entity.MedicoEntity;
 import com.clientehm.entity.SinaisVitaisEntity;
@@ -34,7 +34,7 @@ public class ConsultaMapper {
         entity.setCondutaPlanoTerapeutico(dto.getCondutaPlanoTerapeutico());
         entity.setDetalhesConsulta(dto.getDetalhesConsulta());
         entity.setObservacoesConsulta(dto.getObservacoesConsulta());
-        entity.setDataConsulta(dto.getDataConsulta()); // Mapear o novo campo
+        entity.setDataConsulta(dto.getDataConsulta());
 
         if (dto.getSinaisVitais() != null) {
             SinaisVitaisEntity sinaisVitaisEntity = sinaisVitaisMapper.toEntity(dto.getSinaisVitais());
@@ -48,33 +48,35 @@ public class ConsultaMapper {
 
         ConsultaDTO dto = modelMapper.map(entity, ConsultaDTO.class);
         dto.setCreatedAt(entity.getCreatedAt());
-        dto.setDataConsulta(entity.getDataConsulta()); // Mapear o novo campo
+        dto.setDataConsulta(entity.getDataConsulta());
 
         if (entity.getSinaisVitais() != null) {
             dto.setSinaisVitais(sinaisVitaisMapper.toDTO(entity.getSinaisVitais()));
         }
 
         if (entity.getResponsavelMedico() != null) {
-            dto.setTipoResponsavel("MEDICO");
+            // REMOVIDO: dto.setTipoResponsavel("MEDICO");
             dto.setResponsavelId(entity.getResponsavelMedico().getId());
             dto.setResponsavelNomeCompleto(entity.getResponsavelMedico().getNomeCompleto());
             dto.setResponsavelEspecialidade(entity.getResponsavelMedico().getEspecialidade());
             dto.setResponsavelCRM(entity.getResponsavelMedico().getCrm());
-        } else if (entity.getResponsavelAdmin() != null) {
-            dto.setTipoResponsavel("ADMINISTRADOR");
-            dto.setResponsavelId(entity.getResponsavelAdmin().getId());
-            dto.setResponsavelNomeCompleto(entity.getResponsavelAdmin().getNome());
         }
+        // REMOVIDO: else if (entity.getResponsavelAdmin() != null) {
+        // REMOVIDO: dto.setTipoResponsavel("ADMINISTRADOR");
+        // REMOVIDO: dto.setResponsavelId(entity.getResponsavelAdmin().getId());
+        // REMOVIDO: dto.setResponsavelNomeCompleto(entity.getResponsavelAdmin().getNome());
+        // REMOVIDO: }
 
         return dto;
     }
 
-    public void updateEntityFromDTO(AtualizarConsultaRequestDTO dto, ConsultaRegistroEntity entity, MedicoEntity medicoExecutor, AdministradorEntity adminLogado) {
+    // O adminLogado não será mais usado para determinar a responsabilidade da consulta, apenas o medicoExecutor.
+    public void updateEntityFromDTO(AtualizarConsultaRequestDTO dto, ConsultaRegistroEntity entity, MedicoEntity medicoExecutor, AdministradorEntity adminLogado) { // Manter adminLogado para outros usos se houver, mas não para a atribuição de responsável da consulta.
         if (dto == null || entity == null) return;
 
         if (StringUtils.hasText(dto.getMotivoConsulta())) entity.setMotivoConsulta(dto.getMotivoConsulta());
         if (StringUtils.hasText(dto.getQueixasPrincipais())) entity.setQueixasPrincipais(dto.getQueixasPrincipais());
-        if (dto.getDataConsulta() != null) entity.setDataConsulta(dto.getDataConsulta()); // Atualizar o novo campo
+        if (dto.getDataConsulta() != null) entity.setDataConsulta(dto.getDataConsulta());
 
         if (dto.getSinaisVitais() != null) {
             SinaisVitaisEntity sinaisVitaisEntity = entity.getSinaisVitais();
@@ -85,6 +87,7 @@ public class ConsultaMapper {
             sinaisVitaisMapper.updateEntityFromDTO(dto.getSinaisVitais(), sinaisVitaisEntity);
         } else if (entity.getSinaisVitais() != null) {
             // Lógica para lidar com a remoção de sinais vitais se o DTO for nulo e a entidade tiver
+            // (Manter como está se o comportamento desejado é não remover sinais vitais se não forem fornecidos no DTO de update)
         }
 
         if (dto.getExameFisico() != null) entity.setExameFisico(StringUtils.hasText(dto.getExameFisico()) ? dto.getExameFisico().trim() : null);
@@ -93,12 +96,14 @@ public class ConsultaMapper {
         if (dto.getDetalhesConsulta() != null) entity.setDetalhesConsulta(StringUtils.hasText(dto.getDetalhesConsulta()) ? dto.getDetalhesConsulta().trim() : null);
         if (dto.getObservacoesConsulta() != null) entity.setObservacoesConsulta(StringUtils.hasText(dto.getObservacoesConsulta()) ? dto.getObservacoesConsulta().trim() : null);
 
+        // A responsabilidade agora é sempre do médico.
         if (medicoExecutor != null) {
             entity.setResponsavelMedico(medicoExecutor);
-            entity.setResponsavelAdmin(null);
-        } else if (adminLogado != null) {
-            entity.setResponsavelMedico(null);
-            entity.setResponsavelAdmin(adminLogado);
+            // REMOVIDO: entity.setResponsavelAdmin(null);
         }
+        // REMOVIDO: else if (adminLogado != null) {
+        // REMOVIDO: entity.setResponsavelMedico(null);
+        // REMOVIDO: entity.setResponsavelAdmin(adminLogado);
+        // REMOVIDO: }
     }
 }
