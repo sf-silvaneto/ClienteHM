@@ -47,7 +47,6 @@ public class ProntuarioService {
         if (consulta != null) {
             if (consulta.getProntuario() != null) consulta.getProntuario().getId();
             if (consulta.getResponsavelMedico() != null) consulta.getResponsavelMedico().getId();
-            // REMOVIDO: if (consulta.getResponsavelAdmin() != null) consulta.getResponsavelAdmin().getId();
             if (consulta.getSinaisVitais() != null) consulta.getSinaisVitais().getId();
             if (consulta.getDataConsulta() != null) consulta.getDataConsulta();
         }
@@ -180,13 +179,11 @@ public class ProntuarioService {
         if (medicoExecutor.getDeletedAt() != null) {
             throw new IllegalArgumentException("Médico ("+ medicoExecutor.getNomeCompleto() +") não está ativo.");
         }
-        // O médicoExecutorId do parâmetro agora será o mesmo que o medicoIdReferencia do prontuário, garantindo consistência
         ProntuarioEntity prontuario = findOrCreateProntuario(pacienteId, medicoExecutorId, adminLogado);
 
         ConsultaRegistroEntity novaConsulta = consultaMapper.toEntity(dto);
         novaConsulta.setProntuario(prontuario);
-        novaConsulta.setResponsavelMedico(medicoExecutor); // Define o responsável como o médico executor
-        // Não há mais responsavelAdmin na consulta
+        novaConsulta.setResponsavelMedico(medicoExecutor);
 
         if (novaConsulta.getDataConsulta() == null) {
             novaConsulta.setDataConsulta(LocalDateTime.now());
@@ -280,14 +277,13 @@ public class ProntuarioService {
         ConsultaRegistroEntity consultaExistente = consultaRepository.findById(consultaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Consulta não encontrada com ID: " + consultaId));
 
-        MedicoEntity medicoExecutor = medicoRepository.findById(dto.getMedicoExecutorId()) // Agora obrigatório
+        MedicoEntity medicoExecutor = medicoRepository.findById(dto.getMedicoExecutorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Médico executor não encontrado: ID " + dto.getMedicoExecutorId()));
         if (medicoExecutor.getDeletedAt() != null) {
             throw new IllegalArgumentException("Médico (" + medicoExecutor.getNomeCompleto() + ") não está ativo.");
         }
 
-        // Não passa mais adminLogado para o mapper para definir responsabilidade da consulta
-        consultaMapper.updateEntityFromDTO(dto, consultaExistente, medicoExecutor, adminLogado); // adminLogado ainda pode ser passado se o mapper o utilizar para algo mais
+        consultaMapper.updateEntityFromDTO(dto, consultaExistente, medicoExecutor, adminLogado);
 
         if (dto.getSinaisVitais() != null) {
             SinaisVitaisEntity sinaisVitais = consultaExistente.getSinaisVitais();
@@ -304,7 +300,6 @@ public class ProntuarioService {
             sinaisVitaisRepository.save(sinaisVitais);
             consultaExistente.setSinaisVitais(sinaisVitais);
         } else if (consultaExistente.getSinaisVitais() != null) {
-            // Manter sinais vitais existentes se não forem fornecidos no DTO de update
         }
 
         ConsultaRegistroEntity consultaAtualizada = consultaRepository.save(consultaExistente);

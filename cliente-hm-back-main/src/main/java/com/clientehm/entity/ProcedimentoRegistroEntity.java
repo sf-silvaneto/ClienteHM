@@ -25,7 +25,6 @@ public class ProcedimentoRegistroEntity {
     @JoinColumn(name = "medico_executor_id", nullable = false)
     private MedicoEntity medicoExecutor;
 
-    // Novo campo para a data/hora do procedimento
     @Column(nullable = false, name = "data_procedimento")
     private LocalDateTime dataProcedimento;
 
@@ -41,7 +40,7 @@ public class ProcedimentoRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (dataProcedimento == null) { // Define dataProcedimento se não for explicitamente definida
+        if (dataProcedimento == null) {
             dataProcedimento = LocalDateTime.now();
         }
     }

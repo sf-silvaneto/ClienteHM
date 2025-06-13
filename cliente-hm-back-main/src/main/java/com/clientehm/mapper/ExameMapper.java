@@ -22,7 +22,7 @@ public class ExameMapper {
         entity.setNome(dto.getNome());
         entity.setResultado(dto.getResultado());
         entity.setObservacoes(dto.getObservacoes());
-        entity.setDataExame(dto.getDataExame()); // Mapear o novo campo
+        entity.setDataExame(dto.getDataExame());
         return entity;
     }
 
@@ -36,10 +36,12 @@ public class ExameMapper {
         if (entity.getMedicoResponsavelExame() != null) {
             dto.setMedicoResponsavelExameId(entity.getMedicoResponsavelExame().getId());
             dto.setMedicoResponsavelExameNome(entity.getMedicoResponsavelExame().getNomeCompleto());
+            dto.setMedicoResponsavelExameEspecialidade(entity.getMedicoResponsavelExame().getEspecialidade());
+            dto.setMedicoResponsavelExameCRM(entity.getMedicoResponsavelExame().getCrm());
         }
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setDataExame(entity.getDataExame()); // Mapear o novo campo
+        dto.setDataExame(entity.getDataExame());
         return dto;
     }
 
@@ -50,7 +52,7 @@ public class ExameMapper {
         if (dto.getObservacoes() != null) {
             entity.setObservacoes(StringUtils.hasText(dto.getObservacoes()) ? dto.getObservacoes().trim() : null);
         }
-        if (dto.getDataExame() != null) entity.setDataExame(dto.getDataExame()); // Atualizar o novo campo
+        if (dto.getDataExame() != null) entity.setDataExame(dto.getDataExame());
 
         if (medicoResponsavel != null) {
             entity.setMedicoResponsavelExame(medicoResponsavel);

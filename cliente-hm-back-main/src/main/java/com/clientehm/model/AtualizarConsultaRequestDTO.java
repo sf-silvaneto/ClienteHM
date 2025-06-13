@@ -1,7 +1,7 @@
 package com.clientehm.model;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull; // Adicionado
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
@@ -38,20 +38,16 @@ public class AtualizarConsultaRequestDTO {
 
     public LocalDateTime getDataConsulta() { return dataConsulta; }
     public void setDataConsulta(LocalDateTime dataConsulta) { this.dataConsulta = dataConsulta; }
-
     public String getMotivoConsulta() { return motivoConsulta; }
     public void setMotivoConsulta(String motivoConsulta) { this.motivoConsulta = motivoConsulta; }
     public String getQueixasPrincipais() { return queixasPrincipais; }
     public void setQueixasPrincipais(String queixasPrincipais) { this.queixasPrincipais = queixasPrincipais; }
-
     public SinaisVitaisDTO getSinaisVitais() {
         return sinaisVitais;
     }
-
     public void setSinaisVitais(SinaisVitaisDTO sinaisVitais) {
         this.sinaisVitais = sinaisVitais;
     }
-
     public String getExameFisico() { return exameFisico; }
     public void setExameFisico(String exameFisico) { this.exameFisico = exameFisico; }
     public String getHipoteseDiagnostica() { return hipoteseDiagnostica; }

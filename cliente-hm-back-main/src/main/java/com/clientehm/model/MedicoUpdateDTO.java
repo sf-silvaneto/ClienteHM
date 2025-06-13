@@ -18,7 +18,7 @@ public class MedicoUpdateDTO {
 
     private String rqe;
 
-    private LocalDateTime deletedAt; // Renomeado de excludedAt
+    private LocalDateTime deletedAt;
 
     public String getNomeCompleto() {
         return nomeCompleto;

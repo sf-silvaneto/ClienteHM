@@ -2,11 +2,10 @@ package com.clientehm.model;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime; // Importação adicionada
+import java.time.LocalDateTime;
 
 public class CriarExameRequestDTO {
 
-    // Novo campo
     private LocalDateTime dataExame;
 
     @NotBlank(message = "Nome do exame é obrigatório")

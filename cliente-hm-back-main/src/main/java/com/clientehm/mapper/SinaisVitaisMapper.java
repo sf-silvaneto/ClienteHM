@@ -38,7 +38,7 @@ public class SinaisVitaisMapper {
         if (dto.getSaturacao() != null) {
             entity.setSaturacao(StringUtils.hasText(dto.getSaturacao()) ? dto.getSaturacao().trim() : null);
         }
-        if (dto.getHgt() != null) { // Novo campo
+        if (dto.getHgt() != null) {
             entity.setHgt(StringUtils.hasText(dto.getHgt()) ? dto.getHgt().trim() : null);
         }
     }

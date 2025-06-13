@@ -36,10 +36,6 @@ public class ConsultaRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String observacoesConsulta;
 
-    // REMOVIDO: @ManyToOne(fetch = FetchType.LAZY)
-    // REMOVIDO: @JoinColumn(name = "responsavel_admin_id")
-    // REMOVIDO: private AdministradorEntity responsavelAdmin;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "responsavel_medico_id") // Torna-se o único responsável
     private MedicoEntity responsavelMedico;
@@ -91,8 +87,6 @@ public class ConsultaRegistroEntity {
     public void setDetalhesConsulta(String detalhesConsulta) { this.detalhesConsulta = detalhesConsulta; }
     public String getObservacoesConsulta() { return observacoesConsulta; }
     public void setObservacoesConsulta(String observacoesConsulta) { this.observacoesConsulta = observacoesConsulta; }
-    // REMOVIDO: public AdministradorEntity getResponsavelAdmin() { return responsavelAdmin; }
-    // REMOVIDO: public void setResponsavelAdmin(AdministradorEntity responsavelAdmin) { this.responsavelAdmin = responsavelAdmin; }
     public MedicoEntity getResponsavelMedico() { return responsavelMedico; }
     public void setResponsavelMedico(MedicoEntity responsavelMedico) { this.responsavelMedico = responsavelMedico; }
     public SinaisVitaisEntity getSinaisVitais() {

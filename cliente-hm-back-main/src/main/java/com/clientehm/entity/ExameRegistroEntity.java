@@ -28,7 +28,6 @@ public class ExameRegistroEntity {
     @JoinColumn(name = "medico_responsavel_exame_id")
     private MedicoEntity medicoResponsavelExame;
 
-    // Novo campo para a data/hora do exame
     @Column(nullable = false, name = "data_exame")
     private LocalDateTime dataExame;
 
@@ -44,7 +43,7 @@ public class ExameRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (dataExame == null) { // Define dataExame se não for explicitamente definida
+        if (dataExame == null) {
             dataExame = LocalDateTime.now();
         }
     }

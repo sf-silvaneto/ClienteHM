@@ -1,17 +1,11 @@
 package com.clientehm.service;
 
-import com.clientehm.entity.AlergiaEntity;
-import com.clientehm.entity.ComorbidadeEntity;
 import com.clientehm.entity.PacienteEntity;
-import com.clientehm.entity.MedicamentoContinuoEntity;
 import com.clientehm.entity.ContatoEntity;
 import com.clientehm.exception.ResourceNotFoundException;
 import com.clientehm.exception.CpfAlreadyExistsException;
 import com.clientehm.exception.EmailAlreadyExistsException;
 import com.clientehm.mapper.PacienteMapper;
-import com.clientehm.model.AlergiaDTO;
-import com.clientehm.model.ComorbidadeDTO;
-import com.clientehm.model.MedicamentoContinuoDTO;
 import com.clientehm.model.PacienteCreateDTO;
 import com.clientehm.model.PacienteDTO;
 import com.clientehm.model.PacienteUpdateDTO;
@@ -28,11 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PacienteService {

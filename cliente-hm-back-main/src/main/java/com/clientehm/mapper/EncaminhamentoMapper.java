@@ -21,7 +21,7 @@ public class EncaminhamentoMapper {
         entity.setEspecialidadeDestino(dto.getEspecialidadeDestino());
         entity.setMotivoEncaminhamento(dto.getMotivoEncaminhamento());
         entity.setObservacoes(dto.getObservacoes());
-        entity.setDataEncaminhamento(dto.getDataEncaminhamento()); // Mapear o novo campo
+        entity.setDataEncaminhamento(dto.getDataEncaminhamento());
         return entity;
     }
 
@@ -40,7 +40,7 @@ public class EncaminhamentoMapper {
         }
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setDataEncaminhamento(entity.getDataEncaminhamento()); // Mapear o novo campo
+        dto.setDataEncaminhamento(entity.getDataEncaminhamento());
         return dto;
     }
 
@@ -48,7 +48,7 @@ public class EncaminhamentoMapper {
         if (StringUtils.hasText(dto.getEspecialidadeDestino())) entity.setEspecialidadeDestino(dto.getEspecialidadeDestino());
         if (StringUtils.hasText(dto.getMotivoEncaminhamento())) entity.setMotivoEncaminhamento(dto.getMotivoEncaminhamento());
         if (dto.getObservacoes() != null) entity.setObservacoes(StringUtils.hasText(dto.getObservacoes()) ? dto.getObservacoes().trim() : null);
-        if (dto.getDataEncaminhamento() != null) entity.setDataEncaminhamento(dto.getDataEncaminhamento()); // Atualizar o novo campo
+        if (dto.getDataEncaminhamento() != null) entity.setDataEncaminhamento(dto.getDataEncaminhamento());
 
         if (medicoSolicitante != null) {
             entity.setMedicoSolicitante(medicoSolicitante);

@@ -3,11 +3,10 @@ package com.clientehm.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime; // Importação adicionada
+import java.time.LocalDateTime;
 
 public class CriarEncaminhamentoRequestDTO {
 
-    // Novo campo
     private LocalDateTime dataEncaminhamento;
 
     @NotBlank(message = "Especialidade de destino é obrigatória")

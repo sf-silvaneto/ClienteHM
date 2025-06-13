@@ -45,8 +45,6 @@ public class PacienteCreateDTO {
     @Size(min = 3, message = "Nome do pai deve ter no mínimo 3 caracteres (se informado)")
     private String nomePai;
 
-    // Campo dataEntrada removido
-
     @Pattern(regexp = "^\\d{15}$", message = "Cartão SUS deve conter 15 dígitos (se informado)")
     private String cartaoSus;
 

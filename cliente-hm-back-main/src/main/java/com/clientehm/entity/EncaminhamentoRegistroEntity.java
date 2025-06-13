@@ -28,7 +28,6 @@ public class EncaminhamentoRegistroEntity {
     @Column(columnDefinition = "TEXT")
     private String observacoes;
 
-    // Novo campo para a data/hora do encaminhamento
     @Column(nullable = false, name = "data_encaminhamento")
     private LocalDateTime dataEncaminhamento;
 
@@ -44,7 +43,7 @@ public class EncaminhamentoRegistroEntity {
     @PrePersist
     protected void onCreate() {
         createdAt = updatedAt = LocalDateTime.now();
-        if (dataEncaminhamento == null) { // Define dataEncaminhamento se não for explicitamente definida
+        if (dataEncaminhamento == null) {
             dataEncaminhamento = LocalDateTime.now();
         }
     }

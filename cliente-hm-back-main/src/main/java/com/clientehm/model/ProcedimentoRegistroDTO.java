@@ -9,10 +9,9 @@ public class ProcedimentoRegistroDTO {
     private String relatorioProcedimento;
     private Long medicoExecutorId;
     private String medicoExecutorNome;
-
-    // Novo campo
+    private String medicoExecutorEspecialidade;
+    private String medicoExecutorCRM;
     private LocalDateTime dataProcedimento;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -28,10 +27,12 @@ public class ProcedimentoRegistroDTO {
     public void setMedicoExecutorId(Long medicoExecutorId) { this.medicoExecutorId = medicoExecutorId; }
     public String getMedicoExecutorNome() { return medicoExecutorNome; }
     public void setMedicoExecutorNome(String medicoExecutorNome) { this.medicoExecutorNome = medicoExecutorNome; }
-
+    public String getMedicoExecutorEspecialidade() { return medicoExecutorEspecialidade; }
+    public void setMedicoExecutorEspecialidade(String medicoExecutorEspecialidade) { this.medicoExecutorEspecialidade = medicoExecutorEspecialidade; }
+    public String getMedicoExecutorCRM() { return medicoExecutorCRM; }
+    public void setMedicoExecutorCRM(String medicoExecutorCRM) { this.medicoExecutorCRM = medicoExecutorCRM; }
     public LocalDateTime getDataProcedimento() { return dataProcedimento; }
     public void setDataProcedimento(LocalDateTime dataProcedimento) { this.dataProcedimento = dataProcedimento; }
-
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

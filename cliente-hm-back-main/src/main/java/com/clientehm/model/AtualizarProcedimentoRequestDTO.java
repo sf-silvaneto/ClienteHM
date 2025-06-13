@@ -1,11 +1,10 @@
 package com.clientehm.model;
 
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime; // Importação adicionada
+import java.time.LocalDateTime;
 
 public class AtualizarProcedimentoRequestDTO {
 
-    // Novo campo
     private LocalDateTime dataProcedimento;
 
     @Size(min = 10, max = 1000, message = "Descrição deve ter entre 10 e 1000 caracteres")

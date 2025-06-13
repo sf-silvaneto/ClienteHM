@@ -57,7 +57,7 @@ public class ProntuarioController {
     @PostMapping("/consultas")
     public ResponseEntity<?> adicionarConsulta(
             @RequestParam Long pacienteId,
-            @RequestParam Long medicoExecutorId, // Agora sempre obrigatório
+            @RequestParam Long medicoExecutorId,
             @Valid @RequestBody CriarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
@@ -102,7 +102,6 @@ public class ProntuarioController {
             @Valid @RequestBody AtualizarConsultaRequestDTO consultaDTO,
             @AuthenticationPrincipal AdministradorEntity adminLogado) {
         if (adminLogado == null) return createErrorResponse(HttpStatus.UNAUTHORIZED, "Usuário não autenticado ou não autorizado.");
-        // O medicoExecutorId agora é um campo obrigatório no AtualizarConsultaRequestDTO.
         ConsultaDTO consultaAtualizadaDTO = prontuarioService.atualizarConsultaERetornarDTO(consultaId, consultaDTO, adminLogado);
         return ResponseEntity.ok(consultaAtualizadaDTO);
     }

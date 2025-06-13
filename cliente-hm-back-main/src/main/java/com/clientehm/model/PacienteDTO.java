@@ -49,7 +49,6 @@ public class PacienteDTO {
     public void setNomeMae(String nomeMae) { this.nomeMae = nomeMae; }
     public String getNomePai() { return nomePai; }
     public void setNomePai(String nomePai) { this.nomePai = nomePai; }
-    // Getter e Setter para dataEntrada removidos
     public String getCartaoSus() { return cartaoSus; }
     public void setCartaoSus(String cartaoSus) { this.cartaoSus = cartaoSus; }
     public String getRacaCor() { return racaCor; }

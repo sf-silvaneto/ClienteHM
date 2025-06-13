@@ -31,7 +31,7 @@ public class ModelMapperConfig {
         TypeMap<ConsultaRegistroEntity, ConsultaDTO> consultaEntityTypeMap =
                 modelMapper.createTypeMap(ConsultaRegistroEntity.class, ConsultaDTO.class);
         consultaEntityTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataConsulta(), ConsultaDTO::setDataConsulta); // Mapeia dataConsulta
+            mapper.map(src -> src.getDataConsulta(), ConsultaDTO::setDataConsulta);
             mapper.map(ConsultaRegistroEntity::getUpdatedAt, ConsultaDTO::setUpdatedAt);
             mapper.map(ConsultaRegistroEntity::getCreatedAt, ConsultaDTO::setCreatedAt);
         });
@@ -39,21 +39,21 @@ public class ModelMapperConfig {
         TypeMap<CriarConsultaRequestDTO, ConsultaRegistroEntity> criarConsultaRequestTypeMap =
                 modelMapper.createTypeMap(CriarConsultaRequestDTO.class, ConsultaRegistroEntity.class);
         criarConsultaRequestTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataConsulta(), ConsultaRegistroEntity::setDataConsulta); // Mapeia dataConsulta de CreateDTO para Entity
+            mapper.map(src -> src.getDataConsulta(), ConsultaRegistroEntity::setDataConsulta);
             mapper.skip(ConsultaRegistroEntity::setCreatedAt);
         });
 
         TypeMap<AtualizarConsultaRequestDTO, ConsultaRegistroEntity> atualizarConsultaRequestTypeMap =
                 modelMapper.createTypeMap(AtualizarConsultaRequestDTO.class, ConsultaRegistroEntity.class);
         atualizarConsultaRequestTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataConsulta(), ConsultaRegistroEntity::setDataConsulta); // Mapeia dataConsulta de UpdateDTO para Entity
+            mapper.map(src -> src.getDataConsulta(), ConsultaRegistroEntity::setDataConsulta);
             mapper.skip(ConsultaRegistroEntity::setUpdatedAt);
         });
 
         TypeMap<ExameRegistroEntity, com.clientehm.model.ExameRegistroDTO> exameEntityTypeMap =
                 modelMapper.createTypeMap(ExameRegistroEntity.class, com.clientehm.model.ExameRegistroDTO.class);
         exameEntityTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataExame(), com.clientehm.model.ExameRegistroDTO::setDataExame); // Mapeia dataExame
+            mapper.map(src -> src.getDataExame(), com.clientehm.model.ExameRegistroDTO::setDataExame);
         });
 
         modelMapper.createTypeMap(com.clientehm.model.CriarExameRequestDTO.class, ExameRegistroEntity.class)
@@ -66,7 +66,7 @@ public class ModelMapperConfig {
         TypeMap<ProcedimentoRegistroEntity, com.clientehm.model.ProcedimentoRegistroDTO> procedimentoEntityTypeMap =
                 modelMapper.createTypeMap(ProcedimentoRegistroEntity.class, com.clientehm.model.ProcedimentoRegistroDTO.class);
         procedimentoEntityTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataProcedimento(), com.clientehm.model.ProcedimentoRegistroDTO::setDataProcedimento); // Mapeia dataProcedimento
+            mapper.map(src -> src.getDataProcedimento(), com.clientehm.model.ProcedimentoRegistroDTO::setDataProcedimento);
         });
 
         modelMapper.createTypeMap(com.clientehm.model.CriarProcedimentoRequestDTO.class, ProcedimentoRegistroEntity.class)
@@ -78,7 +78,7 @@ public class ModelMapperConfig {
         TypeMap<EncaminhamentoRegistroEntity, com.clientehm.model.EncaminhamentoRegistroDTO> encaminhamentoEntityTypeMap =
                 modelMapper.createTypeMap(EncaminhamentoRegistroEntity.class, com.clientehm.model.EncaminhamentoRegistroDTO.class);
         encaminhamentoEntityTypeMap.addMappings(mapper -> {
-            mapper.map(src -> src.getDataEncaminhamento(), com.clientehm.model.EncaminhamentoRegistroDTO::setDataEncaminhamento); // Mapeia dataEncaminhamento
+            mapper.map(src -> src.getDataEncaminhamento(), com.clientehm.model.EncaminhamentoRegistroDTO::setDataEncaminhamento);
         });
 
         modelMapper.createTypeMap(com.clientehm.model.CriarEncaminhamentoRequestDTO.class, EncaminhamentoRegistroEntity.class)

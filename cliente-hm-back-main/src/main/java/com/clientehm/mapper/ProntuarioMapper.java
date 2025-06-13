@@ -41,9 +41,8 @@ public class ProntuarioMapper {
         ProntuarioDTO dto = new ProntuarioDTO();
         dto.setId(entity.getId());
         dto.setNumeroProntuario(entity.getNumeroProntuario());
-        // Removido: dto.setDataUltimaAtualizacao(entity.getDataUltimaAtualizacao());
         dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt()); // Usar updatedAt como a data da última atualização
+        dto.setUpdatedAt(entity.getUpdatedAt());
 
         if (entity.getPaciente() != null) {
             dto.setPaciente(pacienteMapper.toDTO(entity.getPaciente()));

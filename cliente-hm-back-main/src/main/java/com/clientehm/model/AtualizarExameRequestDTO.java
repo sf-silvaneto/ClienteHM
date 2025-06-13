@@ -1,11 +1,10 @@
 package com.clientehm.model;
 
 import jakarta.validation.constraints.Size;
-import java.time.LocalDateTime; // Importação adicionada
+import java.time.LocalDateTime;
 
 public class AtualizarExameRequestDTO {
 
-    // Novo campo
     private LocalDateTime dataExame;
 
     @Size(min = 3, max = 200, message = "Nome do exame deve ter entre 3 e 200 caracteres")

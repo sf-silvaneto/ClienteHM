@@ -49,11 +49,10 @@ const ProntuarioCreatePage: React.FC = () => {
             switch (tipoPrimeiroRegistro) {
                 case 'CONSULTA':
                     console.log('ProntuarioCreatePage: CHAMANDO adicionarConsultaComNovoProntuario com:', pacienteId, medicoId, dadosEvento);
-                    // Agora medicoExecutorId é passado como parte de dadosEvento na NovaConsultaRequest
                     prontuarioOuEventoCriado = await adicionarConsultaComNovoProntuario(
                         pacienteId,
-                        medicoId, // medicoId do prontuário é o executor inicial
-                        { ...dadosEvento as NovaConsultaRequest, dataConsulta: dadosEvento.dataConsulta, medicoExecutorId: medicoId } // Passa medicoExecutorId
+                        medicoId,
+                        { ...dadosEvento as NovaConsultaRequest, dataConsulta: dadosEvento.dataConsulta, medicoExecutorId: medicoId }
                     );
                     break;
                 case 'EXAME':
@@ -89,10 +88,7 @@ const ProntuarioCreatePage: React.FC = () => {
             let prontuarioIdParaNavegacao: string | undefined;
             if (prontuarioOuEventoCriado && prontuarioOuEventoCriado.prontuarioId) {
                 prontuarioIdParaNavegacao = String(prontuarioOuEventoCriado.prontuarioId);
-            } else if (prontuarioOuEventoCriado && prontuarioOuEventoCriado.prontuario && prontuarioOuEventoCriado.prontuario.id) {
-                prontuarioIdParaNavegacao = String(prontuarioOuEventoCriado.prontuario.id);
             }
-
 
             if (prontuarioIdParaNavegacao) {
                 console.log('ProntuarioCreatePage: Navegando para /prontuarios/' + prontuarioIdParaNavegacao);

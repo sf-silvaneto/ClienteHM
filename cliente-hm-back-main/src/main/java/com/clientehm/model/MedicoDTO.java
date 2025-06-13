@@ -9,7 +9,7 @@ public class MedicoDTO {
     private String especialidade;
     private String resumoEspecialidade;
     private String rqe;
-    private LocalDateTime deletedAt; // Renomeado de excludedAt
+    private LocalDateTime deletedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -23,7 +23,7 @@ public class MedicoDTO {
         this.especialidade = especialidade;
         this.resumoEspecialidade = resumoEspecialidade;
         this.rqe = rqe;
-        this.deletedAt = deletedAt; // Atualizado
+        this.deletedAt = deletedAt;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }

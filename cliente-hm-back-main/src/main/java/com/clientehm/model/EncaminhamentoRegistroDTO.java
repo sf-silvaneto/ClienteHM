@@ -13,7 +13,6 @@ public class EncaminhamentoRegistroDTO {
     private String medicoSolicitanteEspecialidade;
     private String observacoes;
 
-    // Novo campo
     private LocalDateTime dataEncaminhamento;
 
     private LocalDateTime createdAt;

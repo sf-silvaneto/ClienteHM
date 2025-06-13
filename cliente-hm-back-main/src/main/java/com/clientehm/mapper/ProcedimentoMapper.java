@@ -23,7 +23,7 @@ public class ProcedimentoMapper {
         ProcedimentoRegistroEntity entity = new ProcedimentoRegistroEntity();
         entity.setDescricaoProcedimento(createDTO.getDescricaoProcedimento());
         entity.setRelatorioProcedimento(createDTO.getRelatorioProcedimento());
-        entity.setDataProcedimento(createDTO.getDataProcedimento()); // Mapear o novo campo
+        entity.setDataProcedimento(createDTO.getDataProcedimento());
         return entity;
     }
 
@@ -39,10 +39,12 @@ public class ProcedimentoMapper {
         if (entity.getMedicoExecutor() != null) {
             dto.setMedicoExecutorId(entity.getMedicoExecutor().getId());
             dto.setMedicoExecutorNome(entity.getMedicoExecutor().getNomeCompleto());
+            dto.setMedicoExecutorEspecialidade(entity.getMedicoExecutor().getEspecialidade());
+            dto.setMedicoExecutorCRM(entity.getMedicoExecutor().getCrm());
         }
         dto.setCreatedAt(entity.getCreatedAt());
         dto.setUpdatedAt(entity.getUpdatedAt());
-        dto.setDataProcedimento(entity.getDataProcedimento()); // Mapear o novo campo
+        dto.setDataProcedimento(entity.getDataProcedimento());
         return dto;
     }
 
@@ -58,13 +60,12 @@ public class ProcedimentoMapper {
             entity.setRelatorioProcedimento(StringUtils.hasText(updateDTO.getRelatorioProcedimento()) ? updateDTO.getRelatorioProcedimento().trim() : null);
         }
         if (updateDTO.getDataProcedimento() != null) {
-            entity.setDataProcedimento(updateDTO.getDataProcedimento()); // Atualizar o novo campo
+            entity.setDataProcedimento(updateDTO.getDataProcedimento());
         }
 
         if (medicoExecutor != null) {
             entity.setMedicoExecutor(medicoExecutor);
         } else {
-            // Lógica para lidar se medicoExecutor for nulo
         }
     }
 }
